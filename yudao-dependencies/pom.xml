@@ -41,7 +41,7 @@
         <podam.version>7.2.6.RELEASE</podam.version>
         <jedis-mock.version>0.1.16</jedis-mock.version>
         <!-- 工具类相关 -->
-        <lombok.version>1.16.14</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <mapstruct.version>1.4.1.Final</mapstruct.version>
         <hutool.version>5.6.1</hutool.version>
         <easyexcel.verion>2.2.7</easyexcel.verion>
@@ -116,6 +116,12 @@
             </dependency>
 
             <dependency>
+                <groupId>cn.iocoder.boot</groupId>
+                <artifactId>yudao-spring-boot-starter-udp-server</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
@@ -157,6 +163,7 @@
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>

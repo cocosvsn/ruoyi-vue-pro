@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <!-- <script src="js/menu.js"></script> -->
+  <link rel="stylesheet" href="bootstrap-select/css/bootstrap-select.min.css" />
+  <link rel="stylesheet" href="bootstrap-switch/css/bootstrap-switch.min.css" />
+  <script type="text/javascript" src="bootstrap-switch/js/bootstrap-switch.min.js"></script>
+  <script type="text/javascript" src="bootstrap-select/js/bootstrap-select.min.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .table-title {
+      margin: 36px 0 13px 0;
+      text-align: center;
+      font-size: 28px;
+    }
+    .media {
+      height: 907px;
+      padding: 0 100px 0 100px;
+      text-align: center;
+      margin: 15px 0 0 0;
+    }
+    .media .left,.media .right {
+      width: 792px;
+      /* border: 1px solid #BBB; */
+      margin-top: 50px;
+      padding: 0;
+    }
+    .media .left {
+      margin-right: 60px;
+      width: 862px;
+    }
+    .media .left .title,.media .right .title {
+      height: 70px;
+      color: white;
+      text-align: center;
+      font-size: 22px;
+      line-height: 70px;
+      background-color: #748288;
+      border: 1px solid #748288;
+    }
+    .media .left .video-content, .media .right .video-content {
+      border: 1px solid #BBB;
+    }
+    .media .left .video-content {
+      height: 582px;
+    }
+    .media .left .video-content .one,
+    .media .left .video-content .three,
+    .media .left .video-content .four {
+      width: 860px;
+      height: 580px;
+    }
+    
+
+
+    .media .left .video-content .one .input-group {
+      width: 859px;
+    }
+    .media .left .video-content .one .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .left .video-content .one .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .left .video-content .one .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .left .video-content .one .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .left .video-content .one .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .left .video-content .one .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .left .video-content .one .input-group-addon {
+      padding: 10px 15px;
+    }
+    .media .left .video-content .one,
+    .media .left .video-content .three,
+    .media .left .video-content .four {
+      width: 860px;
+      /* height: 420px; */
+    }
+    .media .left .video-content .one .box {
+      width: 860px;
+      height: 580px;
+    }
+    .media .left .video-content .three {
+      padding: 75px 0;
+    }
+    .media .left .video-content .three {
+      padding: 22px 0;
+    }
+    .media .left .video-content .three .box {
+      width: 288px;
+      height: 215px;
+    }
+    .media .left .video-content .three .box:first-child {
+      width: 572px;
+      height: 430px;
+    }
+    .media .left .video-content .three .box {
+      width: 250px;
+      height: 188px;
+    }
+    .media .left .video-content .three .box:first-child {
+      width: 500px;
+      height: 376px;
+    }
+    .media .left .video-content .three .box .input-group {
+      width: 285px;
+    }
+    .media .left .video-content .three .box:first-child .input-group {
+      width: 569px;
+    }
+    .media .left .video-content .three .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .left .video-content .three .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .left .video-content .three .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .left .video-content .three .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .left .video-content .three .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .left .video-content .three .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .left .video-content .three .input-group-addon {
+      padding: 10px 15px;
+    }
+    .media .left .video-content .four .box {
+      width: 430px;
+      height: 290px;
+    }
+    .media .left .video-content .four .box .input-group {
+      width: 427px;
+    }
+    .media .left .video-content .four .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .left .video-content .four .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .left .video-content .four .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .left .video-content .four .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .left .video-content .four .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .left .video-content .four .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .left .video-content .four .input-group-addon {
+      padding: 10px 15px;
+    }
+
+
+
+    .media .right .video-content .single-one .input-group {
+      width: 788px;
+    }
+    .media .right .video-content .single-one .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .right .video-content .single-one .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .right .video-content .single-one .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .right .video-content .single-one .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .right .video-content .single-one .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .right .video-content .single-one .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .right .video-content .single-one .input-group-addon {
+      padding: 10px 15px;
+    }
+    .media .right .video-content .one,
+    .media .right .video-content .three,
+    .media .right .video-content .four {
+      width: 790px;
+      /* height: 420px; */
+    }
+    .media .right .video-content .single-one .box {
+      width: 790px;
+      height: 520px;
+    }
+    .media .left .video-content .three .box,
+    .media .left .video-content .four .box,
+    .media .right .video-content .three .box,
+    .media .right .video-content .four .box {
+      border: 1px solid #BBB;
+      float: left;
+    }
+    .media .left .video-content .three {
+      padding: 75px 0;
+    }
+    .media .right .video-content .three {
+      padding: 22px 0;
+    }
+    .media .left .video-content .three .box {
+      width: 288px;
+      height: 215px;
+    }
+    .media .left .video-content .three .box:first-child {
+      width: 572px;
+      height: 430px;
+    }
+    .media .right .video-content .three .box {
+      width: 250px;
+      height: 188px;
+    }
+    .media .right .video-content .three .box:first-child {
+      width: 500px;
+      height: 376px;
+    }
+    .media .right .video-content .three .box .input-group {
+      width: 247px;
+    }
+    .media .right .video-content .three .box:first-child .input-group {
+      width: 497px;
+    }
+    .media .right .video-content .three .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .right .video-content .three .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .right .video-content .three .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .right .video-content .three .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .right .video-content .three .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .right .video-content .three .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .right .video-content .three .input-group-addon {
+      padding: 10px 15px;
+    }
+    .media .right .video-content .four .box {
+      width: 375px;
+      height: 210px;
+    }
+    .media .right .video-content .four .box .input-group {
+      width: 372px;
+    }
+    .media .right .video-content .four .input-group-btn  {
+      width: 100%;
+      height: 52px;
+    }
+    .media .right .video-content .four .input-group-btn .btn-group {
+      width: 100%;
+      height: 52px;
+      font-size: 20px;
+    }
+    .media .right .video-content .four .input-group-btn .btn-group * {
+      font-size: 20px;
+      color: black;
+      text-shadow: none;
+    }
+    .media .right .video-content .four .input-group-btn .btn-group .filter-option {
+      height: 40px;
+      line-height: 40px;
+    }
+    .media .right .video-content .four .input-group .input-group-addon {
+      top: 1px;
+      position: inherit;
+    }
+    .media .right .video-content .four .input-group .input-group-addon.active {
+      background-color: #5cb85c;
+    }
+    .media .right .video-content .four .input-group-addon {
+      padding: 10px 15px;
+    }
+    .media .left .button-group {
+      margin-top: 20px;
+      /* padding: 0 33px; */
+    }
+    .media .left .button-group .button {
+      width: 156px;
+      float: left;
+      margin-right: 20px;
+    }
+    .media .left .button-group .button:last-child {
+      margin-right: 0;
+    }
+    .media .left .button-group .button .name {
+      margin-top: 5px;
+      font-size: 22px;
+    }
+    .media .left .auto-answer-group {
+      margin-top: 160px;
+      font-size: 22px;
+    }
+  </style>
+</head>
+  
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="row table-title">【<?php echo $category_name ?>】 - 手术室连线中</div>
+
+    <!-- table -->
+    <div class="row media">
+      <div class="col-md-6 left">
+        <div class="title">主屏输出（4K）</div>
+        <div class="video-content">
+          <div class="one">
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+          </div>
+          <div class="three" hidden>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+          </div>
+          <div class="four" hidden>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
+              </div><!-- /input-group -->
+            </div>
+          </div>
+        </div>
+        <div class="button-group">
+          <div class="button">
+            <img src="images/401.png" />
+            <div class="name">单画面</div>
+          </div>
+          <div class="button">
+            <img src="images/402.png" />
+            <div class="name">三画面</div>
+          </div>
+          <div class="button">
+            <img src="images/403.png" />
+            <div class="name">四画面</div>
+          </div>
+          <div class="button btn-push-stream">
+            <img src="images/404.png" />
+            <div class="name">开始推流</div>
+          </div>
+          <div class="button">
+            <img src="images/406.png" />
+            <div id="meetingRoleName" class="name">关闭连接</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5 right">
+        <div class="title">副屏输出（1080P）</div>
+        <div class="video-content">
+          <div class="single-one">
+            <div class="box">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <select class="selectpicker" title="请选择视频源...">
+                    <option value='-1'>空</option>
+
+                  </select>
+                </div>
+                <!-- <span class="input-group-addon"><img src="images/voice.png" /></span> -->
+              </div><!-- /input-group -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+let addr = '<?php # echo json_encode($addr) ?>';
+let categoryId = GetQueryString('category_id');
+let beforUrl = addr;
+let padId = GetQueryString('id');
+let protocol = GetQueryString('protocol');
+let encoderIp = GetQueryString('ip');
+let encoderPort = GetQueryString('port');
+let connectedEncoderId = GetQueryString("a");
+let connectedIp = GetQueryString("d"); // 已连接的手术室IP
+let meetingRole = parseInt(GetQueryString("e")); // 连线角色，1：主持人（发起会议连接者），0：参会者（除发起会议者都是参会者）
+let operatingRoomChannelList = [];
+let srcV = [];
+let srcA = [];
+/**
+ * 灵派画面布局参数
+ * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
+ */
+  let linkpiLayout = [
+  [{ x: 0, y: 0, w: 1, h: 1, index: 0 }],
+  [
+    { x: 0, y: 0, w: 1 / 2, h: 1 / 2, index: 0 },
+    { x: 1 / 2, y: 0, w: 1 / 2, h: 1 / 2, index: 1 },
+    { x: 0, y: 1 / 2, w: 1 / 2, h: 1 / 2, index: 2 },
+    { x: 1 / 2, y: 1 / 2, w: 1 / 2, h: 1 / 2, index: 3 }
+  ],
+  [
+    { x: 0, y: 0, w: 1 / 3, h: 1 / 3, index: 0 },
+    { x: 1 / 3, y: 0, w: 1 / 3, h: 1 / 3, index: 1 },
+    { x: 2 / 3, y: 0, w: 1 / 3, h: 1 / 3, index: 2 },
+    { x: 0, y: 1 / 3, w: 1 / 3, h: 1 / 3, index: 3 },
+    { x: 1 / 3, y: 1 / 3, w: 1 / 3, h: 1 / 3, index: 4 },
+    { x: 2 / 3, y: 1 / 3, w: 1 / 3, h: 1 / 3, index: 5 },
+    { x: 0, y: 2 / 3, w: 1 / 3, h: 1 / 3, index: 6 },
+    { x: 1 / 3, y: 2 / 3, w: 1 / 3, h: 1 / 3, index: 7 },
+    { x: 2 / 3, y: 2 / 3, w: 1 / 3, h: 1 / 3, index: 8 }
+  ],
+  [
+    { x: 0, y: 1 / 6, w: 2 / 3, h: 2 / 3, index: 0 },
+    { x: 2 / 3, y: 1 / 6, w: 1 / 3, h: 1 / 3, index: 1 },
+    { x: 2 / 3, y: 3 / 6, w: 1 / 3, h: 1 / 3, index: 2 }
+  ],
+  [
+    { x: 0, y: 0, w: 1, h: 1, index: 0 },
+    { x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 1 }
+  ]
+];
+// 获取灵派mix通道信息
+function init() {
+  let obj = {
+    ip: encoderIp,
+    port: encoderPort
+  }
+  $.getJSON("{:url('/admin/api/getMix')}", obj, function (result) {
+    switch (parseInt(result.protocol)) {
+      case 0:
+          dealLinkPi(result.value);
+          protocol = result.protocol;
+        break;
+    }
+  });
+}
+//灵派编码器内容处理
+function dealLinkPi(str) {
+    linkpiConfig = JSON.parse(str);
+    //获取mix通道信息
+    linkpiConfig.forEach(function (n, i) {
+      if (n.type == "mix") {
+        console.log(n);
+        pushStreamState = n.stream.push.enable; // 初始化推流标志位
+        if (pushStreamState) {
+          let btnPushStream = $('.btn-push-stream');
+          btnPushStream.children('img').prop('src', 'images/405.png');
+          btnPushStream.children('.name').text('结束推流');
+        }
+        let layout = n.layout;
+        srcV = n.srcV;//视频通道参数
+        srcA = n.srcA;//音频通道参数
+        let index = getArrayIndex(linkpiLayout, layout);
+        // console.log(index)
+        screenCount = linkpiLayout[index].length;
+        changeScreen(screenCount);
+      }
+    })
+  }
+  function getArrayIndex(arr, obj) {
+    let i = arr.length;
+    while (i--) {
+      if (arr[i].length == obj.length) {
+        return i;
+      }
+    }
+    return -1;
+  }
+// 提交分屏数据
+function commitSreenSet() {
+  // console.log(protocol);
+  switch (parseInt(protocol)) {
+    case 0:
+      //灵派
+      commitLinkpi()
+      break;
+  }
+}
+// 调用灵派rpc提交
+let linkpiConfig = [];
+let screenCount = 0;
+function commitLinkpi() {
+  let currentLinkpiLayout = null;;
+  linkpiLayout.forEach((e, i) => {
+    // console.log(i, e);
+    if(e.length === screenCount) {
+      currentLinkpiLayout = linkpiLayout[i];
+    }
+  });
+  // console.log(currentLinkpiLayout);
+  let newinfo;
+  linkpiConfig.forEach(function (n, i) {
+    if (n.type == "mix") {
+      newinfo = n;
+      newinfo.srcV = srcV.slice(0, screenCount);
+      newinfo.srcA = srcA.slice(0, screenCount);
+      srcA = newinfo.srcA; // TODO comment 
+      newinfo.layout = currentLinkpiLayout;
+      linkpiConfig[i] = newinfo;
+    }
+  })
+  // console.log(newinfo);
+  let info = {
+    jsonrpc: "2.0",
+    method: "enc.update",
+    id: 1,
+    params: [JSON.stringify(linkpiConfig, null, 2)]
+  }
+  let obj = {
+    ip: encoderIp,
+    port: encoderPort,
+    protocol: parseInt(protocol),//厂商信息
+    value: JSON.stringify(info)
+  }
+  // console.log(obj);
+  $.ajax({
+    type: "POST",
+    url: "{:url('/admin/api/commitMix')}",
+    contentType: "application/json", //必须这样写
+    dataType: "json",
+    data: JSON.stringify(obj),//schoolList是你要提交是json字符串
+    success: function (data) {
+      // console.log(data)
+      if (parseInt(data.result) == 0) {
+        // snapImage()
+      }
+    }
+  })
+}
+$(document).ready(function() {
+  try {
+    // 初始化通道信息
+    init();
+    // 获取手术室输出频道
+    getOperatingRoomChannelInfo();
+    //加载播放器
+    let videoView = $("#videoView");
+    let videoViewOffset = videoView.offset();
+    var origanl_x = window.innerWidth / 2;
+    var origanl_y = window.innerHeight / 2;
+    var width = videoView.width();
+    var height = videoView.height();
+    var orignal_x_video = videoViewOffset.left + width / 2;
+    var orignal_y_video = videoViewOffset.top + height / 2;
+
+    var offset_x = orignal_x_video - origanl_x;
+    var offset_y = orignal_y_video - origanl_y;
+
+    var bottom = window.innerHeight - videoViewOffset.top - height;
+    window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
+  } catch (e) { console.error(e); }
+
+  $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");
+  // 切换Mix通道视频布局
+  $('.button').click(function() {
+    const btnName = $(this).children('.name').text();
+    // console.log(btnName);
+    if('单画面' === btnName) {
+      screenCount = 1;
+      changeScreen(screenCount);
+      commitSreenSet();
+    } else if('三画面' === btnName) {
+      screenCount = 3;
+      changeScreen(screenCount);
+      commitSreenSet();
+    } else if('四画面' === btnName) {
+      screenCount = 4;
+      changeScreen(screenCount);
+      commitSreenSet();
+    } else {
+      ringOff();
+    }
+  });
+  $(".video-content select").change(function() {
+    let _i = 0;
+    let _this_select = $(this);
+    let boxElement = $(this).parents('.box');//.index(this);
+    // $(this).siblings().each(function(i, element) {
+    //   console.log(element, element === _this_select);
+    // });
+    let boxElements = boxElement.parent().children();
+    _i = boxElements.index(boxElement);
+    // console.log("screen count: " + boxElements.length);
+    // console.log(_i)
+    srcV[_i] = parseInt(_this_select.val());
+    // console.log(srcV);
+    if(0 < $(this).parents('.right').length) { // 提交VGA输出
+      changeVGAChannel(srcV[_i]);
+    } else { // 提交HDMI的Mix通道输出
+      commitSreenSet();
+    }
+  });
+  $(".box .input-group-addon").click(function() {
+    // console.log("音频按钮被点击");
+    let _this_voice_span = $(this);
+    let _this_select = _this_voice_span.parent().find('select');
+    let _current_channel = _this_select.val();
+    if ("" === _current_channel || -1 === _current_channel) {
+      // invalid channel
+      return;
+    }
+    let srcAIndex = srcA.indexOf(_current_channel);
+    if(-1 === srcAIndex) {
+      $(this).addClass("active");
+      srcA.push(_current_channel);
+    } else {
+      $(this).removeClass("active");
+      delete srcA[srcAIndex];
+    }
+    commitSreenSet();
+  });
+});
+// 保存定时更新画面截图的定时器句柄
+let srcVPreviewInterval = [null, null, null, null];
+function previewChannel(box, i) {
+  // 添加定时器
+  srcVPreviewInterval[i] = setInterval(function () {
+    setPreview(box, srcV[i]);
+  }, 50000);
+}
+function setPreview(box, channelId) {
+  let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
+  // console.log(previewUrl);
+  box.css('background', 'url(' + previewUrl + ') no-repeat')
+      .css('background-size', '100% 100%');
+}
+function changeScreen(count) {
+  let oneElement = $('.one');
+  let threeElement = $('.three');
+  let fourElement = $('.four');
+  // console.log("changeScreen("+ count+");");
+  // 预览地址规则：http://IP[:PORT]/snap/snap[通道号].jpg?rnd=随机值
+  switch(count) {
+    case 1:
+      oneElement.removeAttr('hidden');
+      threeElement.attr('hidden', 'hidden');
+      fourElement.attr('hidden', 'hidden');
+      oneElement.find('select').each((i, e) => {
+        // console.log(i, e);
+        $(e).val(srcV[i]);
+        // bootstrap-select 必须调用一次刷新才会更新选中状态
+        $(e).selectpicker('refresh');
+        let parentBox = $(e).parents('.box');
+        // 设置音频激活状态
+        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
+        srcA.forEach((v, j) => {
+          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+            voiceSpan.addClass('active');
+          // } else {
+          //   voiceSpan.removeClass('active');
+          }
+        });
+        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          clearInterval(srcVPreviewInterval[i]);
+          srcVPreviewInterval[i] = null;
+        }
+        // 预览通道截图
+        setPreview(parentBox, srcV[i]);
+        previewChannel(parentBox, i);
+      });
+      // 清空其它定时器
+      srcVPreviewInterval.forEach((e, i) => {
+        if (0 < i && null !== e) {
+          clearInterval(e);
+          srcVPreviewInterval[i] = null;
+        }
+      });
+      break;
+    case 3:
+      oneElement.attr('hidden', 'hidden');
+      threeElement.removeAttr('hidden');
+      fourElement.attr('hidden', 'hidden');
+      threeElement.find('select').each((i, e) => {
+        // console.log(i, e);
+        $(e).val(srcV[i]);
+        // bootstrap-select 必须调用一次刷新才会更新选中状态
+        $(e).selectpicker('refresh');
+        let parentBox = $(e).parents('.box');
+        // 设置音频激活状态
+        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
+        srcA.forEach((v, j) => {
+          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+            voiceSpan.addClass('active');
+          // } else {
+          //   voiceSpan.removeClass('active');
+          }
+        });
+        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          clearInterval(srcVPreviewInterval[i]);
+          srcVPreviewInterval[i] = null;
+        }
+        setPreview(parentBox, srcV[i]);
+        previewChannel(parentBox, i);
+      });
+      if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
+        clearInterval(srcVPreviewInterval[3]);
+        srcVPreviewInterval[3] = null;
+      }
+      break
+    case 4:
+      oneElement.attr('hidden', 'hidden');
+      threeElement.attr('hidden', 'hidden');
+      fourElement.removeAttr('hidden');
+      fourElement.find('select').each((i, e) => {
+        // console.log(i, e, srcV[i]);
+        $(e).val(srcV[i]);
+        // bootstrap-select 必须调用一次刷新才会更新选中状态
+        $(e).selectpicker('refresh');
+        // 设置音频激活状态
+        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
+        srcA.forEach((v, j) => {
+          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+            voiceSpan.addClass('active');
+          // } else {
+          //   voiceSpan.removeClass('active');
+          }
+        });
+        let parentBox = $(e).parents('.box');
+        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          clearInterval(srcVPreviewInterval[i]);
+          srcVPreviewInterval[i] = null;
+        }
+        setPreview(parentBox, srcV[i]);
+        previewChannel(parentBox, i);
+      });
+      break;
+    default: break;
+  }
+}
+// 挂断
+function ringOff(){
+  try {
+    //通知手术室会议结束，其余也被迫退出
+    window.AOV.noticeExit(connectedIp);
+  } catch(e) { console.error(e); }
+  autoExit(); // 退出会议，回到进入会议前的页面。
+}
+// 会议中止自动退出，隐藏播放窗口，回到进入会议前的页面
+function autoExit() {
+  try {
+    // 隐藏播放窗口
+    window.AOV.hidenPlayView();
+  } catch(e) { console.error(e); }
+  window.history.go(-1); // 退出后回到进入会议前的页面
+}
+// 由安卓调用，退出会议。
+function closeScreenView() {
+  autoExit();
+}
+//从服务器拉取手术室的8个通道流地址
+function getOperatingRoomChannelInfo() {
+  $.getJSON("{:url('/admin/api/getChannel')}", {enc_id: connectedEncoderId}, function (result) {
+    if (result.result == 0) {
+      operatingRoomChannelList = result.data;
+      // 将8个通道流地址配置到本地编码器的8个net口;将本机编码器切为9宫格并配置流地址
+      let obj = {
+        ip: encoderIp,
+        port: encoderPort,
+        protocol: protocol,
+        channels: operatingRoomChannelList
+      }
+
+      $.post("{:url('/admin/api/configMeetNet')}",obj,function (data) {
+        data = JSON.parse(data)
+        // console.log(data);
+        if (data.result != 0) {
+          toast("配置直播地址失败,请检查设备是否正常！")
+        } else {
+          //更新自己的编码器通道信息,并切换VGA输出
+          let obj2 = {
+            ip: encoderIp,
+            protocol: protocol,
+            port: encoderPort,
+            id: padId
+          }
+
+          $.getJSON("{:url('/admin/api/refreshChannel')}", obj2, function(result) {
+            // console.log(result);
+            let v_list =[-1,-1,-1,-1]
+            if (parseInt(result.result) == 0) {
+              let localChannelList = result.data;
+              // console.log(chn);
+              let options = '';
+              localChannelList.forEach((e, i) => {
+                // console.log(e);
+                options += '<option value="'+e.channel_id+'">'+e.channel_name+'</option>';
+                if (e.type == "mix") {
+                  mixAddr = e.rtsp_main;
+                }
+              });
+              // 为每一个视频源选择框绑定手术室通道信息
+              let selectpickers = $('.selectpicker');
+              let indexOfFourChannel = 0;
+              selectpickers.each((i, e) => {
+                $(e).append(options);
+                let parentRight = $(e).parents('.right');
+                // console.log(parentRight);
+                if(0 < parentRight.length) {
+                  //设置VGA通道为第一路net网络流播放
+                  $(e).val(localChannelList[0].channel_id);
+                  changeVGAChannel(localChannelList[0].channel_id);
+                }
+                if(0 < $(e).parents('.four').length) {
+                  $(e).val(localChannelList[indexOfFourChannel++].channel_id);
+                }
+                $(e).selectpicker('refresh');
+              });
+              // //切换自己的编码器为四宫格，并且播放通道为net1-net8
+              // getMixInfo();
+            } else {
+              toast("更新直播地址失败,请检查设备是否正常！")
+            }
+          })
+        }
+      })
+    } else {
+      toast("获取对方信息失败，请检查对方设备是否正常！")
+    }
+  })
+}
+function changeVGAChannel(channel) {
+  let vga_ch = parseInt(channel);
+  let obj={
+    ip: encoderIp,
+    port: encoderPort,
+    protocol: protocol,
+    channel: parseInt(channel)
+  }
+  $.post("{:url('/admin/api/setVGAOut')}", obj, function (data) {
+      console.log(data)
+  });
+}
+</script>
+</html>

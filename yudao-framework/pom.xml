@@ -29,6 +29,8 @@
         <module>yudao-spring-boot-starter-biz-operatelog</module>
         <module>yudao-spring-boot-starter-biz-dict</module>
         <module>yudao-spring-boot-starter-biz-sms</module>
+
+        <module>yudao-spring-boot-starter-udp-server</module>
     </modules>
 
     <artifactId>yudao-framework</artifactId>

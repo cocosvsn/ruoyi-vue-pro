@@ -1,0 +1,292 @@
+<extend name="public/whole"/>
+
+<!-- js -->
+<block name="css">
+    <style>
+        .whole_body{background:#062d46}
+    </style>
+</block>
+<!-- allcontent -->
+<block name="allcontent">
+    <include file="public/comhead"/>
+    <div class="combody">
+        <div class="main_title" style="text-align: center">
+            <span class="title_span" style="font-size: 24px">无影灯控制</span>
+        </div>
+        <div style="margin-left: 15%;width: 70%;height:50%;top:50px;position: relative">
+            <div style="width: 15%;height: 100%;position: absolute">
+                <div class="bedlight_layer" style="width: 100px;height: 80px;left: 50%;top: 50%;transform: translateX(-50%) translateY(-50%);position: absolute">
+                    <div id="controlPower" class="btn_normal" onclick="power()">
+                        <img class="btn_img" src="/public/image/power.png"/>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 40%;height: 100%;margin-left: 17.5%;position: absolute">
+                <div style="width: 100%;height: 30%;position: relative" class="bedlight_layer">
+                    <div style="width: 15%;height: 100%;position: absolute">
+                        <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">亮度</label>
+                    </div>
+                    <div style="width: 22.5%;height: 100%;position: absolute;margin-left: 15%">
+                        <div id="lightreduce" onclick="lightControl(this.id)" class="bedlight_layer_select" style="width: 80%;height: 50%;margin-left: 10%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute;font-size: 22px">-</label>
+                        </div>
+                    </div>
+                    <div style="width: 38%;height: 100%;position: absolute;margin-left: 38%;">
+                        <div style="width: 100%;height: 100%">
+                            <ul id="lightul" style="margin: 0;padding: 0;width: 100%;height: 40%;top:50%;list-style: none;transform: translateY(-50%);position: absolute">
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="unselectli"></li>
+                                <li class="unselectli"></li>
+                                <li class="unselectli"></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="lightadd" style="width: 22.5%;height: 100%;position: absolute;margin-left: 77%" onclick="lightControl(this.id)">
+                        <div class="bedlight_layer_select" style="width: 80%;height: 50%;margin-left: 10%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute;font-size: 22px">+</label>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 100%;height: 30%;margin-top: 5%;position: relative" class="bedlight_layer">
+                    <div style="width: 15%;height: 100%;position: absolute">
+                        <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">聚散</label>
+                    </div>
+                    <div style="width: 22.5%;height: 100%;position: absolute;margin-left: 15%">
+                        <div id="focusreduce" onclick="foucesControl(this.id)" class="bedlight_layer_select" style="width: 80%;height: 50%;margin-left: 10%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute;font-size: 22px">-</label>
+                        </div>
+                    </div>
+                    <div style="width: 38%;height: 100%;position: absolute;margin-left: 38%">
+                        <div style="width: 100%;height: 100%">
+                            <ul id="focusul" style="margin: 0;padding: 0;width: 100%;height: 40%;top: 50%;position: absolute;transform: translateY(-50%)">
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="selectli"></li>
+                                <li class="unselectli"></li>
+                                <li class="unselectli"></li>
+                                <li class="unselectli"></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="width: 22.5%;height: 100%;position: absolute;margin-left: 77%">
+                        <div  id="focusadd" onclick="foucesControl(this.id)" class="bedlight_layer_select" style="width: 80%;height: 50%;margin-left: 10%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute;font-size: 22px">+</label>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 100%;height: 30%;margin-top: 5%;position: relative">
+                    <div id="connect1" onclick="connectChoice(this.id)" class="bedlight_layer" style="width: 30%;height: 80%;margin-left: 2.5%;background:#062d46;position: absolute">
+                        <img class="icon_img" src="/public/image/bedlight.png"/>
+                        <label class="bed_light_label" style="margin-left: 75%;top:50%;position: absolute;transform: translateY(-50%);font-size: 22px">1</label>
+                    </div>
+                    <div id="connect2" onclick="connectChoice(this.id)" class="bedlight_layer"  style="width: 30%;height: 80%;margin-left: 35%;background:#062d46;position: absolute">
+                        <img class="icon_img" src="/public/image/bedlight.png"/>
+                        <label class="bed_light_label" style="margin-left: 75%;top:50%;position: absolute;transform: translateY(-50%);font-size: 22px">2</label>
+                    </div>
+                    <div id="connect3" onclick="connectChoice(this.id)" class="bedlight_layer"  style="width: 30%;height: 80%;margin-left: 67.5%;background:#062d46;position: absolute;float: right">
+                        <label class="bed_light_label" style="margin-left: 10%;top:50%;position: absolute;transform: translateY(-50%);font-size: 22px">1</label>
+                        <img class="icon_img" src="/public/image/connect.png"/>
+                        <label class="bed_light_label" style="float: right;top:50%;position: absolute;transform: translateY(-50%);right: 10%;font-size: 22px">2</label>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 40%;height: 100%;float: right;">
+                <div style="width: 100%;height: 30%;position: relative" class="bedlight_layer">
+                    <div style="width: 15%;height: 100%;position: absolute">
+                        <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">照度</label>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 20%;">
+                        <div id="hz1" onclick="hzChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">3900K</label>
+                        </div>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 46.5%;">
+                        <div id="hz2" onclick="hzChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">4500K</label>
+                        </div>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 73%;">
+                        <div id="hz3" onclick="hzChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">5100K</label>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 100%;height: 30%;margin-top: 5%;position: relative" class="bedlight_layer">
+                    <div style="width: 15%;height: 100%;position: absolute">
+                        <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">色温</label>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 20%;">
+                        <div id="sw1" onclick="colorChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">Ra</label>
+                        </div>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 46.5%;">
+                        <div id="sw2" onclick="colorChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">R13</label>
+                        </div>
+                    </div>
+                    <div style="width: 21.5%;height: 100%;position: absolute;margin-left: 73%;">
+                        <div id="sw3" onclick="colorChoice(this.id)" class="bedlight_layer" style="width: 100%;height: 50%;top: 50%;position: absolute;transform: translateY(-50%)">
+                            <label class="bed_light_label" style="width: 100%;height: auto;top: 50%;transform: translateY(-50%);position: absolute">R15</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</block>
+<!-- js -->
+<block name="script">
+    <script>
+        function mainReturn()
+        {
+            let params = "?id="+GetQueryString('id')+"&ip="+GetQueryString('ip')+"&port="+GetQueryString('port')+"&protocol="+GetQueryString('protocol');
+
+            window.location.href = "{:url('index')}" + params;
+        }
+
+        //灯光控制开关
+        function power()
+        {
+            var classname = $("#controlPower").attr("class");
+            if (classname == "btn_normal"){
+                $("#controlPower").attr("class","btn_enable");
+                window.AOV.bedLightEnable(true);
+            }else {
+                $("#controlPower").attr("class","btn_normal");
+                window.AOV.bedLightEnable(false);
+            }
+        }
+
+        //亮度条件
+        function lightControl(id)
+        {
+            //亮度减
+            if (id === "lightreduce")
+            {
+                selectReduce("lightul");
+            } //亮度加
+            else if(id === "lightadd")
+            {
+                selectAdd("lightul");
+            }
+        }
+
+        //聚散调节
+        function foucesControl(id)
+        {
+            //聚散减
+            if (id === "focusreduce")
+            {
+                selectReduce("focusul");
+            } //聚散加
+            else if(id === "focusadd")
+            {
+                selectAdd("focusul");
+            }
+        }
+
+        function selectAdd(idname)
+        {
+            let name = "#"+idname+" li";
+            // console.log(name)
+            let list = $(name);
+
+            for (let i = 0;i<list.length;i++)
+            {
+                if ($(list[i]).attr("class") === "unselectli")
+                {
+                    $(list[i]).attr("class","selectli");
+                    break;
+                }
+            }
+        }
+
+        function selectReduce(idname)
+        {
+            let name = "#"+idname+" li";
+            // console.log(name)
+            let list = $(name);
+
+            for (let i = list.length;i>=0;i--)
+            {
+                if ($(list[i]).attr("class") === "selectli")
+                {
+                    $(list[i]).attr("class","unselectli")
+                    break;
+                }
+            }
+        }
+
+        //照度调节
+        function hzChoice(id)
+        {
+            if (id === "hz1")
+            {
+                $("#hz1").attr("class","bedlight_layer_select");
+                $("#hz2").attr("class","bedlight_layer");
+                $("#hz3").attr("class","bedlight_layer");
+            }else if(id === "hz2")
+            {
+                $("#hz2").attr("class","bedlight_layer_select");
+                $("#hz1").attr("class","bedlight_layer");
+                $("#hz3").attr("class","bedlight_layer");
+            }else if(id === "hz3")
+            {
+                $("#hz3").attr("class","bedlight_layer_select");
+                $("#hz2").attr("class","bedlight_layer");
+                $("#hz1").attr("class","bedlight_layer");
+            }
+        }
+
+        //色温调节
+        function colorChoice(id)
+        {
+            if (id === "sw1")
+            {
+                $("#sw1").attr("class","bedlight_layer_select");
+                $("#sw2").attr("class","bedlight_layer");
+                $("#sw3").attr("class","bedlight_layer");
+            }else if(id === "sw2")
+            {
+                $("#sw2").attr("class","bedlight_layer_select");
+                $("#sw1").attr("class","bedlight_layer");
+                $("#sw3").attr("class","bedlight_layer");
+            }else if(id === "sw3")
+            {
+                $("#sw3").attr("class","bedlight_layer_select");
+                $("#sw2").attr("class","bedlight_layer");
+                $("#sw1").attr("class","bedlight_layer");
+            }
+        }
+
+        //灯光选择
+        function connectChoice(id)
+        {
+            if (id === "connect1")
+            {
+                $("#connect1").attr("class","bedlight_layer_select");
+                $("#connect2").attr("class","bedlight_layer");
+                $("#connect3").attr("class","bedlight_layer");
+            }else if(id === "connect2")
+            {
+                $("#connect2").attr("class","bedlight_layer_select");
+                $("#connect1").attr("class","bedlight_layer");
+                $("#connect3").attr("class","bedlight_layer");
+            }else if(id === "connect3")
+            {
+                $("#connect3").attr("class","bedlight_layer_select");
+                $("#connect2").attr("class","bedlight_layer");
+                $("#connect1").attr("class","bedlight_layer");
+            }
+        }
+
+
+    </script>
+</block>

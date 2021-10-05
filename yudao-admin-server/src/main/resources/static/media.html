@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>首视</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <script src="js/menu.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .table-title {
+      margin: 36px 0 13px 0;
+      text-align: center;
+      font-size: 28px;
+    }
+    .media {
+      height: 827px;
+      padding: 0 160px;
+      text-align: center;
+      margin: 15px 0 0 0;
+      font-size: 20px;
+    }
+    .table>thead>tr>td, 
+    .table>thead>tr>th {
+      font-size: 22px;
+      /* text-align: center; */
+    }
+    .table>tbody>tr>td, 
+    .table>tbody>tr>th, 
+    .table>tfoot>tr>td, 
+    .table>tfoot>tr>th, 
+    .table>thead>tr>td, 
+    .table>thead>tr>th {
+      line-height: 40px;
+    }
+    .app .play-window {
+      border: 1px solid gray;
+      position: absolute;
+      top: 170px;
+      left: 160px;
+      width: 1600px;
+      height: 800px;
+      display: none;
+    }
+    .app .play-window .play-window-close {
+      position: relative;
+      top: -86px;
+      right: -86px;
+      float: right;
+      width: 100px;
+      height: 100px;
+    }
+    .app .play-window .play-window-close img {
+      width: 100%;
+      height: auto;
+    }
+    #media-iframe {
+      position: relative;
+      top: -100px;
+    }
+  </style>
+</head>
+  
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="row table-title">视频播放</div>
+
+    <!-- table -->
+    <div class="row media">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th colspan="6">查看录播</th>
+          </tr>
+          <tr>
+            <th>编号</th>
+            <th>手术名称</th>
+            <th>手术室名称</th>
+            <th>医生信息</th>
+            <th>患者信息</th>
+            <th>录制时间</th>
+          </tr>
+        </thead>
+        <tbody>
+<foreach name="data" item="k">
+          <tr video-id="{$k.id}">
+            <td>{$k.id}</td>
+            <td>未命名</td>
+            <td>
+  <if condition="$k['surgery_name'] eq ''">
+              <span class="title_span">未命名</span>
+    <else>
+              <span class="title_span">{$k.surgery_name}</span>
+    </else>
+  </if>
+            </td>
+            <td>
+  <if condition="$k['doctor'] eq ''">
+              <span class="title_span">暂无</span>
+    <else>
+              <span class="title_span">{$k.doctor}</span>
+    </else>
+  </if>
+            </td>
+            <td>
+  <if condition="$k['patient'] eq ''">
+              <span class="title_span">暂无</span>
+    <else>
+              <span class="title_span">{$k.patient}</span>
+    </else>
+  </if>
+            </td>
+            <td>录制时间</td>
+          </tr>
+</foreach>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 播放窗口 -->
+    <div class="play-window">
+      <div class="play-window-close">
+        <img src="/public/image/close.png" />
+      </div>
+      <iframe id="media-iframe" src="" width="100%" height="100%" frameborder="0" style="overflow-style: marquee-line">
+        您的浏览器不支持iframe，请升级
+      </iframe>
+    </div>
+
+    <!-- 底部菜单 -->
+    <div class="row menu">
+      <div class="col-md-1 item" onclick="goMain()">手术录像</div>
+      <div class="col-md-1 item" onclick="goScreen()">影像路由</div>
+      <div class="col-md-1 item" onclick="goMedia()">视频点播</div>
+      <div class="col-md-1 item" onclick="goTeach()">直播示教</div>
+      <div class="col-md-1 item" onclick="goPatient()">电子病历</div>
+      <div class="col-md-1 item" onclick="goBedlight()">无影灯控制</div>
+      <div class="col-md-1 item" onclick="goBed()">手术床控制</div>
+      <div class="col-md-1 item" onclick="goLight()">灯光控制</div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+  $(document).ready(function () {
+    // 标识当前菜单为激活状态
+    $('.menu .item:nth-child(3)').addClass("active");
+
+    // 表格中的行绑定点击事件
+    $(".media tbody tr").click(function() {
+      console.log($(this));
+      let category_id = 1;
+      var id = $(this).attr("video-id");
+      var src = "/index/index/detail/id/" + id.toString() + "/cate/" + category_id.toString() + ".html";
+      $("#media-iframe").attr("src", src);
+      $(".play-window").css("display", "block");
+    });
+
+    // 视频播放窗口关闭按钮
+    $(".play-window-close").click(function() {
+      // console.log("ssssss", $(this).parent());
+      $(this).parent().css("display", "none");
+    });
+  });
+</script>
+</html>

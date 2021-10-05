@@ -1,0 +1,204 @@
+<extend file="public/whole"/>
+<block name="css">
+    <style type="text/css">
+        .whole_body{background: #062d46}
+        /* Switch开关样式 */
+        input[type='checkbox'].switch {
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            position: relative;
+            width: 40px;
+            height: 20px;
+            background: black;
+            border-radius: 10px;
+            transition: border-color .3s, background-color .3s;
+        }
+
+        input[type='checkbox'].switch::after {
+            content: '';
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0, 0, 2px, #999;
+            transition: .4s;
+            top: 2px;
+            position: absolute;
+            left: 2px;
+        }
+
+        input[type='checkbox'].switch:checked {
+            background: rgb(19, 206, 102);
+        }
+
+        /* 当input[type=checkbox]被选中时：伪元素显示下面样式 位置发生变化 */
+        input[type='checkbox'].switch:checked::after {
+            content: '';
+            position: absolute;
+            left: 55%;
+            top: 2px;
+        }
+    </style>
+</block>
+<block name="allcontent">
+    <include file="public/new_head"/>
+    <div class="pad_new_content">
+        <div class="new_main_title" >
+            <span style="width: 10%;color:white;left: 43%;top:50%;transform:translateY(-50%) translateX(-50%);font-size: 19px;position: absolute">文件管理</span>
+            <div style="width: 190px;left:85%;top:50%;transform: translateY(-50%);position: absolute">
+                <label style="color: white;font-size: 22px">自动应答</label>
+                <input type="checkbox" class="switch" style="float: right; margin-right: 30px;margin-top: 8px" id="autoCall">
+            </div>
+        </div>
+        <div style="width: 100%;height: 93%; top:2%;position: relative">
+            <div style="width: 27%;height: 100%;overflow: scroll;float: left;box-shadow: 0 15px  25px rgba(0,0,0,.3);">
+                <ul id="dateul" style="margin: 0;padding:0;width: 100%;height: 100%">
+<!--                        <li class="fileli_normal">-->
+<!--                            <a class="li_span">2021-05-24</a>-->
+<!--                            <img src="/public/image/ind.png" class="li_img"/>-->
+<!--                        </li>-->
+                </ul>
+            </div>
+            <div id="recordList" style="width: 72%;height: 100%;overflow: scroll;float: right">
+                <ul id="videoul" style="margin: 0;padding:0;width: 100%;height: 100%">
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                    <li class="video_li" >
+                        <div style="width: 80%;height: 180px;position: absolute;left: 50%;top: 5%;transform: translateX(-50%)">
+                            <img style="width: 100%;height: 100%;background: #2aabd2"/>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <include file="public/new_foot"/>
+</block>
+<block name="script">
+    <script>
+        $().ready(function ()
+        {
+            //获取自动应答状态-->
+            window.AOV.getCallState();
+
+
+            //获取文件目录列表
+            window.AOV.getFileDirectory()
+
+            //自动应答切换
+            $("#autoCall").change(function() {
+
+                if ($('#autoCall').prop("checked") == true)
+                {
+                    $("#autoCall").data('select',true)
+                    $("#autoCall").attr("checked",true);
+                    window.AOV.saveCallState(true);
+                }else {
+                    $("#autoCall").data('select',false)
+                    $("#autoCall").attr("checked",false);
+                    window.AOV.saveCallState(false);
+                }
+            });
+
+        })
+
+        //加载自动应答状态
+        function loadCallState(state,oncall)
+        {
+            if (parseInt(state) == 1)
+            {
+                $("#autoCall").prop("checked", true);
+            }else {
+                $("#autoCall").prop("checked", false);
+            }
+        }
+
+
+        function loadFileDirectory()
+        {
+            var size = window.AOV.getSize();
+
+
+            for (var i=0;i<size;i++)
+            {
+                var cur = window.AOV.getDirObject(i);
+
+                $("#dateul").append( "<li id='"+cur.getName()+"li' class='fileli_normal' path='"+cur.getDir()+"'>\n" +
+            "                        <span class=\"li_span\">"+cur.getName()+"</span>\n" +
+                "                        <img src=\"/public/image/ind.png\" class=\"li_img\">\n" +
+                "                    </li>");
+            }
+
+            loadDirectoryFileList(window.AOV.getDirObject(0).getDir());
+
+            registerLiClickEvent()
+
+
+        }
+
+        function registerLiClickEvent()
+        {
+            $("#dateul li").click(function (e)
+            {
+                $("#dateul li").forEach(function (n)
+                {
+                    $(n).attr("class","fileli_normal");
+                })
+
+                let path = $(e.target).attr("path")
+                $(e.target).attr("class","fileli_select")
+                loadDirectoryFileList(path)
+            })
+        }
+
+
+        function loadDirectoryFileList(path)
+        {
+            //根据path获取目录下的文件列表
+            window.AOV.getFileList(path)
+
+        }
+
+
+        function showFileList()
+        {
+            var size = window.AOV.getFileSize();
+            for (var i=0;i<size;i++)
+            {
+                var cur = window.AOV.getFileObject(i);
+
+
+            }
+
+        }
+
+
+
+    </script>
+</block>

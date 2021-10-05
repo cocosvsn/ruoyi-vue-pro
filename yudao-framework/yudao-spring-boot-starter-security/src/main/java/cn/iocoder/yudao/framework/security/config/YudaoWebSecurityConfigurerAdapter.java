@@ -1,15 +1,9 @@
 package cn.iocoder.yudao.framework.security.config;
 
 import cn.iocoder.yudao.framework.security.core.filter.JwtAuthenticationTokenFilter;
-import cn.iocoder.yudao.framework.security.core.handler.AccessDeniedHandlerImpl;
-import cn.iocoder.yudao.framework.security.core.handler.AuthenticationEntryPointImpl;
-import cn.iocoder.yudao.framework.security.core.handler.LogoutSuccessHandlerImpl;
-import cn.iocoder.yudao.framework.security.core.service.SecurityAuthFrameworkService;
 import cn.iocoder.yudao.framework.web.config.WebProperties;
-import cn.iocoder.yudao.framework.web.core.handler.GlobalExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -28,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 /**
  * 自定义的 Spring Security 配置适配器实现
@@ -131,7 +125,7 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
                     // 通用的接口，可匿名访问 TODO 芋艿：需要抽象出去
                     .antMatchers(api("/system/captcha/**")).anonymous()
                     // 静态资源，可匿名访问
-                    .antMatchers(HttpMethod.GET, "/*.html", "/**/*.html", "/**/*.css", "/**/*.js").permitAll()
+                    .antMatchers(HttpMethod.GET, "/*.html", "/**/*.html", "/**/*.css", "/**/*.js", "/images/**").permitAll()
                     // 文件的获取接口，可匿名访问
                     .antMatchers(api("/infra/file/get/**")).anonymous()
                     // Swagger 接口文档
@@ -151,6 +145,8 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
                     .antMatchers(api("/system/sms/callback/**")).anonymous()
                     // WebSocket
                     .antMatchers("/ws/**").anonymous()
+                    // 业务需要开放的API接口列表
+                    .antMatchers(getAnonymousApi()).anonymous()
                     // 除上面外的所有请求全部需要鉴权认证
                     .anyRequest().authenticated()
                 .and()
@@ -164,4 +160,12 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
         return webProperties.getApiPrefix() + url;
     }
 
+    private final String[] getAnonymousApi() {
+        String[] apis = {
+                "/dors/room/device"
+                ,"/dors/channel/device"
+                ,"/dors/version/latest"
+        };
+        return Arrays.stream(apis).map(a -> api(a)).toArray(String[]::new);
+    }
 }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>首视</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <script src="js/menu.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .table-title {
+      margin: 100px 0 60px 0;
+      text-align: center;
+      font-size: 28px;
+    }
+    .media {
+      height: 718px;
+      padding: 0 160px;
+      text-align: center;
+      margin: 15px 0 0 0;
+    }
+    .media .left {
+      /* border: 1px solid red; */
+      padding-left: 0;
+    }
+    .media .left .left-img {
+      /* border: 1px solid green; */
+      margin-top: 100px;
+      width: 544px;
+      height: 364px;
+    }
+    .media .right {
+      padding: 50px 0 0 120px;
+    }
+    .media .right .content {
+      border: 1px solid #BBB;
+      border-radius: 10px;
+      font-size: 24px;
+    }
+    .media .right .content .title-btn {
+      position: relative;
+      top: -30px;
+    }
+    .media .right .content .title-btn .col-md-6:nth-child(2n) {
+      padding: 0 350px 0 50px;
+    }
+    .media .right .content .title-btn .col-md-6:nth-child(2n-1) {
+      padding: 0 50px 0 350px;
+    }
+    .media .right .content .title-btn .title-btn-img {
+      width: 60px;
+      height: 60px;
+    }
+    .media .right .content .content-btn {
+      margin: 40px 0 40px 0;
+      padding: 0 32px;
+    }
+    .media .right .content .content-btn:nth-child(n+1) {
+      margin: 40px 0 30px 0;
+    }
+    .media .right .content .content-btn .control-btn {
+      width: 156px;
+      padding: 0;
+    }
+    .media .right .content .content-btn .control-btn:nth-child(n+2) {
+      margin-left: 25px;
+    }
+    .media .right .content .content-btn .control-btn .btn-icon {
+      width: 156px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="row table-title">手术床控制</div>
+
+    <!-- table -->
+    <div class="row media">
+      <div class="col-md-4 left">
+        <img class="left-img" src="images/700.jpg" />
+      </div>
+      <div class="col-md-8 right">
+        <div class="content">
+          <div class="row title-btn">
+            <div class="col-md-6" >
+              <img class="title-btn-img" src="images/712.png" />
+              <div>打开</div>
+            </div>
+            <div class="col-md-6">
+              <img class="title-btn-img" src="images/709.png" />
+              <div>锁定</div>
+            </div>
+          </div>
+          <div class="row content-btn">
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/701.png" />
+              <div class="name">背板上折</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/703.png" />
+              <div class="name">左倾</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/705.png" />
+              <div class="name">头倾</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/707.png" />
+              <div class="name">上升</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/713.png" />
+              <div class="name">头端平移</div>
+            </div>
+          </div>
+          <div class="row content-btn">
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/702.png" />
+              <div class="name">背板下折</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/704.png" />
+              <div class="name">右倾</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/706.png" />
+              <div class="name">脚倾</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/708.png" />
+              <div class="name">上降</div>
+            </div>
+            <div class="col-md-2 control-btn">
+              <img class="btn-icon" src="images/714.png" />
+              <div class="name">脚端平移</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部菜单 -->
+    <div class="row menu">
+      <div class="col-md-1 item" onclick="goMain()">手术录像</div>
+      <div class="col-md-1 item" onclick="goScreen()">影像路由</div>
+      <div class="col-md-1 item" onclick="goMedia()">视频点播</div>
+      <div class="col-md-1 item" onclick="goTeach()">直播示教</div>
+      <div class="col-md-1 item" onclick="goPatient()">电子病历</div>
+      <div class="col-md-1 item" onclick="goBedlight()">无影灯控制</div>
+      <div class="col-md-1 item" onclick="goBed()">手术床控制</div>
+      <div class="col-md-1 item" onclick="goLight()">灯光控制</div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+  $(document).ready(function () {
+    // 标识当前菜单为激活状态
+    $('.menu .item:nth-child(7)').addClass("active");
+  });
+</script>
+</html>

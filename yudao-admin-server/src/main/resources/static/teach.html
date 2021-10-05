@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>首视</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <script src="js/menu.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .table-title {
+      margin: 130px 0;
+      text-align: center;
+      font-size: 28px;
+      padding: 0 auto;
+    }
+    .table-title .title {
+      margin: 0 0 20px 0;
+    }
+    .media {
+      height: 598px;
+      padding: 0 120px;
+      text-align: center;
+      margin: 15px 0 0 0;
+    }
+    .media .left-arrow, .media .right-arrow,
+    .media .left-arrow img, .media .right-arrow img {
+      padding: 0;
+      width: 80px;
+      height: 80px;
+    }
+    .media .left-arrow img, .media .right-arrow img {
+      margin-top: 111px;
+      /* margin-top: 141px; */
+    }
+    .media .room-group {
+      /* border: 1px solid red; */
+      margin: 0 60px;
+      padding: 0;
+      overflow-x: scroll;
+      /* overflow: hidden; */
+      scrollbar-width: none; /* firefox */
+      -ms-overflow-style: none; /* IE 10+ */
+    }
+    .media .room-group::-webkit-scrollbar {
+      display: none; /* Chrome Safari */
+    }
+    .media .room-group .content {
+      /* border: 1px solid blue; */
+      width: 1920px;
+      width: <?php echo (count($data) * 362 - 50) ?>px;
+    }
+    .media .room-group .content .room-item {
+      width: 312px;
+      float: left;
+    }
+    .media .room-group .content .room-item:not(:last-child) {
+      margin-right: 50px;
+    }
+    .media .room-group .content .room-item .room-name {
+      font-size: 24px;
+    }
+    .media .room-group .content .room-item .room-icon {
+      margin: 12px 0;
+    }
+    .media .room-group .content .room-item .room-btn .room-btn-name {
+      font-size: 22px;
+      margin-top: 5px;
+    }
+    #web {
+border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="row table-title">
+      <div class="title">请选择手术室</div>
+    </div>
+
+    <!-- table -->
+    <div class="row media">
+      <div class="col-md-1 left-arrow">
+        <img src="images/left.png" />
+      </div>
+      <div class="col-md-10 room-group">
+        <div class="content">
+<!-- <foreach name="data" item="n">
+          <div class="room-item">
+            <div class="room-name">{$n.title}</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div id="{$n.ip}" name="{$n.padno}" class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+</foreach> -->
+          
+          <div class="room-item">
+            <div class="room-name">1号手术室</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+          <div class="room-item">
+            <div class="room-name">2号手术室</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+          <div class="room-item">
+            <div class="room-name">3号手术室</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+          <div class="room-item">
+            <div class="room-name">4号手术室</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+          <div class="room-item">
+            <div class="room-name">5号手术室</div>
+            <div class="room-icon">
+              <img src="images/400.png" />
+            </div>
+            <div class="room-btn">
+              <img src="images/407.png" />
+              <div class="room-btn-name">请求连接</div>
+            </div>
+          </div>
+         
+        </div>
+      </div>
+      <div class="col-md-1 left-arrow">
+        <img src="images/right.png" />
+      </div>
+    </div>
+
+    <!-- 底部菜单 -->
+    <div class="row menu">
+      <div class="col-md-1 item" onclick="goMain()">手术录像</div>
+      <div class="col-md-1 item" onclick="goScreen()">影像路由</div>
+      <div class="col-md-1 item" onclick="goMedia()">视频点播</div>
+      <div class="col-md-1 item" onclick="goTeach()">直播示教</div>
+      <div class="col-md-1 item" onclick="goPatient()">电子病历</div>
+      <div class="col-md-1 item" onclick="goBedlight()">无影灯控制</div>
+      <div class="col-md-1 item" onclick="goBed()">手术床控制</div>
+      <div class="col-md-1 item" onclick="goLight()">灯光控制</div>
+    </div>
+  </div>
+</body>
+  <script type="text/javascript">
+    var windowHeight;
+    
+    function editUrl() {
+      //页面层
+      layer.open({
+          type: 2,
+          title:'编辑患者信息地址',
+          skin: 'layui-layer-molv', //加上边框
+          area: ['650px', '200px'], //宽高
+          content: "{:url('edit_url')}",
+          success: function(layero, index){
+              var body=layer.getChildFrame('body',index);//少了这个是不能从父页面向子页面传值的
+              //获取子页面的元素，进行数据渲染
+              body.contents().find("#weburl").val($("#webinput").val());
+          }
+      });
+    }
+    function editUrl() {
+      //页面层
+      layer.open({
+        type: 2,
+        title:'编辑患者信息地址',
+        skin: 'layui-layer-molv', //加上边框
+        area: ['650px', '200px'], //宽高
+        content: "{:url('edit_url')}",
+        success: function(layero, index){
+          var body=layer.getChildFrame('body',index);//少了这个是不能从父页面向子页面传值的
+          //获取子页面的元素，进行数据渲染
+          body.contents().find("#weburl").val($("#webinput").val());
+        }
+      });
+    }
+    function reloadIframe(address) {
+      if (address == "" || address == null) {
+        $("#config").attr("hidden",null)
+        $("#web").attr("hidden","hidden")
+        $("#webinput").val("")
+        window.AOV.storePatient("")
+      } else {
+        if (address.indexOf("http") == -1) {
+          address = "http://" + address
+        }
+        $("#config").attr("hidden","hidden")
+        $("#web").attr("hidden",null)
+        $("#loadweb").attr("src",address)
+        $("#webinput").val(address)
+        window.AOV.storePatient(address)
+      }
+    }
+  </script>
+</html>

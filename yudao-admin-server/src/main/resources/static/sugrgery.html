@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>首视</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <script src="js/menu.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .table-title {
+      margin: 100px 0;
+      text-align: center;
+      font-size: 28px;
+    }
+    .media {
+      height: 678px;
+      padding: 0 160px;
+      text-align: center;
+      font-size: 24px;
+      margin: 15px 0 0 0;
+    }
+    .media>div:nth-child(n+5) {
+      margin-top: 100px;
+    }
+    .media .col-md-1, .media .col-md-2, .media .col-md-3 {
+      padding: 20px 0 0 0;
+    }
+    .media .col-md-2 {
+      margin-left: 100px;
+    }
+    .media .col-md-3 {
+      margin-left: 120px;
+    }
+    .group {
+      width: 164px;
+      height: 175px;
+      padding: 20px 0;
+      border: 1px solid #BBB;
+      border-radius: 10px;
+    }
+    .col-md-2 .group {
+      width: 318px;
+    }
+    .col-md-3 .group {
+      width: 458px;
+    }
+    .group .group-title {
+      position: relative;
+      top: -30px;
+      width: 100px;
+      margin: -10px auto;
+      padding: 0 10px;
+      font-size: 24px;
+      background: #FFF;
+    }
+    .group .group-icon {
+      height: 120px;
+    }
+    .group .group-icon img {
+      width: 120px;
+      height: 120px;
+    }
+    .media .col-md-2 .group .group-icon img:first-child {
+      margin-right: 20px
+    }
+    .media .col-md-3 .group .group-icon img:not(:last-child) {
+      margin-right: 20px
+    }
+    .col-md-1 .group .group-title {
+      width: 60px;
+    }
+    .col-md-3 .group .group-title {
+      width: 120px;
+    }
+  </style>
+</head>
+
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+
+    <!-- title -->
+    <div class="row table-title">无影灯控制</div>
+
+    <!-- table -->
+    <div class="row media">
+      <!-- <div class="col-md-1"></div>
+      <div class="col-md-2 col-md-offset-1"></div>
+      <div class="col-md-3 col-md-offset-1"></div>
+      <div class="col-md-3 col-md-offset-1"></div> -->
+      <div class="col-md-1">
+        <div class="group" >
+          <div class="group-title">1</div>
+          <div class="group-icon">
+            <img src="images/602.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="group">
+          <div class="group-title">亮度</div>
+          <div class="group-icon">
+            <img class="inline-block" src="images/604.png" />
+            <img class="inline-block" src="images/603.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="group">
+          <div class="group-title">色温</div>
+          <div class="group-icon">
+            <img src="images/605.png" />
+            <img src="images/606.png" />
+            <img src="images/607.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="group">
+          <div class="group-title">显色指数</div>
+          <div class="group-icon">
+            <img src="images/608.png" />
+            <img src="images/609.png" />
+            <img src="images/610.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-1">
+        <div class="group" >
+          <div class="group-title">1</div>
+          <div class="group-icon">
+            <img src="images/602.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="group">
+          <div class="group-title">亮度</div>
+          <div class="group-icon">
+            <img src="images/604.png" />
+            <img src="images/603.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="group">
+          <div class="group-title">色温</div>
+          <div class="group-icon">
+            <img src="images/605.png" />
+            <img src="images/606.png" />
+            <img src="images/607.png" />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="group">
+          <div class="group-title">显色指数</div>
+          <div class="group-icon">
+            <img src="images/608.png" />
+            <img src="images/609.png" />
+            <img src="images/610.png" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部菜单 -->
+    <div class="row menu">
+      <div class="col-md-1 item" onclick="goMain()">手术录像</div>
+      <div class="col-md-1 item" onclick="goScreen()">影像路由</div>
+      <div class="col-md-1 item" onclick="goMedia()">视频点播</div>
+      <div class="col-md-1 item" onclick="goTeach()">直播示教</div>
+      <div class="col-md-1 item" onclick="goPatient()">电子病历</div>
+      <div class="col-md-1 item" onclick="goBedlight()">无影灯控制</div>
+      <div class="col-md-1 item" onclick="goBed()">手术床控制</div>
+      <div class="col-md-1 item" onclick="goLight()">灯光控制</div>
+    </div>
+  </div>
+</body>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      // 标识当前菜单为激活状态
+      $('.menu .item:nth-child(6)').addClass("active");
+    });
+    //灯光控制开关
+    function power(openid) {
+      if (openid == "openPower") {
+        window.AOV.bedLightEnable(true);
+      } else {
+        window.AOV.bedLightEnable(false);
+      }
+    }
+    //亮度条件
+    function lightControl(id) {
+      //亮度减
+      if (id === "lightreduce") {
+        selectReduce("lightul");
+      } else if(id === "lightadd") { //亮度加
+        selectAdd("lightul");
+      }
+    }
+    //聚散调节
+    function foucesControl(id) {
+      //聚散减
+      if (id === "focusreduce") {
+        selectReduce("focusul");
+      } else if(id === "focusadd") { //聚散加
+        selectAdd("focusul");
+      }
+    }
+    function selectAdd(idname) {
+      let name = "#"+idname+" li";
+      // console.log(name)
+      let list = $(name);
+      for (let i = 0;i<list.length;i++) {
+        if ($(list[i]).attr("class") === "unselectli") {
+          $(list[i]).attr("class","selectli");
+          break;
+        }
+      }
+    }
+    function selectReduce(idname) {
+      let name = "#"+idname+" li";
+      // console.log(name)
+      let list = $(name);
+
+      for (let i = list.length;i>=0;i--) {
+        if ($(list[i]).attr("class") === "selectli") {
+          $(list[i]).attr("class","unselectli")
+          break;
+        }
+      }
+    }
+    //照度调节
+    function hzChoice(id) {
+      if (id === "hz1") {
+        $("#hz1").attr("class","bedlight_layer_select");
+        $("#hz2").attr("class","bedlight_layer");
+        $("#hz3").attr("class","bedlight_layer");
+      } else if(id === "hz2") {
+        $("#hz2").attr("class","bedlight_layer_select");
+        $("#hz1").attr("class","bedlight_layer");
+        $("#hz3").attr("class","bedlight_layer");
+      } else if(id === "hz3") {
+        $("#hz3").attr("class","bedlight_layer_select");
+        $("#hz2").attr("class","bedlight_layer");
+        $("#hz1").attr("class","bedlight_layer");
+      }
+    }
+    //色温调节
+    function colorChoice(id) {
+      if (id === "sw1") {
+        $("#sw1").attr("class","bedlight_layer_select");
+        $("#sw2").attr("class","bedlight_layer");
+        $("#sw3").attr("class","bedlight_layer");
+      } else if(id === "sw2") {
+        $("#sw2").attr("class","bedlight_layer_select");
+        $("#sw1").attr("class","bedlight_layer");
+        $("#sw3").attr("class","bedlight_layer");
+      } else if(id === "sw3") {
+        $("#sw3").attr("class","bedlight_layer_select");
+        $("#sw2").attr("class","bedlight_layer");
+        $("#sw1").attr("class","bedlight_layer");
+      }
+    }
+    //灯光选择
+    function connectChoice(id) {
+      if (id === "connect1") {
+        $("#connect1").attr("class","bedlight_layer_select");
+        $("#connect2").attr("class","bedlight_layer");
+        $("#connect3").attr("class","bedlight_layer");
+      } else if(id === "connect2") {
+        $("#connect2").attr("class","bedlight_layer_select");
+        $("#connect1").attr("class","bedlight_layer");
+        $("#connect3").attr("class","bedlight_layer");
+      } else if(id === "connect3") {
+        $("#connect3").attr("class","bedlight_layer_select");
+        $("#connect2").attr("class","bedlight_layer");
+        $("#connect1").attr("class","bedlight_layer");
+      }
+    }
+  </script>
+</html>

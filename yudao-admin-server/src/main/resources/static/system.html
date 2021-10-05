@@ -1,0 +1,351 @@
+<extend file="public/whole"/>
+<block name="css">
+    <style type="text/css">
+        .whole_body{background: #062d46}
+    </style>
+</block>
+<block name="allcontent">
+    <include file="public/new_head"/>
+    <div class="pad_new_content">
+        <div class="new_main_title" >
+            <img id="usb_img" style="float: left;left: 10px;top: 15%;width: auto;height: 70%;position: absolute" src="/public/image/download.png" hidden/>
+            <span id="usb_text" style="float: left;width: 10%;color:white;left:43px;top:50%;transform:translateY(-50%);font-size: 16px;position: absolute" hidden>下载中...</span>
+            <span style="width: 10%;color:white;left: 50%;top:50%;transform:translateY(-50%) translateX(-50%);font-size: 19px;position: absolute">本地文件管理</span>
+            <span id="storeState" style="float: right;width: 16%;color:white;left: 84%;top:50%;transform:translateY(-50%);font-size: 16px;position: absolute">未读取到容量</span>
+        </div>
+        <div  style="width: 100%;height: 93%; top:2%;position: relative">
+            <div style="width: 27%;height: 100%;overflow: scroll;float: left;box-shadow: 0 15px  25px rgba(0,0,0,.3);">
+                <ul id="dateul" style="margin: 0;padding:0;width: 100%;height: 100%">
+<!--                    <li class="fileli_normal">-->
+<!--                        <a class="li_span">2021-05-24</a>-->
+<!--                        <img src="/public/image/ind.png" class="li_img"/>-->
+<!--                    </li>-->
+                </ul>
+            </div>
+            <div id="recordList" style="width: 72%;height: 100%;overflow: scroll;float: right">
+                <ul id="videoul" style="margin: 0;padding:0;width: 100%;height: 100%">
+<!--                    <li class="video_li">-->
+<!--                        <div style="width: 100%;height: 40px;position: absolute;background: #0f0f0f;text-align: center">-->
+<!--                            <a class="li_span" style="color: white">2021-05-24_124534</a>-->
+<!--                            <button class="btn btn-warning video_btn" >删除</button>-->
+<!--                        </div>-->
+<!--                        <div class="video_content">-->
+<!--                            <div style="float: left;width:25%;height: 220px;position: relative;text-align: center">-->
+<!--                                <a style=" width: 100%;color: black;top: 5%;transform: translateX(-50%);font-size: 18px;position: absolute;pointer-events: none;">SDI-1</a>-->
+<!--                                <div style=" border: 1px black solid; position: absolute;left: 50%;top: 50%;transform: translateY(-50%) translateX(-50%);width: 200px;height: 140px;background: white">-->
+<!--                                    <img src="" style="width: 100%;height: 100%"/>-->
+<!--                                </div>-->
+<!--                                <a style=" width: 100%;color: #2e6da4;top: 87%;transform: translateX(-50%);font-size: 16px;position: absolute;pointer-events: none;"> 2021-05-24_124534.mp4</a>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </li>-->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <include file="public/new_foot"/>
+</block>
+<block name="script">
+    <script>
+        var dates = []
+        $().ready(function ()
+        {
+            getMemory()
+            getVideoInfo()
+            window.AOV.getVideoState()
+        })
+
+        //加载下载状态
+        function loadDownState(state)
+        {
+            if (parseInt(state) == 1)
+            {
+                $("#usb_img").attr("hidden",null)
+                $("#usb_text").attr("hidden",null)
+            }else {
+                $("#usb_img").attr("hidden","hidden")
+                $("#usb_text").attr("hidden","hidden")
+            }
+        }
+
+        function getMemory()
+        {
+            let  obj = {
+                ip:GetQueryString("ip"),
+                protocol:parseInt(GetQueryString('protocol'))
+            }
+
+            $.post("{:url('/admin/api/getStoreState')}",obj,function (res)
+            {
+                let data = JSON.parse(res)
+                if (data.result != -1)
+                {
+                    $("#storeState").html("已用空间："+data.result.used+"/"+data.result.total);
+                }
+            })
+        }
+
+
+        function getVideoInfo()
+        {
+            let  obj = {
+                ip:GetQueryString("ip"),
+                protocol:parseInt(GetQueryString('protocol'))
+            }
+
+            $.post("{:url('/admin/api/getFileList')}",obj,function (res)
+            {
+                let list = JSON.parse(res)
+                var dateList = [];
+                var itemList = [];
+                // $("#listview").empty();
+                if (list.result != -1)
+                {
+                    // console.log(list)
+                    list.forEach(function (n,i)
+                    {
+                        if (n.type == "directory" && n.name.indexOf("_") != -1)
+                        {
+
+                            var date = n.name.slice(0,n.name.length - 7)
+                            dateList.push(date)
+                        }
+                    })
+
+                    dateList = unique(dateList)
+
+                    dateList.forEach(function (n)
+                    {
+                        var child =[]
+                        let obj = {
+                            date:n
+                        }
+                        list.forEach(function (k)
+                        {
+                            var date = k.name.slice(0,k.name.length - 7)
+                            if (n == date)
+                            {
+                                child.push(k)
+                            }
+                        })
+                        obj.child = child;
+                        itemList.push(obj)
+
+                    })
+
+                    // console.log(itemList)
+
+                    reloadDateList(itemList)
+
+                }
+            })
+        }
+
+        function unique (arr) {
+            return Array.from(new Set(arr))
+        }
+
+        function reloadDateList(datelist)
+        {
+            $("#dateul").empty();
+
+            dates = datelist;
+
+            datelist.forEach(function (n)
+            {
+                $("#dateul").append(" <li id='"+n.date+"li' class=\"fileli_normal\" child='"+JSON.stringify(n.child) +"'>\n" +
+                    "                        <span class=\"li_span\">"+n.date+"</span>\n" +
+                    "                        <img src=\"/public/image/ind.png\" class=\"li_img\">\n" +
+                    "                    </li>")
+            })
+
+            registerLiClickEvent()
+            reloadVideoList(datelist[0].child)
+            $("#"+datelist[0].date+"li").attr("class","fileli_select");
+        }
+
+        function registerLiClickEvent()
+        {
+            $("#dateul li").click(function (e)
+            {
+               dates.forEach(function (n)
+               {
+                   $("#"+n.date+"li").attr("class","fileli_normal");
+               })
+
+                let child = $(e.target).attr("child")
+                $(e.target).attr("class","fileli_select")
+                reloadVideoList(JSON.parse(child))
+            })
+        }
+
+        function reloadVideoList(childArray)
+        {
+            $("#videoul").empty();
+            childArray.forEach(function (n)
+            {
+                if (n.type == "directory")
+                {
+                    $("#videoul").append("<li id='"+n.name+"li' class=\"video_li\"><div style=\"width: 100%;height: 40px;position: absolute;background: #0f0f0f;text-align: center\"><a class=\"li_span\" style=\"color: white\">"+n.name+"</a><button id='"+n.name+"del' class=\"btn btn-warning video_btn\" onclick='deleteVideo(this.id)' >删除</button><button id='"+n.name+"down' class=\"btn btn-success video_btn\" onclick='downVideo(this.id)' >下载</button></div><div class=\"video_content\" id='"+n.name+"'></div></li>")
+
+                    getchildFile(n.name)
+                }
+
+                // <li class="video_li">
+                //     <div style="width: 100%;height: 40px;position: absolute;background: #0f0f0f;text-align: center">
+                //         <a class="li_span" style="color: white">2021-05-24_124534</a>
+                //         <button class="btn btn-warning video_btn" >删除</button>
+                //     </div>
+                //     <div class="video_content">
+                //         <div style="float: left;width:25%;height: 220px;position: relative;text-align: center">
+                //             <a class="video_title_span">SDI-1</a>
+                //             <div class="video_img"></div>
+                //             <a class="video_span"> 2021-05-24_124534.mp4</a>
+                //         </div>
+                //     </div>
+                // </li>
+
+
+            })
+
+        }
+
+        function getchildFile(directory)
+        {
+            let  obj = {
+                ip:GetQueryString("ip"),
+                protocol:parseInt(GetQueryString('protocol')),
+                dir:directory
+            }
+
+            // console.log(directory)
+
+            $.post("{:url('/admin/api/getChildFileList')}",obj,function (res) {
+
+                let list = JSON.parse(res)
+                if (list.result != -1) {
+                    list.forEach(function (n)
+                    {
+                        if (n.type == "directory")
+                        {
+                            getchildFile(directory+"/"+n.name)
+                        }else if(n.type == "file" && n.name.indexOf("jpg") != -1)
+                        {
+                            var datlist = directory.split("/");
+                            // console.log(directory)
+
+                            // $("#"+datlist[0]).append("<div style=\"float: left;width:25%;height: 220px;position: relative;text-align: center\"><a className=\"video_title_span\">CH"+datlist[1]+"</a><div className=\"video_img\"><img src='http://"+GetQueryString("ip")+"/files/"+directory+"/"+n.name+"' style=\"width: 100%;height: 100%\"/></div><a className=\"video_span\" id=''>"+n.name+".mp4</a></div>")
+                            $("#"+datlist[0]).append(" <div id='"+directory+"/"+n.name.slice(0,n.name.length-4)+".mp4' style=\"float: left;width:25%;height: 220px;position: relative;text-align: center\" onclick='playvideo(this.id)'>\n" +
+                                "                                <span style=\" width: 100%;color: black;top: 5%;transform: translateX(-50%);font-size: 18px;position: absolute;pointer-events: none;\">CH"+datlist[1]+"</span>\n" +
+                                "                                <div style=\" border: 1px black solid; position: absolute;left: 50%;top: 50%;transform: translateY(-50%) translateX(-50%);width: 200px;height: 140px;background: white\">\n" +
+                                "                                    <img src='http://"+GetQueryString("ip")+"/files/"+directory+"/"+n.name+"' style=\"width: 100%;height: 100%\"/>\n" +
+                                "                                </div>\n" +
+                                "                                <a  id='a"+directory+"/"+n.name.slice(0,n.name.length-4)+".mp4' style=\" width: 100%;color: #2e6da4;top: 87%;transform: translateX(-50%);font-size: 16px;position: absolute;pointer-events: none;\">"+n.name.slice(0,n.name.length-4)+".mp4</a>\n" +
+                                "                            </div>")
+
+                            if ( $("#"+datlist[0]+" img").length%4 !=0)
+                            {
+                                var height = (parseInt($("#"+datlist[0]+" img").length/4) +1)*220+40;
+                                $("#"+datlist[0]+"li").height(height+"px")
+                            }else {
+                                var height = (parseInt($("#"+datlist[0]+" img").length/4))*220+40;
+                                $("#"+datlist[0]+"li").height(height+"px")
+                            }
+
+
+                        }
+                    })
+                }
+            })
+
+        }
+
+
+        function playvideo(dir)
+        {
+            // console.log(dir)
+
+            var loadstr = "<video width='100%' height='100%'  controls='controls' autobuffer='autobuffer'  autoplay='autoplay' loop='loop'><source src='http://"+GetQueryString("ip")+"/files/"+dir+"' type='video/mp4'/></video>"
+            layer.open({
+                type: 1,
+                title: '播放视频',
+                content: loadstr,
+                area: ['750px', '500px'],
+            });
+        }
+
+        function deleteVideo(btnid)
+        {
+            //询问框
+            layer.confirm('删除之后将无法找回，您确定要删除？', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                layer.closeAll()
+                let directory = btnid.slice(0,btnid.length-3);
+                let  obj = {
+                    ip:GetQueryString("ip"),
+                    protocol:parseInt(GetQueryString('protocol')),
+                    dir:directory
+                }
+                $.post("{:url('/admin/api/deleteVideo')}",obj,function (res) {
+                    // console.log(res)
+                    var data = JSON.parse(res);
+                    if (data.result != -1)
+                    {
+                        getVideoInfo();
+                    }else
+                    {
+                        layer.alert("删除失败！");
+                    }
+                })
+            }, null);
+
+            // layer.open({
+            //     content:"删除之后将无法找回，您确定要删除？",//这里是提示的内容，不写的话默认是空
+            //     btn:["确定","取消"],//提示框的按钮，可以定义无限个按钮，用逗号分隔，如果不添加，默认是"确定"按钮
+            //     yes:function(){//点击确定(第一个按钮)后触发的方法
+            //
+            //         //return false;//解开该代码注释可以禁止点击该按钮关闭提示框
+            //     },
+            //     btn2:function(){//点击取消(第二个按钮)后触发的方法
+            //         //return false;//解开该代码注释可以禁止点击该按钮关闭提示框
+            //     },
+            //     cancel:function(){//点击右上角的关闭按钮后触发的方法
+            //         //return false;//解开该代码注释可以禁止点击该按钮关闭提示框
+            //     },
+            //     title:"提示",//提示框的标题，默认是"信息"
+            //     type:0,//提示框类型，默认是0信息框
+            //     btnAlign:"r",//按钮的排列位置，默认是"r"。("l"按钮左对齐。"c"按钮居中对齐。"r"按钮右对齐，默认的。)
+            //     time:3000,//自动关闭提示框,默认是不会关闭的，可以设置默认关闭提示框的时间
+            // });
+
+        }
+
+        //导出视频
+        function downVideo(id)
+        {
+            if ($("#usb_text").html() == "未读取到USB设备")
+            {
+                layer.alert("未发现USB设备,不可导出")
+                return;
+            }
+
+            let directory = id.slice(0,id.length-4);
+
+            var name = "#"+directory+" a"
+
+            var videoList = []
+            $(name).each(function ()
+            {
+                var videoPath = $(this).attr("id").slice(1, $(this).attr("id").length)
+                // console.log(videoPath)
+                videoList.push("http://"+GetQueryString("ip")+"/files/"+videoPath);
+           })
+
+            // console.log(videoList)
+            window.AOV.downLoadVideo(videoList)
+
+        }
+
+    </script>
+</block>

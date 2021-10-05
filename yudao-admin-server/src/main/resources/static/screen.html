@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>首视</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- 新 Bootstrap 核心 CSS 文件 -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="bootstrapvalidator/css/bootstrapValidator.min.css">
+  <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+  <script src="bootstrap/js/bootstrap.min.js"></script>
+  <script src="bootstrapvalidator/js/bootstrapValidator.min.js"></script>
+  <script src="js/jquery-validate.js"></script>
+  <link rel="stylesheet" href="css/pad_common.css">
+  <script src="js/pad_common.js"></script>
+  <script src="js/jquery.jsonrpcclient.js"></script>
+  <script src="layer/layer.js"></script>
+  <script src="js/menu.js"></script>
+  <!-- css-->
+  <style type="text/css">
+    .page {
+      position: fixed;
+      left: 0;
+      top: 0;
+    }
+    .camera {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 30px 0 0 0;
+      padding-left: 56px;
+    }
+    .camera .item {
+      width: 184px;
+      height: 260px;
+      margin-right: 48px;
+      text-align: center;
+      padding: 0;
+    }
+    .camera .item .title {
+      line-height: 30px;
+      font-size: 21px;
+      font-weight: 800;
+    }
+    .camera .item .icon {
+      border: 2px solid gray;
+      width: 184px;
+      height: 184px;
+      border-radius: 10px;
+    }
+    .camera .active .icon {
+      border: 2px solid #5cb85c;
+    }
+    .camera .item .check {
+      margin-top: 6px;
+    }
+    .control {
+      width: 100%;
+      height: 598px;
+      margin-top: 30px;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 0 56px;
+    }
+    .control .left {
+      padding: 0;
+      width: 960px;
+      height: 540px;
+      border: 1px solid gray;
+    }
+    .control .right {
+      padding: 42px 0 0 150px;
+    }
+    .control .right .tv {
+      padding: 0 0 0 30px;
+    }
+    .control .right .tv .item {
+      margin: 0 50px 50px 0;
+      text-align: center;
+    }
+    .control .right .tv .item .icon {
+      /* border: 1px solid red; */
+      width: 200px;
+      height: 153px;
+      margin: 0 auto;
+    }
+    .control .right .tv .item .icon img {
+      width: 200px;
+      height: 153px;
+    }
+    .control .right .tv .item .title {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body class="whole_body">
+  <!-- 内容 -->
+  <div class="app container-fluid">
+    <!-- 顶部 -->
+    <div class="row top">
+      <div class="col-md-3 title">数字化手术室</div>
+      <div class="col-md-6 text-center">
+        <div id="timeNow" class="time">2020年4月28日12时12分&nbsp;&nbsp;星期三</div>
+      </div>
+      <div class="col-md-3">
+        <img class="logo" src="images/logo.png" />
+      </div>
+    </div>
+  
+    <!-- 摄像头列表 -->
+    <div class="row camera">
+<!-- <foreach name="list" item="k" key="i">
+      <div id="channel{$i}" channel_name="{$k.channel_name}" index='{$i}' rtsp="{$k.rtsp_sub}" onclick="selectItem(this)" class="col-md-1 item">
+        <div class="title">{$k.channel_name}</div>
+        <div class="icon"><img src="images/10{$i+1}.png" /></div>
+      </div>
+</foreach> -->
+      <!--
+      <div class="col-md-1 item">
+        <div class="title">1号手术室全景相机</div>
+        <div class="icon"><img src="images/101.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室术野相机</div>
+        <div class="icon"><img src="images/102.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室腔镜</div>
+        <div class="icon"><img src="images/103.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室X光</div>
+        <div class="icon"><img src="images/104.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室血管造影</div>
+        <div class="icon"><img src="images/105.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室血管造影</div>
+        <div class="icon"><img src="images/106.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室体征</div>
+        <div class="icon"><img src="images/107.png" /></div>
+      </div>
+      <div class="col-md-1 item">
+        <div class="title">1号手术室工作站</div>
+        <div class="icon"><img src="images/108.png" /></div>
+      </div>
+      -->
+    </div>
+  
+    <div class="row control">
+      <div id="videoView" class="col-md-7 left"></div>
+      <div class="col-md-5 right">
+        <div class="row tv">
+          <div onclick="turnToScreen(0);" class="col-md-5 item">
+            <div class="icon"><img src="images/201.png" /></div>
+            <div class="title">27寸主显</div>
+          </div>
+          <div onclick="turnToScreen(1);" class="col-md-5 item">
+            <div class="icon"><img src="images/201.png" /></div>
+            <div class="title">27寸副显</div>
+          </div>
+          <div onclick="turnToScreen(2);" class="col-md-5 item">
+            <div class="icon"><img src="images/201.png" /></div>
+            <div class="title">55寸主显</div>
+          </div>
+          <div onclick="turnToScreen(3);" class="col-md-5 item">
+            <div class="icon"><img src="images/201.png" /></div>
+            <div class="title">55寸主显</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- 底部菜单 -->
+    <div class="row menu">
+      <div class="col-md-1 item" onclick="goMain()">手术录像</div>
+      <div class="col-md-1 item" onclick="goScreen()">影像路由</div>
+      <div class="col-md-1 item" onclick="goMedia()">视频点播</div>
+      <div class="col-md-1 item" onclick="goTeach()">直播示教</div>
+      <div class="col-md-1 item" onclick="goPatient()">电子病历</div>
+      <div class="col-md-1 item" onclick="goBedlight()">无影灯控制</div>
+      <div class="col-md-1 item" onclick="goBed()">手术床控制</div>
+      <div class="col-md-1 item" onclick="goLight()">灯光控制</div>
+    </div>
+  </div>
+  </body>
+
+  <script type="text/javascript">
+    var channel_list = [];
+    var curSelect = 0;
+    let deviceId = 2;
+
+    $(document).ready(function () {
+      $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
+        $.each(data.data, function(i, field){
+          $(".camera").append(
+            '<div class="col-md-1 item">' +
+            '  <div class="title">'+field.name+'</div>' +
+            '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
+            '</div>'
+          );
+        });
+      });
+      // 标识当前菜单为激活状态
+      $('.menu .item:nth-child(2)').addClass("active");
+      try {
+        // 校正播放窗口的位置
+        changeVideoViewpostion();
+      } catch (e) { console.error(e); }
+
+      // $("#div0").attr("class", "channel_select")
+
+      // var height = $("#ptz").height();
+      // $("#ptz").width(height);
+      // $("#ptz").css("borderRadius", height / 2);
+      // var width = $("#videoView").width();
+      // var height = $("#videoView").height();
+
+      // var origanl_x = window.innerWidth/2;
+      // var origanl_y = window.innerHeight/2;
+      // var orignal_x_video =$("#videoView").offset().left+width/2;
+      // var orignal_y_video =$("#videoView").offset().top+height/2;
+
+      // var bottom = window.innerHeight - $("#videoView").offset().top - height;
+
+      // window.AOV.playVideo(channel_list[0].rtsp_sub,offset_x,offset_y,width,height);
+      // window.AOV.playVideo(channel_list[0].rtsp_sub, $("#videoView").offset().left, $("#videoView").offset().top, bottom, width, height);
+
+      curSelect = 0;//设置默认第一个窗口为选中窗口
+
+      // beforUrl = channel_list[0].rtsp_sub;
+
+      //主动切换串口
+      // gradeChange($("#div0").attr("channel_name"))
+
+      //向安卓端索要dors信息
+      const config = window.AOV.getDorsConfig();
+      console.log(config);
+    })
+
+    function selectItem(el) {
+      let _this = $(el);;
+      if (_this.hasClass('active')) { // 当前元素重复选中
+        return;
+      }
+      // 添加选中样式
+      _this.addClass("active");
+      // 移除相邻节点的选中样式
+      _this.siblings().each((i, element) => {
+        $(element).removeClass("active");
+      });
+
+      beforUrl = _this.attr("rtsp")
+      curSelect = parseInt(_this.attr("index"));
+      try {
+        window.AOV.changeVideo(beforUrl);
+        gradeChange(_this.attr('channel_name'));
+      } catch(e) { console.error(e); }
+    }
+
+    /**
+     * PTZ控制块
+     */
+    //从安卓返回的dors信息
+    function loadDorsInfo(dorsConfig) {
+      if (!dorsConfig) {
+        //未从安卓获取到dors配置
+        $("#noRead").attr("hidden", null);
+
+      } else {
+        // //拿取摄像机信息
+        // let cameras = dorsConfig.camera;
+        //
+        // let x=document.getElementById("channel_choice");
+        // cameras.forEach(function (n,i){
+        //     let option= document.createElement("option");
+        //     option.text = n.title;
+        //     option.value = n.title;
+        //     x.add(option,null)
+        // })
+        //
+        // let selected = $("#channel_choice option:selected").text();
+        // //获取默认选中的值
+        // window.AOV.openSerial(selected);
+
+        //从安卓获取到dors配置
+        //清除数据，加载安卓端反送的矩阵配置
+        // $("#martix").empty();
+        // let martix = dorsConfig.matrix.out;
+
+        // martix.forEach(function (n, i) {
+        //   $("#martix").append(" <div id='screen" + n.sort.toString() + "' style=\"float: left;width: 25%;height: 200px;position: relative\" onclick=\"turnToScreen(this.id);\">\n" +
+        //     "                            <img src=\"/public/image/computer.png\" style=\"width: 70%;height: auto;top: 45%;left: 50%;position: absolute;transform: translateY(-50%) translateX(-50%)\"/>\n" +
+        //     "                            <span style=\"width: 100%;top:81%;color: white;font-size: 19px;position: absolute;text-align: center\">" + n.title + "</span>\n" +
+        //     "                        </div>")
+        // })
+      }
+    }
+    //停止控制
+    function stopControl() {
+      // console.log("点击 停止");
+      setTimeout(function () {
+        window.AOV.stop();
+      }, 400)
+    }
+    //切换串口
+    function gradeChange(x) {
+      // console.log("点击 切换串口："+x);
+      window.AOV.changeToSerial(x);
+    }
+    function ptzcontrol(id) {
+      if (id === "up") {
+        // console.log("点击 上");
+        window.AOV.up();
+      } else if (id === "left") {
+        // console.log("点击 左");
+        window.AOV.left();
+      } else if (id === "right") {
+        // console.log("点击 右");
+        window.AOV.right();
+      } else if (id === "down") {
+        // console.log("点击 下");
+        window.AOV.down();
+      } else if (id === "zoomDes") {
+        // console.log("点击 变倍减");
+        window.AOV.zoomDesc();
+      } else if (id === "zoomAdd") {
+        // console.log("点击 变倍加");
+        window.AOV.zoomAdd();
+      } else if (id === "focusDes") {
+        // console.log("点击 聚焦减");
+        window.AOV.focusDesc();
+      } else if (id === "focusAdd") {
+        // console.log("点击 聚焦加");
+        window.AOV.focusAdd();
+      }
+    }
+
+    /**
+     * 矩阵切换,index从0开始
+     */
+    function turnToScreen(index) {
+      //将输入输出传给安卓
+      window.AOV.screenControl(curSelect, index);
+    }
+  </script>
+</html>
