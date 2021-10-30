@@ -412,7 +412,7 @@
 <script type="text/javascript">
 let addr = '<?php echo json_encode($addr) ?>';
 let categoryId = GetQueryString('category_id');
-beforUrl = JSON.parse(addr)
+// beforUrl = JSON.parse(addr)
 let padId = GetQueryString('id');
 let protocol = GetQueryString('protocol');
 let encoderIp = GetQueryString('ip');
@@ -533,25 +533,33 @@ function commitLinkpi() {
     }
   })
 }
+let connectedMeetingRoom = null;
+let currentRoom = null;
 $(document).ready(function() {
   try {
+    // 获取当前房间信息
+    currentRoom = JSON.parse(AOV.getCurrentRoom());
+    // 获取当前连接中的会议室
+    connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
+    $('.table-title').text('示教室连线中 - ' + currentRoom.name);
     // 初始化通道信息
     init();
     //加载播放器
-    let videoView = $("#videoView");
-    let videoViewOffset = videoView.offset();
-    var origanl_x = window.innerWidth / 2;
-    var origanl_y = window.innerHeight / 2;
-    var width = videoView.width();
-    var height = videoView.height();
-    var orignal_x_video = videoViewOffset.left + width / 2;
-    var orignal_y_video = videoViewOffset.top + height / 2;
+    // let videoView = $("#videoView");
+    // let videoViewOffset = videoView.offset();
+    // var origanl_x = window.innerWidth / 2;
+    // var origanl_y = window.innerHeight / 2;
+    // var width = videoView.width();
+    // var height = videoView.height();
+    // var orignal_x_video = videoViewOffset.left + width / 2;
+    // var orignal_y_video = videoViewOffset.top + height / 2;
 
-    var offset_x = orignal_x_video - origanl_x;
-    var offset_y = orignal_y_video - origanl_y;
+    // var offset_x = orignal_x_video - origanl_x;
+    // var offset_y = orignal_y_video - origanl_y;
 
-    var bottom = window.innerHeight - videoViewOffset.top - height;
-    window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
+    // var bottom = window.innerHeight - videoViewOffset.top - height;
+    // window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
+    
   } catch (e) { console.error(e); }
 
   // 切换Mix通道视频布局
@@ -754,8 +762,10 @@ function changeScreen(count) {
 // 挂断
 function ringOff() {
   try {
-    //通知手术室会议结束，其余也被迫退出
-    window.AOV.terminateMeeting();
+    // 通知会议室会议结束。
+    AOV.ringOff();
+    // 回到进入会议前的页面。
+    history.go(-1);
   } catch(e) { console.error(e); }
 }
 /**
@@ -768,6 +778,21 @@ function closeScreenView() {
   } catch (e) { console.error(e); }
 
   window.history.go(-1);
+}
+
+// 当手术室有新的连接或有连接断开时调用该接口刷新会议室列表。
+function refreshMeetingRoom() {
+  // 获取当前已连接的会议室列表，更新下拉列表。
+  connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
+  $('.selectpicker').each((i, e) => {
+    $(e).empty();
+    connectedMeetingRoom.forEach((ele, index) => {
+      $(e).append('<option value="'+index+'">'+ele.name+'</option>');
+    });
+    // $(e).val(srcV[i]);
+    // bootstrap-select 必须调用一次刷新才会更新选中状态
+    $(e).selectpicker('refresh');
+  });
 }
 </script>
 </html>

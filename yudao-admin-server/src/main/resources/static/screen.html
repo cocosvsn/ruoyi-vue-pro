@@ -197,22 +197,25 @@
   <script type="text/javascript">
     var channel_list = [];
     var curSelect = 0;
-    let deviceId = 2;
 
+    let currentRoom = null;
     $(document).ready(function () {
-      $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-        $.each(data.data, function(i, field){
-          $(".camera").append(
-            '<div class="col-md-1 item">' +
-            '  <div class="title">'+field.name+'</div>' +
-            '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
-            '</div>'
-          );
-        });
-      });
       // 标识当前菜单为激活状态
       $('.menu .item:nth-child(2)').addClass("active");
       try {
+        // 获取当前房间信息
+        currentRoom = JSON.parse(AOV.getCurrentRoom());
+        let deviceId = currentRoom.encoder.id;
+        $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
+          $.each(data.data, function(i, field){
+            $(".camera").append(
+              '<div class="col-md-1 item">' +
+              '  <div class="title">'+field.name+'</div>' +
+              '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
+              '</div>'
+            );
+          });
+        });
         // 校正播放窗口的位置
         changeVideoViewpostion();
       } catch (e) { console.error(e); }

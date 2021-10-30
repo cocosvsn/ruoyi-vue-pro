@@ -442,27 +442,35 @@
   let srcA = [-1, -1, -1, -1];
   // console.log(beforUrl)
   //加载自动应答状态
-  function loadCallState(state, oncall) {
-    if (parseInt(state) == 1) {
-      // console.log('开启')
-      $('[name="auto-answer"]').bootstrapSwitch("state",true);
-    } else {
-      // console.log('关闭')
-      $('[name="auto-answer"]').bootstrapSwitch("state",false);
-    }
-  }
+  // function loadCallState(state, oncall) {
+  //   if (parseInt(state) == 1) {
+  //     // console.log('开启')
+  //     $('[name="auto-answer"]').bootstrapSwitch("state",true);
+  //   } else {
+  //     // console.log('关闭')
+  //     $('[name="auto-answer"]').bootstrapSwitch("state",false);
+  //   }
+  // }
   // 获取灵派mix通道信息
+  let currentRoom = null;
+  let currentEncoder = null;
   function init() {
-    let deviceId = 2;
+    let deviceId = 0;
+    currentRoom.devices.forEach(e => {
+      if('PAD' !== e.typeOf) {
+        deviceId = e.id;
+        currentEncoder = e; // 赋值当前房间编码器信息
+      }
+    });
+    console.log(currentEncoder.lastOnlineIp);
     $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
+      let tmpSelectPicker = $(".video-content select");
       $.each(data.data, function(i, field){
-        $(".video-content select").append(
+        tmpSelectPicker.append(
           '<option value="'+field.channelId+'">'+field.name+'</option>'
         );
       });
-    });
-    $.getJSON("/api/dors/channel/device?type=mix&deviceId="+deviceId, function(data) {
-      dealLinkPi(data.data[0]);
+      tmpSelectPicker.selectpicker('refresh');
     });
   }
   //灵派编码器内容处理
@@ -557,7 +565,21 @@
   $(document).ready(function() {
     // 标识当前菜单为激活状态
     $('.menu .item:nth-child(4)').addClass("active");
+    let autoAnswerDialingState = false;
     try {
+      // 获取当前房间信息
+      currentRoom = JSON.parse(AOV.getCurrentRoom());
+      // 加载自动应答状态
+      autoAnswerDialingState = AOV.getAutoAnswerDialing();
+      // console.log(typeof autoAnswerDialingState);
+      // if(autoAnswerDialingState) {
+      //   console.log('开启')
+      //   $('[name="auto-answer"]').bootstrapSwitch("state",true);
+      // } else {
+      //   console.log('关闭')
+      //   $('[name="auto-answer"]').bootstrapSwitch("state",false);
+      // }
+      
       // 初始化通道信息
       init();
       // 获取应答状态
@@ -585,15 +607,26 @@
       offColor: "info",
       size: "small",
       onSwitchChange: function (event, state) {
-        if (state == true) {
-          // console.log("开启");
-          window.AOV.saveCallState(true);
-        } else {
-          // console.log("关闭");
-          window.AOV.saveCallState(false);
-        }
+        try {
+          if (state == true) {
+            // console.log("开启");
+            AOV.setAutoAnswerDialing(true);
+          } else {
+            // console.log("关闭");
+            AOV.setAutoAnswerDialing(false);
+          }
+        } catch (e) { console.error(e); }
       }
     });
+    // 更新自动应答状态。
+    if (autoAnswerDialingState) {
+      // console.log('开启')
+      $('[name="auto-answer"]').bootstrapSwitch("state",true);
+    } else {
+      // console.log('关闭')
+      $('[name="auto-answer"]').bootstrapSwitch("state",false);
+    }
+    // $('[name="auto-answer"]').bootstrapSwitch("state", autoAnswerDialingState);
     // 切换Mix通道视频布局
     $('.button').click(function() {
       const btnName = $(this).children('.name').text();

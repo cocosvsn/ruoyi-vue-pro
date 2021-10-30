@@ -387,33 +387,36 @@
 </div>
 </body>
 <script type="text/javascript">
-  let isRecord = false;
   let recordId = "{$subj_id}";
   let currentChannel = null;
   let snapTimes = 0;
-  let mac = "20:50:E7:1A:05:1D";
-  let deviceId = 2;
-
+  
+  let currentRoom = null;
   $(document).ready(function() {
-    $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-      $.each(data.data, function(i, field){
-        $(".camera").append(
-          '<div class="col-md-1 item" >' +
-          '  <div class="title">'+field.name+'</div>' +
-          '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
-          '    <div class="check">' +
-          '      <div class="checkbox-custom checkbox_default">' +
-          '      <input type="checkbox">' +
-          '      <label></label>' +
-          '    </div>' +
-          '  </div>' +
-          '</div>'
-        );
-      });
-    });
     // 标识当前菜单为激活状态
     $('.menu .item:first').addClass("active");
     try {
+      // 获取当前房间信息
+      currentRoom = JSON.parse(AOV.getCurrentRoom());
+      let deviceId = currentRoom.encoder.id;
+      console.log("encoder device id: " + deviceId);
+      // 获取通道信息
+      $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
+        $.each(data.data, function(i, field){
+          $(".camera").append(
+            '<div class="col-md-1 item" >' +
+            '  <div class="title">'+field.name+'</div>' +
+            '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
+            '    <div class="check">' +
+            '      <div class="checkbox-custom checkbox_default">' +
+            '      <input type="checkbox">' +
+            '      <label></label>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>'
+          );
+        });
+      });
       // 校正播放窗口的位置
       changeVideoViewpostion();
     } catch (e) { console.error(e); }
