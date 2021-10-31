@@ -398,11 +398,6 @@
   </div>
 </body>
 <script type="text/javascript">
-  let addr = '<?php echo json_encode($addr) ?>';
-  let categoryId = GetQueryString('category_id');
-  let categoryName = '<?php echo $category_name ?>';
-  let padId = GetQueryString('id');
-  let protocol = GetQueryString('protocol');
   /**
    * 灵派画面布局参数
    * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
@@ -436,59 +431,45 @@
       { x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 1 }
     ]
   ];
-  let encoderIp = GetQueryString('ip');
-  let encoderPort = GetQueryString('port');
   let srcV = [-1, -1, -1, -1];
   let srcA = [-1, -1, -1, -1];
-  // console.log(beforUrl)
-  //加载自动应答状态
-  // function loadCallState(state, oncall) {
-  //   if (parseInt(state) == 1) {
-  //     // console.log('开启')
-  //     $('[name="auto-answer"]').bootstrapSwitch("state",true);
-  //   } else {
-  //     // console.log('关闭')
-  //     $('[name="auto-answer"]').bootstrapSwitch("state",false);
-  //   }
-  // }
-  // 获取灵派mix通道信息
+  
+  // 当前房间信息
   let currentRoom = null;
+  // 当前房间编码器信息
   let currentEncoder = null;
-  function init() {
-    let deviceId = 0;
-    currentRoom.devices.forEach(e => {
-      if('PAD' !== e.typeOf) {
-        deviceId = e.id;
-        currentEncoder = e; // 赋值当前房间编码器信息
-      }
-    });
-    console.log(currentEncoder.lastOnlineIp);
-    $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-      let tmpSelectPicker = $(".video-content select");
-      $.each(data.data, function(i, field){
-        tmpSelectPicker.append(
-          '<option value="'+field.channelId+'">'+field.name+'</option>'
-        );
-      });
-      tmpSelectPicker.selectpicker('refresh');
-    });
-  }
+  // 自动应答状态
+  let autoAnswerDialingState = false;
+  // 灵派编码器配置信息
+  let linkpiConfig = [];
+  // 灵派mix通道信息
+  let linkpiMix = [];
+  // 分屏数量
+  let screenCount = 0;
+  
   //灵派编码器内容处理
   function dealLinkPi(str) {
-    linkpiMix = JSON.parse(str.jsonInfo);
+    linkpiConfig = JSON.parse(str);
+    for (let i = 0; i < linkpiConfig.length; i++) {
+      if('mix' === linkpiConfig[i].type) {
+        linkpiMix = linkpiConfig[i];
+        break;
+      }
+    }
     //获取mix通道信息
-    console.log(linkpiMix);
     pushStreamState = linkpiMix.stream.push.enable; // 初始化推流标志位
     if (pushStreamState) {
       let btnPushStream = $('.btn-push-stream');
       btnPushStream.children('img').prop('src', 'images/405.png');
       btnPushStream.children('.name').text('结束推流');
     }
+    console.log(linkpiMix.layout);
     let layout = linkpiMix.layout;
     srcV = linkpiMix.srcV;//视频通道参数
+    console.log(srcV);
     srcA = linkpiMix.srcA;//音频通道参数
     let index = getArrayIndex(linkpiLayout, layout);
-    // console.log(index)
+    console.log(index);
     screenCount = linkpiLayout[index].length;
     changeScreen(screenCount);
   }
@@ -511,9 +492,7 @@
         break;
     }
   }
-  // 调用灵派rpc提交
-  let linkpiMix = [];
-  let screenCount = 0;
+  
   function commitLinkpi() {
     let currentLinkpiLayout = null;;
     linkpiLayout.forEach((e, i) => {
@@ -565,68 +544,15 @@
   $(document).ready(function() {
     // 标识当前菜单为激活状态
     $('.menu .item:nth-child(4)').addClass("active");
-    let autoAnswerDialingState = false;
     try {
       // 获取当前房间信息
       currentRoom = JSON.parse(AOV.getCurrentRoom());
       // 加载自动应答状态
       autoAnswerDialingState = AOV.getAutoAnswerDialing();
-      // console.log(typeof autoAnswerDialingState);
-      // if(autoAnswerDialingState) {
-      //   console.log('开启')
-      //   $('[name="auto-answer"]').bootstrapSwitch("state",true);
-      // } else {
-      //   console.log('关闭')
-      //   $('[name="auto-answer"]').bootstrapSwitch("state",false);
-      // }
-      
-      // 初始化通道信息
+      // 初始化
       init();
-      // 获取应答状态
-      // window.AOV.getCallState();
-      //加载播放器
-      // let videoView = $("#videoView");
-      // let videoViewOffset = videoView.offset();
-      // var origanl_x = window.innerWidth / 2;
-      // var origanl_y = window.innerHeight / 2;
-      // var width = videoView.width();
-      // var height = videoView.height();
-      // var orignal_x_video = videoViewOffset.left + width / 2;
-      // var orignal_y_video = videoViewOffset.top + height / 2;
-
-      // var offset_x = orignal_x_video - origanl_x;
-      // var offset_y = orignal_y_video - origanl_y;
-
-      // var bottom = window.innerHeight - videoViewOffset.top - height;
-      // window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
     } catch (e) { console.error(e); }
-    $('[name="auto-answer"]').bootstrapSwitch({    //初始化按钮
-      onText: "Yes",
-      offText: "No",
-      onColor: "success",
-      offColor: "info",
-      size: "small",
-      onSwitchChange: function (event, state) {
-        try {
-          if (state == true) {
-            // console.log("开启");
-            AOV.setAutoAnswerDialing(true);
-          } else {
-            // console.log("关闭");
-            AOV.setAutoAnswerDialing(false);
-          }
-        } catch (e) { console.error(e); }
-      }
-    });
-    // 更新自动应答状态。
-    if (autoAnswerDialingState) {
-      // console.log('开启')
-      $('[name="auto-answer"]').bootstrapSwitch("state",true);
-    } else {
-      // console.log('关闭')
-      $('[name="auto-answer"]').bootstrapSwitch("state",false);
-    }
-    // $('[name="auto-answer"]').bootstrapSwitch("state", autoAnswerDialingState);
+    
     // 切换Mix通道视频布局
     $('.button').click(function() {
       const btnName = $(this).children('.name').text();
@@ -684,6 +610,53 @@
       commitSreenSet();
     });
   });
+  /**
+   * 初始化
+   */
+  function init() {
+    // 1. 初始化通道信息
+    let deviceId = currentRoom.encoder.id;
+    $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
+      let tmpSelectPicker = $(".video-content select");
+      $.each(data.data, function(i, field){
+        console.log(typeof field.channelId);
+        tmpSelectPicker.append(
+          '<option value="'+field.channelId+'">'+field.name+'</option>'
+        );
+      });
+      tmpSelectPicker.selectpicker('refresh');
+
+      // 3. 初始化分屏信息
+      dealLinkPi(currentRoom.encoderConfig);
+    });
+    // 2 初始化自动应答开关
+    $('[name="auto-answer"]').bootstrapSwitch({    
+      onText: "Yes",
+      offText: "No",
+      onColor: "success",
+      offColor: "info",
+      size: "small",
+      onSwitchChange: function (event, state) {
+        try {
+          if (state == true) {
+            // console.log("开启");
+            AOV.setAutoAnswerDialing(true);
+          } else {
+            // console.log("关闭");
+            AOV.setAutoAnswerDialing(false);
+          }
+        } catch (e) { console.error(e); }
+      }
+    });
+    // 2.1 更新自动应答开关状态。
+    if (autoAnswerDialingState) {
+      // console.log('开启')
+      $('[name="auto-answer"]').bootstrapSwitch("state",true);
+    } else {
+      // console.log('关闭')
+      $('[name="auto-answer"]').bootstrapSwitch("state",false);
+    }
+  }
   // 保存定时更新画面截图的定时器句柄
   let srcVPreviewInterval = [null, null, null, null];
   function previewChannel(box, i) {
@@ -693,16 +666,16 @@
     }, 50000);
   }
   function setPreview(box, channelId) {
-    let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
-    // console.log(previewUrl);
-    box.css('background', 'url(' + previewUrl + ') no-repeat')
-        .css('background-size', '100% 100%');
+    // let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
+    // // console.log(previewUrl);
+    // box.css('background', 'url(' + previewUrl + ') no-repeat')
+    //     .css('background-size', '100% 100%');
   }
   function changeScreen(count) {
     let oneElement = $('.one');
     let threeElement = $('.three');
     let fourElement = $('.four');
-    // console.log("changeScreen("+ count+");");
+    console.log("changeScreen("+ count+");");
     // 预览地址规则：http://IP[:PORT]/snap/snap[通道号].jpg?rnd=随机值
     switch(count) {
       case 1:
@@ -724,28 +697,28 @@
             //   voiceSpan.removeClass('active');
             }
           });
-          if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-            clearInterval(srcVPreviewInterval[i]);
-            srcVPreviewInterval[i] = null;
-          }
-          // 预览通道截图
-          setPreview(parentBox, srcV[i]);
-          previewChannel(parentBox, i);
+          // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          //   clearInterval(srcVPreviewInterval[i]);
+          //   srcVPreviewInterval[i] = null;
+          // }
+          // // 预览通道截图
+          // setPreview(parentBox, srcV[i]);
+          // previewChannel(parentBox, i);
         });
         // 清空其它定时器
-        srcVPreviewInterval.forEach((e, i) => {
-          if (0 < i && null !== e) {
-            clearInterval(e);
-            srcVPreviewInterval[i] = null;
-          }
-        });
+        // srcVPreviewInterval.forEach((e, i) => {
+        //   if (0 < i && null !== e) {
+        //     clearInterval(e);
+        //     srcVPreviewInterval[i] = null;
+        //   }
+        // });
         break;
       case 3:
         oneElement.attr('hidden', 'hidden');
         threeElement.removeAttr('hidden');
         fourElement.attr('hidden', 'hidden');
         threeElement.find('select').each((i, e) => {
-          // console.log(i, e);
+          console.log(i, e);
           $(e).val(srcV[i]);
           // bootstrap-select 必须调用一次刷新才会更新选中状态
           $(e).selectpicker('refresh');
@@ -759,24 +732,26 @@
             //   voiceSpan.removeClass('active');
             }
           });
-          if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-            clearInterval(srcVPreviewInterval[i]);
-            srcVPreviewInterval[i] = null;
-          }
-          setPreview(parentBox, srcV[i]);
-          previewChannel(parentBox, i);
+          // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          //   clearInterval(srcVPreviewInterval[i]);
+          //   srcVPreviewInterval[i] = null;
+          // }
+          // setPreview(parentBox, srcV[i]);
+          // previewChannel(parentBox, i);
         });
-        if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
-          clearInterval(srcVPreviewInterval[3]);
-          srcVPreviewInterval[3] = null;
-        }
+        // if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
+        //   clearInterval(srcVPreviewInterval[3]);
+        //   srcVPreviewInterval[3] = null;
+        // }
         break
       case 4:
         oneElement.attr('hidden', 'hidden');
         threeElement.attr('hidden', 'hidden');
         fourElement.removeAttr('hidden');
         fourElement.find('select').each((i, e) => {
-          // console.log(i, e, srcV[i]);
+          console.log(i);
+          console.log(e);
+          console.log(srcV[i]);
           $(e).val(srcV[i]);
           // bootstrap-select 必须调用一次刷新才会更新选中状态
           $(e).selectpicker('refresh');
@@ -789,13 +764,13 @@
             //   voiceSpan.removeClass('active');
             }
           });
-          let parentBox = $(e).parents('.box');
-          if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-            clearInterval(srcVPreviewInterval[i]);
-            srcVPreviewInterval[i] = null;
-          }
-          setPreview(parentBox, srcV[i]);
-          previewChannel(parentBox, i);
+          // let parentBox = $(e).parents('.box');
+          // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+          //   clearInterval(srcVPreviewInterval[i]);
+          //   srcVPreviewInterval[i] = null;
+          // }
+          // setPreview(parentBox, srcV[i]);
+          // previewChannel(parentBox, i);
         });
         break;
       default: break;
