@@ -43,23 +43,33 @@ spring:
       primary: master
       datasource:
         master:
-          name: ruoyi-vue-pro
-          url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.master.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
+          name: aov
+          url: jdbc:mysql://mysql:3306/${spring.datasource.dynamic.datasource.master.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
           driver-class-name: com.mysql.jdbc.Driver
-          username: root
-          password: 1xpLUA7jCzx2
+          username: admin
+          password: aFCIvwQ9zWav
         slave: # 模拟从库，可根据自己需要修改
-          name: ruoyi-vue-pro
-          url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.slave.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
+          name: aov
+          url: jdbc:mysql://mysql:3306/${spring.datasource.dynamic.datasource.slave.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT
           driver-class-name: com.mysql.jdbc.Driver
-          username: root
-          password: 1xpLUA7jCzx2
-
+          username: admin
+          password: aFCIvwQ9zWav
+#  devtools:
+#    restart:
+#      enable: true
+#      exclude: static
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   redis:
-    host: 127.0.0.1 # 地址
+    host: redis # 地址
     port: 6379 # 端口
     database: 0 # 数据库索引
+    password: 402vGzeMUQYu
+
+
+  web:
+    resources:
+      static-locations: file:/opt/static
+
 
 --- #################### 定时任务相关配置 ####################
 
@@ -160,6 +170,11 @@ yudao:
     mock-enable: true
     mock-secret: test
   file:
+#    store-type: none
+    store-type: local
+    url-prefix: http://192.168.1.248/userfiles
+    local:
+      directory: /opt/userfiles/
     base-path: http://127.0.0.1:${server.port}${yudao.web.api-prefix}/infra/file/get/
   xss:
     enable: false

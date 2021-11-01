@@ -31,6 +31,7 @@
         <module>yudao-spring-boot-starter-biz-sms</module>
 
         <module>yudao-spring-boot-starter-udp-server</module>
+        <module>yudao-spring-boot-starter-file</module>
     </modules>
 
     <artifactId>yudao-framework</artifactId>

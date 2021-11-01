@@ -1,7 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import lombok.*;
-import java.util.*;
 import io.swagger.annotations.*;
 import javax.validation.constraints.*;
 
@@ -14,7 +14,7 @@ public class RoomBaseVO {
 
     @ApiModelProperty(value = "类型（手术室/会议室）", required = true)
     @NotNull(message = "类型（手术室/会议室）不能为空")
-    private String type;
+    private RoomType type;
 
     @ApiModelProperty(value = "房间名称", required = true)
     @NotNull(message = "房间名称不能为空")

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -13,7 +14,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class RoomExportReqVO {
 
     @ApiModelProperty(value = "类型（手术室/会议室）")
-    private String type;
+    private RoomType type;
 
     @ApiModelProperty(value = "房间名称")
     private String name;

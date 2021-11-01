@@ -131,6 +131,7 @@ CREATE TABLE IF NOT EXISTS `dors_version` (
   `force_update` BIT(1) NOT NULL DEFAULT 0 COMMENT '是否强制升级',
   `main_activity` VARCHAR(128) NULL COMMENT '主入口Activity',
   `url` VARCHAR(512) NULL COMMENT '下载地址',
+  `icon_url` VARCHAR(512) NULL COMMENT '图标地址',
   `checksum` VARCHAR(256) NULL COMMENT '校验码',
   `size` BIGINT NULL COMMENT '大小',
   `author` VARCHAR(128) NULL COMMENT '开发者',
@@ -149,7 +150,6 @@ CREATE TABLE IF NOT EXISTS `dors_version` (
   INDEX `lastest_version` (`package_name` ASC, `version_num` DESC) VISIBLE)
 ENGINE = InnoDB
 COMMENT = '应用版本'
-
 -- ----------------------------
 -- Records of dors_version
 -- ----------------------------

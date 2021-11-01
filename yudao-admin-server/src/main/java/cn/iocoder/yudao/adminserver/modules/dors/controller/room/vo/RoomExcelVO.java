@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -22,7 +23,7 @@ public class RoomExcelVO {
 
     @ExcelProperty(value = "类型（手术室/会议室）", converter = DictConvert.class)
     @DictFormat("dors_room_type") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
-    private String type;
+    private RoomType type;
 
     @ExcelProperty("房间名称")
     private String name;

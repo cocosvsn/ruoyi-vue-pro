@@ -1,8 +1,8 @@
 {
-  "name": "ruoyi",
+  "name": "aov",
   "version": "3.3.0",
-  "description": "芋道管理系统",
-  "author": "芋道",
+  "description": "手术示教管理系统",
+  "author": "Bunco",
   "license": "MIT",
   "scripts": {
     "dev": "vue-cli-service serve",

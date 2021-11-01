@@ -6,6 +6,7 @@ import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.channel.ChannelMapper
 import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.mysql.config.InfConfigMapper;
+import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
 import cn.iocoder.yudao.framework.udpserver.core.service.MessageProcessor;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -67,6 +68,16 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         this.validateExists(updateReqVO.getId());
         // 更新
         DeviceDO updateObj = DeviceConvert.INSTANCE.convert(updateReqVO);
+        if (null != updateObj.getRoom()) {
+            // 修改房间时，需要将原来房间绑定的设备的所属房间置空
+            List<DeviceDO> list = deviceMapper.selectList(new QueryWrapperX<DeviceDO>()
+                    .eq("room", updateObj.getRoom())
+                    .eq("type", updateObj.getType().name()));
+            for (DeviceDO d: list) {
+                d.setRoom(null);
+                this.deviceMapper.updateById(d);
+            }
+        }
         deviceMapper.updateById(updateObj);
     }
 
@@ -139,6 +150,11 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
                 if (deviceDO.getDeleted()) { // 重新发现，如果是删除的设备则需要更新删除状态
                     deviceDO.setDeleted(false);
                 }
+                // 更新信息
+                deviceDO.setAppVersion(deviceDiscovery.getAppVersion());
+                deviceDO.setSdkVersion(deviceDiscovery.getSdkVersion());
+                deviceDO.setSysVersion(deviceDiscovery.getSysVersion());
+                deviceDO.setLastOnlineIp(fromIp);
                 this.deviceMapper.updateById(deviceDO);
             }
             // 灵派编码器获取通道信息

@@ -10,12 +10,12 @@
         </el-select>
         <!-- <el-input v-model="queryParams.device" placeholder="请输入所属设备" clearable size="small" @keyup.enter.native="handleQuery"/> -->
       </el-form-item>
-      <!-- <el-form-item label="频道类型" prop="type">
+      <el-form-item label="频道类型" prop="type">
         <el-select v-model="queryParams.type" placeholder="请选择频道类型" clearable size="small">
           <el-option v-for="dict in this.getDictDatas(DICT_TYPE.DORS_CHANNEL_TYPE)"
                        :key="dict.value" :label="dict.label" :value="dict.value"/>
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="频道名称" prop="name">
         <el-input v-model="queryParams.name" placeholder="请输入频道名称" clearable size="small" @keyup.enter.native="handleQuery"/>
       </el-form-item>

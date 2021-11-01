@@ -52,6 +52,10 @@ public class VersionDO extends BaseDO {
      */
     private String url;
     /**
+     * 图标地址
+     */
+    private String iconUrl;
+    /**
      * 校验码
      */
     private String checksum;

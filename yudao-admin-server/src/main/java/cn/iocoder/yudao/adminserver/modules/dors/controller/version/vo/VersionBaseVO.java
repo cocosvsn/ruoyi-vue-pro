@@ -31,6 +31,12 @@ public class VersionBaseVO {
     @ApiModelProperty(value = "主入口Activity")
     private String mainActivity;
 
+    @ApiModelProperty(value = "下载地址")
+    private String url;
+
+    @ApiModelProperty(value = "图标地址")
+    private String iconUrl;
+
     @ApiModelProperty(value = "开发者")
     private String author;
 
