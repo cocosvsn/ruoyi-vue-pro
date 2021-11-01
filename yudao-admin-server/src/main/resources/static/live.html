@@ -686,6 +686,7 @@ function commitLinkpi() {
 let connectedOperatingRoom = null;
 let currentRoom = null;
 let currentRoomEncoder = null;
+let currentRoomEncoderConfig = null;
 $(document).ready(function() {
   try {
     // 初始化通道信息
@@ -711,23 +712,7 @@ $(document).ready(function() {
     connectedOperatingRoom = JSON.parse(AOV.getConnectedOperatingRoom());
     $('.table-title').text('【'+connectedOperatingRoom.name+'】 - 手术室连线中');
 
-    currentRoom.devices.forEach(e => {
-      if(e.typeOf !== 'PAD') {
-        currentRoomEncoder = e;
-      }
-    });
-    let encoderUrl = 'http://'+currentRoomEncoder.lastOnlineIp + "/config/config.json";
-    console.log(encoderUrl);
-    $.ajax({
-      type: "POST",
-      url: encoderUrl,
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-      success: function (data) {
-        console.log(data);
-      }
-    });
+    currentRoomEncoderConfig = AOV.getCurrentRoomEncoderConfig();
   } catch (e) { console.error(e); }
 
   $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");
@@ -747,6 +732,15 @@ $(document).ready(function() {
       screenCount = 4;
       changeScreen(screenCount);
       commitSreenSet();
+    } else if('开始推流' === btnName) {
+      console.log('开始推流按钮被点击！');
+      let updateConfig = {
+        id: 1,
+        jsonrpc: "2.0",
+        method: "enc.update",
+        params: [currentRoomEncoderConfig]
+      };
+      AOV.testRPC(JSON.stringify(updateConfig));
     } else {
       ringOff();
     }
