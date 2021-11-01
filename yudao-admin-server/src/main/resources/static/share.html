@@ -449,6 +449,7 @@
   
   //灵派编码器内容处理
   function dealLinkPi(str) {
+    console.log("dealLinkPi: " + str);
     linkpiConfig = JSON.parse(str);
     for (let i = 0; i < linkpiConfig.length; i++) {
       if('mix' === linkpiConfig[i].type) {
@@ -627,7 +628,7 @@
       tmpSelectPicker.selectpicker('refresh');
 
       // 3. 初始化分屏信息
-      dealLinkPi(currentRoom.encoderConfig);
+      dealLinkPi(AOV.getCurrentRoomEncoderConfig());
     });
     // 2 初始化自动应答开关
     $('[name="auto-answer"]').bootstrapSwitch({    
