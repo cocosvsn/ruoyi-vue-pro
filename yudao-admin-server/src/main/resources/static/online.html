@@ -279,12 +279,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
           </div>
@@ -294,12 +291,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
             <div class="box">
@@ -307,12 +301,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
             <div class="box">
@@ -320,12 +311,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
           </div>
@@ -335,12 +323,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
             <div class="box">
@@ -348,12 +333,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
             <div class="box">
@@ -361,12 +343,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
             <div class="box">
@@ -374,12 +353,9 @@
                 <div class="input-group-btn">
                   <select class="selectpicker" title="请选择视频源...">
                     <option value='-1'>空</option>
-<foreach name='list' item='n' key='k'>
-                    <option value='{$n.addr}'>{$n.title}</option>
-</foreach>
                   </select>
                 </div>
-                <span class="input-group-addon"><img src="/public/image/voice.png" /></span>
+                <span class="input-group-addon"><img src="images/voice.png" /></span>
               </div><!-- /input-group -->
             </div>
           </div>
@@ -540,7 +516,7 @@ $(document).ready(function() {
     // 获取当前房间信息
     currentRoom = JSON.parse(AOV.getCurrentRoom());
     // 获取当前连接中的会议室
-    connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
+    refreshMeetingRoom();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
     // 初始化通道信息
     init();

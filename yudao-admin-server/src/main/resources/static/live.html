@@ -734,11 +734,20 @@ $(document).ready(function() {
       commitSreenSet();
     } else if('开始推流' === btnName) {
       console.log('开始推流按钮被点击！');
+      let ccccc = JSON.parse(currentRoomEncoderConfig);
+      ccccc.forEach((e, i) => {
+        // console.log(i, e);
+        if(e.type === 'mix') {
+          e.layout = linkpiLayout[0]; // 设置为单画面
+          e.srcV = [];                // 清空视频
+          e.srcA = [];                // 清空音频
+        }
+      });
       let updateConfig = {
         id: 1,
         jsonrpc: "2.0",
         method: "enc.update",
-        params: [currentRoomEncoderConfig]
+        params: [JSON.stringify(ccccc)]
       };
       AOV.testRPC(JSON.stringify(updateConfig));
     } else {
