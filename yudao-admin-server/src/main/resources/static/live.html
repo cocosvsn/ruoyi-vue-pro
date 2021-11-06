@@ -529,21 +529,14 @@
   </div>
 </body>
 <script type="text/javascript">
-let addr = '<?php # echo json_encode($addr) ?>';
-let categoryId = GetQueryString('category_id');
-let beforUrl = addr;
-let padId = GetQueryString('id');
-let protocol = GetQueryString('protocol');
-let encoderIp = GetQueryString('ip');
-let encoderPort = GetQueryString('port');
-let connectedEncoderId = GetQueryString("a");
-let connectedIp = GetQueryString("d"); // 已连接的手术室IP
-let meetingRole = parseInt(GetQueryString("e")); // 连线角色，1：主持人（发起会议连接者），0：参会者（除发起会议者都是参会者）
 let operatingRoomChannelList = [];
+let screenCount = 0;
 let linkpiConfig = null;
 let linkpiMix = null;
 let srcV = [];
 let srcA = [];
+// 副屏视频源
+let additionaScreenlSrc = null;
 /**
  * 灵派画面布局参数
  * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
@@ -577,21 +570,7 @@ let linkpiLayout = [
     { x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 1 }
   ]
 ];
-// 获取灵派mix通道信息
-function init() {
-  let obj = {
-    ip: encoderIp,
-    port: encoderPort
-  }
-  $.getJSON("{:url('/admin/api/getMix')}", obj, function (result) {
-    switch (parseInt(result.protocol)) {
-      case 0:
-          dealLinkPi(result.value);
-          protocol = result.protocol;
-        break;
-    }
-  });
-}
+
 //灵派编码器内容处理
 function dealLinkPi() {
   for (let i = 0; i < linkpiConfig.length; i++) {
@@ -615,7 +594,12 @@ function dealLinkPi() {
   let index = getArrayIndex(linkpiLayout, layout);
   console.log(index);
   screenCount = linkpiLayout[index].length;
+  additionaScreenlSrc = linkpiMix.output2.src;
+  console.log(additionaScreenlSrc);
+  // 修改主屏显示
   changeScreen(screenCount);
+  // 修改副屏显示
+  changeAdditionalScreen();
 }
 function getArrayIndex(arr, obj) {
   let i = arr.length;
@@ -628,63 +612,37 @@ function getArrayIndex(arr, obj) {
 }
 // 提交分屏数据
 function commitSreenSet() {
-  // console.log(protocol);
-  switch (parseInt(protocol)) {
-    case 0:
-      //灵派
-      commitLinkpi()
-      break;
-  }
-}
-// 调用灵派rpc提交
-let screenCount = 0;
-function commitLinkpi() {
-  let currentLinkpiLayout = null;;
+  let currentLinkpiLayout = null;
+  // 遍历并匹配当前设置的布局参数
   linkpiLayout.forEach((e, i) => {
-    // console.log(i, e);
     if(e.length === screenCount) {
       currentLinkpiLayout = linkpiLayout[i];
     }
   });
-  // console.log(currentLinkpiLayout);
   let newinfo;
   linkpiConfig.forEach(function (n, i) {
     if (n.type == "mix") {
       newinfo = n;
+      // 修改主屏Mix混合输出信息
       newinfo.srcV = srcV.slice(0, screenCount);
+      console.log(newinfo.srcV);
       newinfo.srcA = srcA.slice(0, screenCount);
-      srcA = newinfo.srcA; // TODO comment 
+      srcA = newinfo.srcA;
       newinfo.layout = currentLinkpiLayout;
+
+      // 修改副屏输出信息
+      console.log(typeof additionaScreenlSrc);
+      newinfo.output2.src = additionaScreenlSrc;
+
       linkpiConfig[i] = newinfo;
     }
   })
-  // console.log(newinfo);
-  let info = {
-    jsonrpc: "2.0",
-    method: "enc.update",
-    id: 1,
-    params: [JSON.stringify(linkpiConfig, null, 2)]
-  }
-  let obj = {
-    ip: encoderIp,
-    port: encoderPort,
-    protocol: parseInt(protocol),//厂商信息
-    value: JSON.stringify(info)
-  }
-  // console.log(obj);
-  $.ajax({
-    type: "POST",
-    url: "{:url('/admin/api/commitMix')}",
-    contentType: "application/json", //必须这样写
-    dataType: "json",
-    data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-    success: function (data) {
-      // console.log(data)
-      if (parseInt(data.result) == 0) {
-        // snapImage()
-      }
-    }
-  })
+  
+  try {
+    let modifiedConfig = JSON.stringify(linkpiConfig);
+    // 提交分屏设置至编码器
+    AOV.commitEncoderConfig(modifiedConfig);
+  } catch(e) { console.error(e); }
 }
 let connectedOperatingRoom = null;
 let currentRoom = null;
@@ -710,7 +668,7 @@ $(document).ready(function() {
     dealLinkPi();
   } catch (e) { console.error(e); }
 
-  $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");
+  // $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");
   // 切换Mix通道视频布局
   $('.button').click(function() {
     const btnName = $(this).children('.name').text();
@@ -729,22 +687,7 @@ $(document).ready(function() {
       commitSreenSet();
     } else if('开始推流' === btnName) {
       console.log('开始推流按钮被点击！');
-      let ccccc = JSON.parse(currentRoomEncoderConfig);
-      ccccc.forEach((e, i) => {
-        // console.log(i, e);
-        if(e.type === 'mix') {
-          e.layout = linkpiLayout[0]; // 设置为单画面
-          e.srcV = [];                // 清空视频
-          e.srcA = [];                // 清空音频
-        }
-      });
-      let updateConfig = {
-        id: 1,
-        jsonrpc: "2.0",
-        method: "enc.update",
-        params: [JSON.stringify(ccccc)]
-      };
-      AOV.testRPC(JSON.stringify(updateConfig));
+      
     } else {
       ringOff();
     }
@@ -760,13 +703,14 @@ $(document).ready(function() {
     _i = boxElements.index(boxElement);
     // console.log("screen count: " + boxElements.length);
     // console.log(_i)
-    srcV[_i] = parseInt(_this_select.val());
+    
     // console.log(srcV);
     if(0 < $(this).parents('.right').length) { // 提交VGA输出
-      changeVGAChannel(srcV[_i]);
+      additionaScreenlSrc = parseInt(_this_select.val());
     } else { // 提交HDMI的Mix通道输出
-      commitSreenSet();
+      srcV[_i] = parseInt(_this_select.val());
     }
+    commitSreenSet();
   });
   $(".box .input-group-addon").click(function() {
     // console.log("音频按钮被点击");
@@ -800,6 +744,7 @@ function refreshOperatingChannels() {
       if(netIndex >= operatingRoomChannelList.length) {
         return;
       }
+      console.log(e.id + " " + operatingRoomChannelList[netIndex].name + " " + operatingRoomChannelList[netIndex].channelId);
       tmpSelectPicker.append(
         '<option value="'+e.id+'">'+operatingRoomChannelList[netIndex].name+'</option>'
       );
@@ -945,88 +890,13 @@ function autoExit() {
 function closeScreenView() {
   autoExit();
 }
-//从服务器拉取手术室的8个通道流地址
-function getOperatingRoomChannelInfo() {
-  $.getJSON("{:url('/admin/api/getChannel')}", {enc_id: connectedEncoderId}, function (result) {
-    if (result.result == 0) {
-      operatingRoomChannelList = result.data;
-      // 将8个通道流地址配置到本地编码器的8个net口;将本机编码器切为9宫格并配置流地址
-      let obj = {
-        ip: encoderIp,
-        port: encoderPort,
-        protocol: protocol,
-        channels: operatingRoomChannelList
-      }
-
-      $.post("{:url('/admin/api/configMeetNet')}",obj,function (data) {
-        data = JSON.parse(data)
-        // console.log(data);
-        if (data.result != 0) {
-          toast("配置直播地址失败,请检查设备是否正常！")
-        } else {
-          //更新自己的编码器通道信息,并切换VGA输出
-          let obj2 = {
-            ip: encoderIp,
-            protocol: protocol,
-            port: encoderPort,
-            id: padId
-          }
-
-          $.getJSON("{:url('/admin/api/refreshChannel')}", obj2, function(result) {
-            // console.log(result);
-            let v_list =[-1,-1,-1,-1]
-            if (parseInt(result.result) == 0) {
-              let localChannelList = result.data;
-              // console.log(chn);
-              let options = '';
-              localChannelList.forEach((e, i) => {
-                // console.log(e);
-                options += '<option value="'+e.channel_id+'">'+e.channel_name+'</option>';
-                if (e.type == "mix") {
-                  mixAddr = e.rtsp_main;
-                }
-              });
-              // 为每一个视频源选择框绑定手术室通道信息
-              let selectpickers = $('.selectpicker');
-              let indexOfFourChannel = 0;
-              selectpickers.each((i, e) => {
-                $(e).append(options);
-                let parentRight = $(e).parents('.right');
-                // console.log(parentRight);
-                if(0 < parentRight.length) {
-                  //设置VGA通道为第一路net网络流播放
-                  $(e).val(localChannelList[0].channel_id);
-                  changeVGAChannel(localChannelList[0].channel_id);
-                }
-                if(0 < $(e).parents('.four').length) {
-                  $(e).val(localChannelList[indexOfFourChannel++].channel_id);
-                }
-                $(e).selectpicker('refresh');
-              });
-              // //切换自己的编码器为四宫格，并且播放通道为net1-net8
-              // getMixInfo();
-            } else {
-              toast("更新直播地址失败,请检查设备是否正常！")
-            }
-          })
-        }
-      })
-    } else {
-      toast("获取对方信息失败，请检查对方设备是否正常！")
-    }
-  })
-}
-function changeVGAChannel(channel) {
-  let vga_ch = parseInt(channel);
-  let obj={
-    ip: encoderIp,
-    port: encoderPort,
-    protocol: protocol,
-    channel: parseInt(channel)
-  }
-  $.post("{:url('/admin/api/setVGAOut')}", obj, function (data) {
-      console.log(data)
-  });
+/**
+ * 修改副屏显示
+ */
+function changeAdditionalScreen() {
+  let additionalScreenSelect = $('.single-one select');
+  additionalScreenSelect.val(additionaScreenlSrc);
+  additionalScreenSelect.selectpicker('refresh');
 }
 </script>
 </html>
