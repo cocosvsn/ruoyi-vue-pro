@@ -540,13 +540,15 @@ let connectedEncoderId = GetQueryString("a");
 let connectedIp = GetQueryString("d"); // 已连接的手术室IP
 let meetingRole = parseInt(GetQueryString("e")); // 连线角色，1：主持人（发起会议连接者），0：参会者（除发起会议者都是参会者）
 let operatingRoomChannelList = [];
+let linkpiConfig = null;
+let linkpiMix = null;
 let srcV = [];
 let srcA = [];
 /**
  * 灵派画面布局参数
  * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
  */
-  let linkpiLayout = [
+let linkpiLayout = [
   [{ x: 0, y: 0, w: 1, h: 1, index: 0 }],
   [
     { x: 0, y: 0, w: 1 / 2, h: 1 / 2, index: 0 },
@@ -591,37 +593,39 @@ function init() {
   });
 }
 //灵派编码器内容处理
-function dealLinkPi(str) {
-    linkpiConfig = JSON.parse(str);
-    //获取mix通道信息
-    linkpiConfig.forEach(function (n, i) {
-      if (n.type == "mix") {
-        console.log(n);
-        pushStreamState = n.stream.push.enable; // 初始化推流标志位
-        if (pushStreamState) {
-          let btnPushStream = $('.btn-push-stream');
-          btnPushStream.children('img').prop('src', 'images/405.png');
-          btnPushStream.children('.name').text('结束推流');
-        }
-        let layout = n.layout;
-        srcV = n.srcV;//视频通道参数
-        srcA = n.srcA;//音频通道参数
-        let index = getArrayIndex(linkpiLayout, layout);
-        // console.log(index)
-        screenCount = linkpiLayout[index].length;
-        changeScreen(screenCount);
-      }
-    })
-  }
-  function getArrayIndex(arr, obj) {
-    let i = arr.length;
-    while (i--) {
-      if (arr[i].length == obj.length) {
-        return i;
-      }
+function dealLinkPi() {
+  for (let i = 0; i < linkpiConfig.length; i++) {
+    if('mix' === linkpiConfig[i].type) {
+      linkpiMix = linkpiConfig[i];
+      break;
     }
-    return -1;
   }
+  //获取mix通道信息
+  pushStreamState = linkpiMix.stream.push.enable; // 初始化推流标志位
+  if (pushStreamState) {
+    let btnPushStream = $('.btn-push-stream');
+    btnPushStream.children('img').prop('src', 'images/405.png');
+    btnPushStream.children('.name').text('结束推流');
+  }
+  console.log(linkpiMix.layout);
+  let layout = linkpiMix.layout;
+  srcV = linkpiMix.srcV;//视频通道参数
+  console.log(srcV);
+  srcA = linkpiMix.srcA;//音频通道参数
+  let index = getArrayIndex(linkpiLayout, layout);
+  console.log(index);
+  screenCount = linkpiLayout[index].length;
+  changeScreen(screenCount);
+}
+function getArrayIndex(arr, obj) {
+  let i = arr.length;
+  while (i--) {
+    if (arr[i].length == obj.length) {
+      return i;
+    }
+  }
+  return -1;
+}
 // 提交分屏数据
 function commitSreenSet() {
   // console.log(protocol);
@@ -633,7 +637,6 @@ function commitSreenSet() {
   }
 }
 // 调用灵派rpc提交
-let linkpiConfig = [];
 let screenCount = 0;
 function commitLinkpi() {
   let currentLinkpiLayout = null;;
@@ -686,33 +689,25 @@ function commitLinkpi() {
 let connectedOperatingRoom = null;
 let currentRoom = null;
 let currentRoomEncoder = null;
-let currentRoomEncoderConfig = null;
+let currentRoomConnectedEncoderConfig = null;
 $(document).ready(function() {
   try {
-    // 初始化通道信息
-    // init();
-    // // 获取手术室输出频道
-    // getOperatingRoomChannelInfo();
-    // //加载播放器
-    // let videoView = $("#videoView");
-    // let videoViewOffset = videoView.offset();
-    // var origanl_x = window.innerWidth / 2;
-    // var origanl_y = window.innerHeight / 2;
-    // var width = videoView.width();
-    // var height = videoView.height();
-    // var orignal_x_video = videoViewOffset.left + width / 2;
-    // var orignal_y_video = videoViewOffset.top + height / 2;
-
-    // var offset_x = orignal_x_video - origanl_x;
-    // var offset_y = orignal_y_video - origanl_y;
-
-    // var bottom = window.innerHeight - videoViewOffset.top - height;
-    // window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
+    // 获取当前房间信息
     currentRoom = JSON.parse(AOV.getCurrentRoom());
+    // 获取当前房间连线中的手术室信息
     connectedOperatingRoom = JSON.parse(AOV.getConnectedOperatingRoom());
+    // 获取当前房间连线中的手术室通道信息
+    operatingRoomChannelList = JSON.parse(AOV.getChannels());
+    console.log(operatingRoomChannelList);
     $('.table-title').text('【'+connectedOperatingRoom.name+'】 - 手术室连线中');
-
-    currentRoomEncoderConfig = AOV.getCurrentRoomEncoderConfig();
+    
+    // 获取当前房间连线中的手术室编码器配置信息
+    currentRoomConnectedEncoderConfig = AOV.getCurrentRoomConnectedEncoderConfig();
+    linkpiConfig = JSON.parse(currentRoomConnectedEncoderConfig);
+    // 绑定通道列表
+    refreshOperatingChannels();
+    // 绑定分屏信息
+    dealLinkPi();
   } catch (e) { console.error(e); }
 
   $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");
@@ -793,6 +788,26 @@ $(document).ready(function() {
     commitSreenSet();
   });
 });
+
+/**
+ * 刷新手术室通道列表
+ */
+function refreshOperatingChannels() {
+  let tmpSelectPicker = $(".video-content select");
+  let netIndex = 0;
+  linkpiConfig.forEach((e, i) => {
+    if('net' === e.type) {
+      if(netIndex >= operatingRoomChannelList.length) {
+        return;
+      }
+      tmpSelectPicker.append(
+        '<option value="'+e.id+'">'+operatingRoomChannelList[netIndex].name+'</option>'
+      );
+      netIndex ++;
+    }
+  });
+  tmpSelectPicker.selectpicker('refresh');
+}
 // 保存定时更新画面截图的定时器句柄
 let srcVPreviewInterval = [null, null, null, null];
 function previewChannel(box, i) {

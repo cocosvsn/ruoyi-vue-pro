@@ -485,62 +485,33 @@
   }
   // 提交分屏数据
   function commitSreenSet() {
-    // console.log(protocol);
-    switch (parseInt(protocol)) {
-      case 0:
-        //灵派
-        commitLinkpi()
-        break;
-    }
-  }
-  
-  function commitLinkpi() {
-    let currentLinkpiLayout = null;;
+    let currentLinkpiLayout = null;
+    // 遍历并匹配当前设置的布局参数
     linkpiLayout.forEach((e, i) => {
-      // console.log(i, e);
       if(e.length === screenCount) {
         currentLinkpiLayout = linkpiLayout[i];
       }
     });
-    // console.log(currentLinkpiLayout);
     let newinfo;
-    linkpiMix.forEach(function (n, i) {
+    linkpiConfig.forEach(function (n, i) {
       if (n.type == "mix") {
         newinfo = n;
         newinfo.srcV = srcV.slice(0, screenCount);
         newinfo.srcA = srcA.slice(0, screenCount);
         srcA = newinfo.srcA; // TODO comment 
         newinfo.layout = currentLinkpiLayout;
-        linkpiMix[i] = newinfo;
+        linkpiConfig[i] = newinfo;
       }
     })
-    // console.log(newinfo);
-    let info = {
-      jsonrpc: "2.0",
-      method: "enc.update",
-      id: 1,
-      params: [JSON.stringify(linkpiMix, null, 2)]
-    }
-    let obj = {
-      ip: encoderIp,
-      port: encoderPort,
-      protocol: parseInt(protocol),//厂商信息
-      value: JSON.stringify(info)
-    }
-    // console.log(obj);
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/commitMix')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-      success: function (data) {
-        // console.log(data)
-        if (parseInt(data.result) == 0) {
-          // snapImage()
-        }
-      }
-    })
+    
+    
+    try {
+      let modifiedConfig = JSON.stringify(linkpiConfig);
+      // 先将当前分屏信息设置缓存起来
+      AOV.cacheEncoderConfig(modifiedConfig);
+      // 提交分屏设置至编码器
+      AOV.commitEncoderConfig(modifiedConfig);
+    } catch(e) { console.error(e); }
   }
   $(document).ready(function() {
     // 标识当前菜单为激活状态

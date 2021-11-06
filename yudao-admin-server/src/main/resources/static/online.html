@@ -386,14 +386,8 @@
   </div>
 </body>
 <script type="text/javascript">
-let addr = '<?php echo json_encode($addr) ?>';
-let categoryId = GetQueryString('category_id');
-// beforUrl = JSON.parse(addr)
-let padId = GetQueryString('id');
-let protocol = GetQueryString('protocol');
-let encoderIp = GetQueryString('ip');
-let encoderPort = GetQueryString('port');
-let connectedIp;
+let linkpiConfig = null;
+let linkpiMix = null;
 let srcV = [];
 let srcA = [];
 /**
@@ -429,25 +423,6 @@ let srcA = [];
     { x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 1 }
   ]
 ];
-// 获取灵派mix通道信息
-function init() {
-  let obj = {
-    ip: encoderIp,
-    port: encoderPort
-  }
-  $.getJSON("{:url('/admin/api/getMix')}", obj, function (result) {
-    switch (parseInt(result.protocol)) {
-      case 0:
-        linkpiConfig = JSON.parse(result.value);
-        protocol = result.protocol;
-        // 先将mix通道切为单屏，并清空播放图像
-        screenCount = 1;
-        changeScreen(screenCount);
-        commitSreenSet();
-        break;
-    }
-  });
-}
 // 提交分屏数据
 function commitSreenSet() {
   // console.log(protocol);
@@ -459,7 +434,6 @@ function commitSreenSet() {
   }
 }
 // 调用灵派rpc提交
-let linkpiConfig = [];
 let screenCount = 0;
 function commitLinkpi() {
   let currentLinkpiLayout = null;;
@@ -515,27 +489,11 @@ $(document).ready(function() {
   try {
     // 获取当前房间信息
     currentRoom = JSON.parse(AOV.getCurrentRoom());
+    // 获取当前房间连线中编码器配置
+    linkpiConfig = JSON.parse(AOV.getCurrentRoomConnectedEncoderConfig());
     // 获取当前连接中的会议室
     refreshMeetingRoom();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
-    // 初始化通道信息
-    init();
-    //加载播放器
-    // let videoView = $("#videoView");
-    // let videoViewOffset = videoView.offset();
-    // var origanl_x = window.innerWidth / 2;
-    // var origanl_y = window.innerHeight / 2;
-    // var width = videoView.width();
-    // var height = videoView.height();
-    // var orignal_x_video = videoViewOffset.left + width / 2;
-    // var orignal_y_video = videoViewOffset.top + height / 2;
-
-    // var offset_x = orignal_x_video - origanl_x;
-    // var offset_y = orignal_y_video - origanl_y;
-
-    // var bottom = window.innerHeight - videoViewOffset.top - height;
-    // window.AOV.playVideo(beforUrl, videoViewOffset.left, videoViewOffset.top, bottom - 1, width + 2, height + 1);
-    
   } catch (e) { console.error(e); }
 
   // 切换Mix通道视频布局
@@ -575,28 +533,6 @@ $(document).ready(function() {
     let check = _this_select.val();
     console.log(check);
     //配置自动的编码器net3-net6 为会议室的流地址,并将mix通道配置为net3-net6的播放
-    let obj = {
-        id: padId,
-        ip: encoderIp,
-        port: encoderPort,
-        protocol: protocol,
-        url:check,
-        index: _i
-    }
-
-    $.post("{:url('/admin/api/encoderChangeMeeting')}",obj,function (data) {
-      data = JSON.parse(data)
-      console.log(data);
-      // if (data.result != 0) {
-      //     layer.alert(data.msg)
-      // } else {
-      //     //切换音频显示
-      //     var voice = "#voice"+(i+1).toString();
-      //     $(voice).attr("class","voice_select");
-      //     src_v[i] = check;
-      //     src_A[i] = 1;
-      // }
-    })
   });
   $(".box .input-group-addon").click(function() {
     // console.log("音频按钮被点击");
@@ -760,15 +696,56 @@ function closeScreenView() {
 function refreshMeetingRoom() {
   // 获取当前已连接的会议室列表，更新下拉列表。
   connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
-  $('.selectpicker').each((i, e) => {
-    $(e).empty();
-    connectedMeetingRoom.forEach((ele, index) => {
-      $(e).append('<option value="'+index+'">'+ele.name+'</option>');
-    });
-    // $(e).val(srcV[i]);
-    // bootstrap-select 必须调用一次刷新才会更新选中状态
-    $(e).selectpicker('refresh');
+  // $('.selectpicker').each((i, e) => {
+  //   $(e).empty();
+  //   connectedMeetingRoom.forEach((ele, index) => {
+  //     $(e).append('<option value="'+index+'">'+ele.name+'</option>');
+  //   });
+  //   // bootstrap-select 必须调用一次刷新才会更新选中状态
+  //   $(e).selectpicker('refresh');
+  // });
+  let tmpSelectPicker = $(".video-content select");
+  let netIndex = 0;
+  linkpiConfig.forEach((e, i) => {
+    if('net' === e.type) {
+      if(netIndex >= connectedMeetingRoom.length) {
+        return;
+      }
+      tmpSelectPicker.append(
+        '<option value="'+e.id+'">'+connectedMeetingRoom[netIndex].name+'</option>'
+      );
+      netIndex ++;
+    }
   });
+  tmpSelectPicker.selectpicker('refresh');
+  dealLinkPi();
+}
+function dealLinkPi() {
+  for (let i = 0; i < linkpiConfig.length; i++) {
+    if('mix' === linkpiConfig[i].type) {
+      linkpiMix = linkpiConfig[i];
+      break;
+    }
+  }
+  //获取mix通道多画面布局信息
+  let layout = linkpiMix.layout;
+  srcV = linkpiMix.srcV;//视频通道参数
+  console.log(srcV);
+  srcA = linkpiMix.srcA;//音频通道参数
+  let index = getArrayIndex(linkpiLayout, layout);
+  console.log(index);
+  screenCount = linkpiLayout[index].length;
+  changeScreen(screenCount);
+}
+// 从对象数组中获取指定对象索引
+function getArrayIndex(arr, obj) {
+  let i = arr.length;
+  while (i--) {
+    if (arr[i].length == obj.length) {
+      return i;
+    }
+  }
+  return -1;
 }
 </script>
 </html>
