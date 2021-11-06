@@ -817,10 +817,10 @@ function previewChannel(box, i) {
   }, 50000);
 }
 function setPreview(box, channelId) {
-  let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
-  // console.log(previewUrl);
-  box.css('background', 'url(' + previewUrl + ') no-repeat')
-      .css('background-size', '100% 100%');
+  // let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
+  // // console.log(previewUrl);
+  // box.css('background', 'url(' + previewUrl + ') no-repeat')
+  //     .css('background-size', '100% 100%');
 }
 function changeScreen(count) {
   let oneElement = $('.one');
