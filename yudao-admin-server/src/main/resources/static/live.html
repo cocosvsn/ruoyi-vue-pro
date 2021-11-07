@@ -537,6 +537,8 @@ let srcV = [];
 let srcA = [];
 // 副屏视频源
 let additionaScreenlSrc = null;
+// 是否推流标志位
+let pushStreamState = false; 
 /**
  * 灵派画面布局参数
  * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
@@ -630,6 +632,9 @@ function commitSreenSet() {
       srcA = newinfo.srcA;
       newinfo.layout = currentLinkpiLayout;
 
+      // 修改推流标志位
+      newinfo.stream.push.enable = pushStreamState;
+      newinfo.stream2.push.enable = pushStreamState;
       // 修改副屏输出信息
       console.log(typeof additionaScreenlSrc);
       newinfo.output2.src = additionaScreenlSrc;
@@ -687,7 +692,10 @@ $(document).ready(function() {
       commitSreenSet();
     } else if('开始推流' === btnName) {
       console.log('开始推流按钮被点击！');
-      
+      startPushStream($(this));
+    } else if('结束推流' === btnName) {
+      console.log('结束推流按钮被点击！');
+      stopPushStream($(this));
     } else {
       ringOff();
     }
@@ -733,9 +741,7 @@ $(document).ready(function() {
   });
 });
 
-/**
- * 刷新手术室通道列表
- */
+// 刷新手术室通道列表
 function refreshOperatingChannels() {
   let tmpSelectPicker = $(".video-content select");
   let netIndex = 0;
@@ -897,6 +903,22 @@ function changeAdditionalScreen() {
   let additionalScreenSelect = $('.single-one select');
   additionalScreenSelect.val(additionaScreenlSrc);
   additionalScreenSelect.selectpicker('refresh');
+}
+//开始推流
+function startPushStream(btn) {
+  pushStreamState = true;
+  commitSreenSet();
+  // 修改推流按钮状态与图标
+  btn.children('img').prop('src', 'images/405.png');
+  btn.children('.name').text('结束推流');
+}
+//停止推流
+function stopPushStream(btn) {
+  pushStreamState = false;
+  commitSreenSet();
+  // 修改推流按钮状态与图标
+  btn.children('img').prop('src', 'images/404.png');
+  btn.children('.name').text('开始推流');
 }
 </script>
 </html>
