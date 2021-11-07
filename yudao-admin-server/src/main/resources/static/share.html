@@ -436,8 +436,6 @@
   
   // 当前房间信息
   let currentRoom = null;
-  // 当前房间编码器信息
-  let currentEncoder = null;
   // 自动应答状态
   let autoAnswerDialingState = false;
   // 当前房间编码器通道信息
@@ -528,8 +526,11 @@
       currentRoom = JSON.parse(AOV.getCurrentRoom());
       // 加载自动应答状态
       autoAnswerDialingState = AOV.getAutoAnswerDialing();
+      // 修正当前页面通道预览窗口位置
+      changeVideoViewpostion();
       // 初始化
       init();
+      previewChannel('rtsp://'+currentRoom.encoder.lastOnlineIp+'/sub17');
     } catch (e) { console.error(e); }
     
     // 切换Mix通道视频布局
@@ -770,6 +771,22 @@
     // 修改推流按钮状态与图标
     btn.children('img').prop('src', 'images/404.png');
     btn.children('.name').text('开始推流');
+  }
+  // 修正当前页面通道预览窗口位置
+  function changeVideoViewpostion() {
+    let videoView = $("#videoView");
+    let videoViewOffset = videoView.offset();
+    
+    previewWindowX = videoViewOffset.left;
+    previewWindowY = videoViewOffset.top;
+    previewWindowWidth = videoView.width();
+    previewWindowHeight = videoView.height();
+  }
+  // 预览通道
+  function previewChannel(url) {
+    try {
+      AOV.previewChannel(url, previewWindowX, previewWindowY, previewWindowWidth, previewWindowHeight);
+    } catch(e) { console.error(e); }
   }
 </script>
 </html>

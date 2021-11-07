@@ -31,7 +31,7 @@ function goMedia() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch(e) { console.error(e); }
     window.location.href = "media.html" + params;
 }
@@ -54,7 +54,7 @@ function goPatient() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "patient.html" + params;
 }
@@ -67,7 +67,7 @@ function goBedlight() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "sugrgery.html" + params;
 }
@@ -80,7 +80,7 @@ function goBed() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "bed.html" + params;
 }
@@ -93,7 +93,7 @@ function goLight() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "light.html" + params;
 }
@@ -106,7 +106,7 @@ function goSystem() {
         }
     } catch (e) { console.error(e); }
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "set.html" + params;
 }
@@ -125,13 +125,13 @@ function toastScreenView() {
 //   }
 // });
     try {
-        window.AOV.hidenPlayView();
+        AOV.hiddenPreview();
     } catch (e) { console.error(e); }
     window.location.href = "online.html" + params;
 }
 
 function changeVideoViewpostion() {
-    window.AOV.hidenPlayView()
+    AOV.hiddenPreview()
 
     //如果页面有videoview
     var origanl_x = window.innerWidth / 2;

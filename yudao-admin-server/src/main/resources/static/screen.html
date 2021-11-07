@@ -196,7 +196,7 @@
 
   <script type="text/javascript">
     var channel_list = [];
-    var curSelect = 0;
+    var currentChannel = 0;
 
     let currentRoom = null;
     $(document).ready(function () {
@@ -211,64 +211,35 @@
         let cameraEle = $(".camera");
         currentRoomChannels.forEach((element, i) => {
           cameraEle.append(
-            '<div class="col-md-1 item">' +
+            '<div class="col-md-1 item" onclick="selectItem(this, '+i+')">' +
               '  <div class="title">'+element.name+'</div>' +
               '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
               '</div>'
             );
         });
-        // 校正播放窗口的位置
-        // changeVideoViewpostion();
+        // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
+        changeVideoViewpostion();
+        // 默认播放第1个通道的视频
+        previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
       } catch (e) { console.error(e); }
-
-      // $("#div0").attr("class", "channel_select")
-
-      // var height = $("#ptz").height();
-      // $("#ptz").width(height);
-      // $("#ptz").css("borderRadius", height / 2);
-      // var width = $("#videoView").width();
-      // var height = $("#videoView").height();
-
-      // var origanl_x = window.innerWidth/2;
-      // var origanl_y = window.innerHeight/2;
-      // var orignal_x_video =$("#videoView").offset().left+width/2;
-      // var orignal_y_video =$("#videoView").offset().top+height/2;
-
-      // var bottom = window.innerHeight - $("#videoView").offset().top - height;
-
-      // window.AOV.playVideo(channel_list[0].rtsp_sub,offset_x,offset_y,width,height);
-      // window.AOV.playVideo(channel_list[0].rtsp_sub, $("#videoView").offset().left, $("#videoView").offset().top, bottom, width, height);
-
-      curSelect = 0;//设置默认第一个窗口为选中窗口
-
-      // beforUrl = channel_list[0].rtsp_sub;
-
-      //主动切换串口
-      // gradeChange($("#div0").attr("channel_name"))
-
-      //向安卓端索要dors信息
-      const config = window.AOV.getDorsConfig();
-      console.log(config);
     })
 
-    function selectItem(el) {
+    function selectItem(el, channelIndex) {
       let _this = $(el);;
       if (_this.hasClass('active')) { // 当前元素重复选中
         return;
       }
-      // 添加选中样式
+      // 设置点击的通道图标边框为选中状态，其它通道图标边框设置为未选中状态
       _this.addClass("active");
       // 移除相邻节点的选中样式
       _this.siblings().each((i, element) => {
         $(element).removeClass("active");
       });
 
-      beforUrl = _this.attr("rtsp")
-      curSelect = parseInt(_this.attr("index"));
-      try {
-        window.AOV.changeVideo(beforUrl);
-        gradeChange(_this.attr('channel_name'));
-      } catch(e) { console.error(e); }
+      // 预览通道视频
+      let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelIndex;
+      previewChannel(previewChannelUrl);
+      currentChannel = channelIndex;
     }
 
     /**
@@ -354,7 +325,24 @@
      */
     function turnToScreen(index) {
       //将输入输出传给安卓
-      window.AOV.screenControl(curSelect, index);
+      window.AOV.screenControl(currentChannel, index);
+    }
+    // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
+    function changeVideoViewpostion() {
+      let videoView = $("#videoView");
+      let videoViewOffset = videoView.offset();
+      
+      previewWindowX = videoViewOffset.left;
+      previewWindowY = videoViewOffset.top;
+      previewWindowWidth = videoView.width() + 2;  // 如果有边框则需要增加边框宽度
+      previewWindowHeight = videoView.height() + 2;// 如果有边框则需要增加边框宽度
+    }
+    
+    // 预览通道
+    function previewChannel(url) {
+      try {
+        AOV.previewChannel(url, previewWindowX, previewWindowY, previewWindowWidth, previewWindowHeight);
+      } catch(e) { console.error(e); }
     }
   </script>
 </html>

@@ -387,9 +387,12 @@
 </div>
 </body>
 <script type="text/javascript">
-  let recordId = "{$subj_id}";
   let currentChannel = null;
   let snapTimes = 0;
+  let previewWindowX = null;
+  let previewWindowY = null;
+  let previewWindowWidth = null;
+  let previewWindowHeight = null;
   
   let currentRoom = null;
   let currentRoomChannels = null;
@@ -405,7 +408,7 @@
       let cameraEle = $(".camera");
       currentRoomChannels.forEach((element, i) => {
         cameraEle.append(
-            '<div class="col-md-1 item" >' +
+            '<div class="col-md-1 item" onclick="selectItem(this, '+i+')" >' +
             '  <div class="title">'+element.name+'</div>' +
             '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
             '    <div class="check">' +
@@ -417,8 +420,10 @@
             '</div>'
           );
       });
-      // 校正播放窗口的位置
-      // changeVideoViewpostion();
+      // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
+      changeVideoViewpostion();
+      // 默认播放第1个通道的视频
+      previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
     } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
     $('.pads>.arrow').click(function () {
@@ -529,26 +534,27 @@
       }
     });
   });
-  function selectItem(el) {
+  function selectItem(el, channelIndex) {
     let _this = $(el);
-    if(_this.hasClass('active')) { // 当前元素重复选中
+    if(_this.hasClass('active')) { // 当前元素重复选中不作处理
       return;
     }
-    if (isRecord == true) {
-      return
-    }
+    // 设置点击的通道图标边框为选中状态，其它通道图标边框设置为未选中状态
     _this.addClass("active");
     _this.siblings().each((i, element) => {
       $(element).removeClass("active");
     });
     // 串口切换
-    gradeChange(_this.attr("channel_name"));
-    try {
-      // 视频播放
-      beforUrl = _this.attr("rtsp");
-      window.AOV.changeVideo(beforUrl);
-    } catch (e) { console.error(e); }
-    currentChannel = _this.attr("channel_id");
+    // gradeChange(_this.attr("channel_name"));
+    // try {
+      
+    //   beforUrl = _this.attr("rtsp");
+    //   window.AOV.changeVideo(beforUrl);
+    // } catch (e) { console.error(e); }
+    // 预览通道视频
+    let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelIndex;
+    previewChannel(previewChannelUrl);
+    currentChannel = channelIndex;
   }
   //切换串口
   function gradeChange(x) {
@@ -634,6 +640,24 @@
   function goFileManage() {
     try {
       window.AOV.goFileManage();
+    } catch(e) { console.error(e); }
+  }
+
+  // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
+  function changeVideoViewpostion() {
+    let videoView = $("#videoView");
+    let videoViewOffset = videoView.offset();
+    
+    previewWindowX = videoViewOffset.left;
+    previewWindowY = videoViewOffset.top;
+    previewWindowWidth = videoView.width() + 2;  // 如果有边框则需要增加边框宽度
+    previewWindowHeight = videoView.height() + 2;// 如果有边框则需要增加边框宽度
+  }
+  
+  // 预览通道
+  function previewChannel(url) {
+    try {
+      AOV.previewChannel(url, previewWindowX, previewWindowY, previewWindowWidth, previewWindowHeight);
     } catch(e) { console.error(e); }
   }
 </script>
