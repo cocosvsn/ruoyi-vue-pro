@@ -446,6 +446,8 @@
   let linkpiMix = [];
   // 分屏数量
   let screenCount = 0;
+  // 是否推流标志位
+  let pushStreamState = false; 
   
   //灵派编码器内容处理
   function dealLinkPi(str) {
@@ -500,6 +502,9 @@
         newinfo.srcA = srcA.slice(0, screenCount);
         srcA = newinfo.srcA; // TODO comment 
         newinfo.layout = currentLinkpiLayout;
+        // 修改推流标志位
+        newinfo.stream.push.enable = pushStreamState;
+        newinfo.stream2.push.enable = pushStreamState;
         linkpiConfig[i] = newinfo;
       }
     })
@@ -750,120 +755,19 @@
   }
   //开始推流
   function startPushStream(btn) {
-    let obj = {
-      ip: encoderIp,
-      protocol: protocol,//厂商信息
-      id: padId,
-      port: encoderPort
-    }
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/openRtmpLive')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//提交是json字符串
-      success: function (data) {
-        console.log(data)
-        if (0 === parseInt(data.result)) {
-          switch (parseInt(data.protocol)) {
-            case 0:
-              //灵派
-              var url = data.url;
-              var url2 = data.m3u8;
-              uploadLinkPiPushInfo(btn, url, url2)
-              break;
-          }
-        } else {
-          layer.alert("开启直播推流失败，请检查设备是否正常！")
-        }
-      }
-    })
-  }
-  // 修改linkpi推流信息
-  let pushStreamState = false; // 是否推流标志位
-  function uploadLinkPiPushInfo(btn, url, m3u8) {
-    //将流地址转换下,127.0.0.1替换为本地ip
-    var str = url.replace("127.0.0.1", encoderIp);
-    // console.log(str);
-    //发布直播
-    let obj = {
-      title: categoryName + "的视频直播",
-      addr: str,
-      m3u8: m3u8,
-      category_id: categoryId,
-      id: padId
-    }
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/publishLive')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//提交是json字符串
-      success: function (data) {
-        console.log(data)
-        if (0 !== parseInt(data.result)) {
-          layer.alert("开启直播推流失败，请检查设备是否正常！")
-        } else {
-          // $("#push").attr("disabled", "disabled")
-          pushStreamState = true;
-          btn.children('img').src = 'images/405.png';
-          btn.children('.name').text('结束推流');
-        }
-      }
-    })
+    pushStreamState = true;
+    commitSreenSet();
+    // 修改推流按钮状态与图标
+    btn.children('img').prop('src', 'images/405.png');
+    btn.children('.name').text('结束推流');
   }
   //停止推流
   function stopPushStream(btn) {
-    if (0 === pushStreamState) {
-      layer.alert("设备暂时没有进行推流！")
-      return;
-    }
-    let obj = {
-      ip: encoderIp,
-      protocol: protocol,//厂商信息
-      id: padId,
-      port: encoderPort
-    }
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/closePushStream')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-      success: function (data) {
-        if (0 !== parseInt(data.result)) {
-          layer.alert("关闭直播推流失败，请检查设备是否正常！")
-        } else {
-          //移除直播列表
-          removeLiveList(btn);
-        }
-      }
-    })
-  }
-  // 移除直播流
-  function removeLiveList(btn) {
-    //发布直播
-    let obj = {
-      category_id: categoryId,
-      id: padId
-    }
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/removeLive')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-      success: function (data) {
-        if (parseInt(data.result) != 0) {
-          layer.alert("关闭直播推流失败，请检查设备是否正常！")
-        } else {
-          // $("#push").attr("disabled", null);
-          pushStreamState = false;
-          btn.children('img').src = 'images/404.png';
-          btn.children('.name').text('开始推流');
-        }
-      }
-    })
+    pushStreamState = false;
+    commitSreenSet();
+    // 修改推流按钮状态与图标
+    btn.children('img').prop('src', 'images/404.png');
+    btn.children('.name').text('开始推流');
   }
 </script>
 </html>
