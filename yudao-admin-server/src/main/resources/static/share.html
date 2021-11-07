@@ -440,6 +440,8 @@
   let currentEncoder = null;
   // 自动应答状态
   let autoAnswerDialingState = false;
+  // 当前房间编码器通道信息
+  let currentRoomChannels = null;
   // 灵派编码器配置信息
   let linkpiConfig = [];
   // 灵派mix通道信息
@@ -592,20 +594,17 @@
    */
   function init() {
     // 1. 初始化通道信息
-    let deviceId = currentRoom.encoder.id;
-    $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-      let tmpSelectPicker = $(".video-content select");
-      $.each(data.data, function(i, field){
-        console.log(typeof field.channelId);
-        tmpSelectPicker.append(
-          '<option value="'+field.channelId+'">'+field.name+'</option>'
-        );
-      });
-      tmpSelectPicker.selectpicker('refresh');
-
-      // 3. 初始化分屏信息
-      dealLinkPi(AOV.getCurrentRoomEncoderConfig());
+    currentRoomChannels = JSON.parse(AOV.getChannels());
+    console.log("current room 【"+currentRoom.name+"】channels: " + currentRoomChannels.length);
+    let tmpSelectPicker = $(".video-content select");
+    currentRoomChannels.forEach((field, i) => {
+      // console.log(typeof field.channelId);
+      tmpSelectPicker.append(
+        '<option value="'+field.channelId+'">'+field.name+'</option>'
+      );
     });
+    tmpSelectPicker.selectpicker('refresh');
+
     // 2 初始化自动应答开关
     $('[name="auto-answer"]').bootstrapSwitch({    
       onText: "Yes",
@@ -633,6 +632,9 @@
       // console.log('关闭')
       $('[name="auto-answer"]').bootstrapSwitch("state",false);
     }
+
+    // 3. 初始化分屏信息
+    dealLinkPi(AOV.getCurrentRoomEncoderConfig());
   }
   // 保存定时更新画面截图的定时器句柄
   let srcVPreviewInterval = [null, null, null, null];

@@ -74,6 +74,8 @@ public class WebSocketServerEndpoint {
             log.debug("{}", messageInfo);
             switch (messageInfo.getTypeOf()) {
                 case dialing:                // 呼叫
+                case dialing_busy:           // 呼叫占线
+                case cancel_dialing:         // 取消呼叫
                 case answer:                 // 接听
                 case reject:                 // 拒接
                 case ring_off:               // 挂断

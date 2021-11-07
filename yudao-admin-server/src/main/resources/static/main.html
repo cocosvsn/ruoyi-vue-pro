@@ -197,27 +197,7 @@ border: 1px solid red;
 </body>
   <script>
     let onlineOperatingRooms = [];
-    // ws = new WebSocket('ws://192.168.1.95:48080/ws/dors/3');
-    // ws.onopen = function () {
-    //   console.log('connected: 3');
-    //   //ws.send('the request from client');
-    // };
-    // ws.onmessage = function (e) {
-    //   console.log('from server: ' + e.data);
-    //   let mi = JSON.parse(e.data);
-    //   if(mi.typeOf === 'online' && mi.from.type === 'OPERATING_ROOM') {
-    //     onlineOperatingRoom(JSON.stringify(mi.from));
-    //   } else if(mi.typeOf === 'offline' && mi.from.type === 'OPERATING_ROOM') {
-    //     offlineOperatingRoom(mi.from.id);
-    //   } else if (mi.typeOf === 'online_operating_rooms') {
-    //     mi.data.forEach((e, i) => {
-    //       onlineOperatingRooms.push(e);
-    //     });
-    //     showOnlineOperatingRoom();
-    //   } else if(mi.typeOf === 'answer') {
-    //     location.href = "live.html";
-    //   }
-    // };
+    
     $(document).ready(function() {
       try {
         // let sss = AOV.getOnlineOperatingRoom();
@@ -238,20 +218,11 @@ border: 1px solid red;
       $(el).children('div').text("取消呼叫")
       $(el).removeAttr("onclick");
       $(el).attr("onclick", "cancelCall(this, "+index+")");
-      let dialingObject = {
-        typeOf: 'dialing',
-        from: {
-          id: 3
-        },
-        to: onlineOperatingRooms[index],
-        data: null
-      };
       try {
         // 呼叫手术室
         AOV.dialingRoom(onlineOperatingRooms[index].id);
       } catch(e) {
         console.error(e);
-        ws.send(JSON.stringify(dialingObject));
       }
       callState = true; // 设置当前为呼叫中状态
     }
@@ -263,7 +234,7 @@ border: 1px solid red;
       $(el).attr("onclick", "callRoom(this, "+index+")");
       try {
         // 向手术室发出取消呼叫
-        
+        AOV.cancelDialing(onlineOperatingRooms[index].id);
       } catch(e) {
         console.error(e);
       }
@@ -271,21 +242,10 @@ border: 1px solid red;
     }
     //对方拒绝了你的连接请求
     function refuseCall() {
-      $('.room-item>.room-btn>div').each(function(n) {
-        // console.log(n);
-        $(this).text('请求连接');
-        if('' !== $(this).parent().attr("ip")) {
-          console.log($(this).parent());
-          $(this).parent().removeAttr("onclick");
-          $(this).parent().attr("onclick", "callRoom(this)");
-        }
-      });
-    }
-    //获取编码器信息成功,跳转live页面
-    function changeToControlView(encode_id, encoder_ip, encoder_port, curConnectIp, display) {
-      console.log('changeToControlView', encode_id, encoder_ip, encoder_port, curConnectIp, display);
-      var sencod = "&a=" + encode_id + "&b=" + encoder_ip + "&c=" + encoder_port.toString() + "&d=" + curConnectIp + "&e=" + display.toString();
-      window.location.href = "{:url('live')}" + params + sencod;
+      // 重置呼叫中状态
+      callState = false;
+      // 重新刷新在线手术室列表
+      showOnlineOperatingRoom();
     }
     /**
      * 新的手术室上线

@@ -205,19 +205,20 @@
       try {
         // 获取当前房间信息
         currentRoom = JSON.parse(AOV.getCurrentRoom());
-        let deviceId = currentRoom.encoder.id;
-        $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-          $.each(data.data, function(i, field){
-            $(".camera").append(
-              '<div class="col-md-1 item">' +
-              '  <div class="title">'+field.name+'</div>' +
+        currentRoomChannels = JSON.parse(AOV.getChannels());
+        console.log("current room 【"+currentRoom.name+"】channels: " + currentRoomChannels.length);
+        // 获取通道信息
+        let cameraEle = $(".camera");
+        currentRoomChannels.forEach((element, i) => {
+          cameraEle.append(
+            '<div class="col-md-1 item">' +
+              '  <div class="title">'+element.name+'</div>' +
               '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
               '</div>'
             );
-          });
         });
         // 校正播放窗口的位置
-        changeVideoViewpostion();
+        // changeVideoViewpostion();
       } catch (e) { console.error(e); }
 
       // $("#div0").attr("class", "channel_select")

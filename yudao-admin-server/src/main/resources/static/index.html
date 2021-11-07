@@ -392,20 +392,21 @@
   let snapTimes = 0;
   
   let currentRoom = null;
+  let currentRoomChannels = null;
   $(document).ready(function() {
     // 标识当前菜单为激活状态
     $('.menu .item:first').addClass("active");
     try {
       // 获取当前房间信息
       currentRoom = JSON.parse(AOV.getCurrentRoom());
-      let deviceId = currentRoom.encoder.id;
-      console.log("encoder device id: " + deviceId);
+      currentRoomChannels = JSON.parse(AOV.getChannels());
+      console.log("current room 【"+currentRoom.name+"】channels: " + currentRoomChannels.length);
       // 获取通道信息
-      $.getJSON("/api/dors/channel/device?type=vi&deviceId="+deviceId, function(data) {
-        $.each(data.data, function(i, field){
-          $(".camera").append(
+      let cameraEle = $(".camera");
+      currentRoomChannels.forEach((element, i) => {
+        cameraEle.append(
             '<div class="col-md-1 item" >' +
-            '  <div class="title">'+field.name+'</div>' +
+            '  <div class="title">'+element.name+'</div>' +
             '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
             '    <div class="check">' +
             '      <div class="checkbox-custom checkbox_default">' +
@@ -415,10 +416,9 @@
             '  </div>' +
             '</div>'
           );
-        });
       });
       // 校正播放窗口的位置
-      changeVideoViewpostion();
+      // changeVideoViewpostion();
     } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
     $('.pads>.arrow').click(function () {

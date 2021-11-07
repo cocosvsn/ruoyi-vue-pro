@@ -18,9 +18,17 @@ public enum MessageType {
      */
     offline,
     /**
-     * 拔号
+     * 呼叫
      */
     dialing,
+    /**
+     * 取消呼叫
+     */
+    cancel_dialing,
+    /**
+     * 呼叫占线
+     */
+    dialing_busy,
     /**
      * 接听
      */
