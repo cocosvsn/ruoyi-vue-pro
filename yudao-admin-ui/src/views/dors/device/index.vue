@@ -54,6 +54,10 @@
                    v-hasPermi="['dors:device:create']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
+        <el-button plain icon="el-icon-refresh" size="mini" @click="handleRefresh"
+                   v-hasPermi="['dors:device:create']">重新发现</el-button>
+      </el-col>
+      <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
                    v-hasPermi="['dors:device:export']">导出</el-button>
       </el-col>
@@ -155,7 +159,7 @@
 </template>
 
 <script>
-import { createDevice, updateDevice, deleteDevice, getDevice, getDevicePage, exportDeviceExcel } from "@/api/dors/device";
+import { createDevice, updateDevice, deleteDevice, getDevice, getDevicePage, rediscover, exportDeviceExcel } from "@/api/dors/device";
 import { getRoomPage } from "@/api/dors/room";
 
 export default {
@@ -324,6 +328,13 @@ export default {
           this.getList();
           this.msgSuccess("删除成功");
         })
+    },
+    // 重新发现设备
+    handleRefresh() {
+      rediscover().then(response => {
+          this.msgSuccess("操作成功");
+          this.getList();
+        });
     },
     /** 导出按钮操作 */
     handleExport() {
