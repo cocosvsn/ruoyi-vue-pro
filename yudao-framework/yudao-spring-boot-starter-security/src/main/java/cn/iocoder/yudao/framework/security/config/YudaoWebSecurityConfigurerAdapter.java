@@ -168,6 +168,7 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
     private final String[] getAnonymousApi() {
         String[] apis = {
                 "/dors/room/device"
+                ,"/dors/channel"
                 ,"/dors/channel/device"
                 ,"/dors/version/latest"
         };

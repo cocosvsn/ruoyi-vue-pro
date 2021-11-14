@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS `dors_channel` (
   `type` VARCHAR(32) NOT NULL COMMENT '频道类型（vi/usb/net/ndi/file/mix)',
   `name` VARCHAR(64) NOT NULL COMMENT '频道名称',
   `json_info` VARCHAR(5120) NULL COMMENT '频道JSON数据信息',
+  `display` BIT(1) NOT NULL DEFAULT 1 COMMENT '是否显示该通道',
   `creator` VARCHAR(64) NULL COMMENT '创建者',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updater` VARCHAR(64) NULL COMMENT '更新者',

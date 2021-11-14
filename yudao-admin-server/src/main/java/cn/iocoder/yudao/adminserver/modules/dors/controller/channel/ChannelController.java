@@ -97,6 +97,14 @@ public class ChannelController {
         ExcelUtils.write(response, "频道.xls", "数据", ChannelExcelVO.class, datas);
     }
 
+    @GetMapping("")
+    @ApiOperation("获得频道列表")
+//    @PreAuthorize("@ss.hasPermission('dors:channel:query')")
+    public CommonResult<List<ChannelRespVO>> getList(@Valid ChannelPageReqVO pageVO) {
+        List<ChannelDO> result = channelService.getList(pageVO);
+        return success(ChannelConvert.INSTANCE.convertList(result));
+    }
+
     @GetMapping("/device")
     @ApiOperation("获得设备指定类型频道列表")
     @ApiImplicitParams({

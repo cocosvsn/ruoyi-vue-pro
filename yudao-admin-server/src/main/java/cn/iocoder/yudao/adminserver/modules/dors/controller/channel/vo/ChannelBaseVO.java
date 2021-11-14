@@ -31,4 +31,6 @@ public class ChannelBaseVO {
     @ApiModelProperty(value = "频道JSON数据信息")
     private String jsonInfo;
 
+    @ApiModelProperty(value = "是否显示")
+    private Boolean display;
 }

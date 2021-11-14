@@ -113,4 +113,12 @@ public class RoomController {
         RoomDO roomDO = roomService.getByMac(mac);
         return success(RoomConvert.INSTANCE.convert(roomDO));
     }
+
+    @GetMapping("/list-operating")
+    @ApiOperation("获取手术室房间信息")
+//    @PreAuthorize("@ss.hasPermission('dors:room:query')")
+    public CommonResult<List<RoomRespVO>> getOperatingRoomList() {
+        List<RoomDO> roomDOs = roomService.getOperatingRoomList();
+        return success(RoomConvert.INSTANCE.convertList(roomDOs));
+    }
 }

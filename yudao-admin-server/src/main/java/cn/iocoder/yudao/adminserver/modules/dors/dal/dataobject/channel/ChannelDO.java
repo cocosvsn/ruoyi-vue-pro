@@ -47,6 +47,10 @@ public class ChannelDO extends BaseDO {
      */
     private String jsonInfo;
     /**
+     * 是否显示
+     */
+    private Boolean display;
+    /**
      * 备注
      */
     private String remarks;

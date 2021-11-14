@@ -183,6 +183,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
             ChannelDO channelDO = this.channelMapper.selectOne(new QueryWrapper<ChannelDO>().lambda()
                     .and(qw -> qw.eq(ChannelDO::getDevice, device.getId()))
                     .and(qw -> qw.eq(ChannelDO::getChannelId, channel.get("id").intValue())));
+            boolean isEnable = channel.get("enable").booleanValue();
             log.info("{}", channel);
             if (null == channelDO) {
                 channelDO = new ChannelDO();
@@ -190,12 +191,14 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
                         .setDevice(device.getId())
                         .setType(channel.get("type").textValue())
                         .setName(channel.get("name").textValue())
-                        .setJsonInfo(channel.toString());
+                        .setJsonInfo(channel.toString())
+                        .setDisplay(isEnable);
                 this.channelMapper.insert(channelDO);
             } else {
                 channelDO.setType(channel.get("type").textValue())
 //                        .setName(channel.get("name").textValue())
-                        .setJsonInfo(channel.toString());
+                        .setJsonInfo(channel.toString())
+                        .setDisplay(isEnable);
                 this.channelMapper.updateById(channelDO);
             }
         });

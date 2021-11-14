@@ -82,7 +82,22 @@ public class ChannelServiceImpl implements ChannelService {
     }
 
     /**
-     * 根据设备编号与频道类型查询频道列表
+     * 查询通道列表
+     * @param pageReqVO
+     * @return
+     */
+    public List<ChannelDO> getList(ChannelPageReqVO pageReqVO) {
+        QueryWrapperX queryWrapperX = new QueryWrapperX<ChannelDO>()
+                .eqIfPresent("device", pageReqVO.getDevice())
+                .eqIfPresent("type", pageReqVO.getType())
+                .likeIfPresent("name", pageReqVO.getName())
+                .betweenIfPresent("create_time", pageReqVO.getBeginCreateTime(), pageReqVO.getEndCreateTime())
+                .orderByDesc("id");
+        return channelMapper.selectList(queryWrapperX);
+    }
+
+    /**
+     * 根据设备编号与频道类型查询显示的频道列表
      * @param deviceId 设备编号
      * @param type 频道类型（vi/usb/net/ndi/file/mix)
      * @return
@@ -91,6 +106,7 @@ public class ChannelServiceImpl implements ChannelService {
         return this.channelMapper.selectList(new QueryWrapperX<ChannelDO>()
                 .eq("device", deviceId)
                 .eq("type", type)
+                .eq("display", true)
         );
     }
 }

@@ -57,6 +57,11 @@
       </el-table-column>
       <el-table-column label="频道名称" align="center" prop="name" />
       <!-- <el-table-column label="频道JSON数据信息" align="center" prop="jsonInfo" /> -->
+      <el-table-column label="状态" align="center">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.display" @change="handleStatusChange(scope.row)" />
+        </template>
+      </el-table-column>
       <el-table-column label="修改时间" align="center" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime) }}</span>
@@ -112,6 +117,7 @@
 <script>
 import { createChannel, updateChannel, deleteChannel, getChannel, getChannelPage, exportChannelExcel } from "@/api/dors/channel";
 import { getDictDataLabel, DICT_TYPE } from '@/utils/dict';
+import { SysCommonStatusEnum } from "@/utils/constants";
 import { getDevicePage } from "@/api/dors/device";
 
 export default {
@@ -289,6 +295,21 @@ export default {
         }).then(response => {
           this.downloadExcel(response, '频道.xls');
         })
+    },
+    // 修改频道显示状态
+    handleStatusChange(row) {
+      let text = row.display ? "启用" : "停用";
+      this.$confirm('确认要"' + text + '""' + row.name + '"频道吗?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return updateChannel(row);
+        }).then(() => {
+          this.msgSuccess(text + "成功");
+        }).catch(function() {
+          row.display = !row.display;
+        });
     }
   }
 };

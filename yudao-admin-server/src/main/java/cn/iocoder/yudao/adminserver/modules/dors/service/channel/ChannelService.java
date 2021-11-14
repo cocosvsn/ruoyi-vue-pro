@@ -68,6 +68,13 @@ public interface ChannelService {
     List<ChannelDO> getList(ChannelExportReqVO exportReqVO);
 
     /**
+     * 查询通道列表
+     * @param pageReqVO
+     * @return
+     */
+    List<ChannelDO> getList(ChannelPageReqVO pageReqVO);
+
+    /**
      * 根据设备编号与频道类型查询频道列表
      * @param deviceId 设备编号
      * @param type 频道类型（vi/usb/net/ndi/file/mix)

@@ -81,4 +81,10 @@ public interface RoomService {
      * @return 房间及房间绑定的设备信息
      */
     RoomDO getByMac(String mac);
+
+    /**
+     * 获得手术室房间列表
+     * @return 房间列表
+     */
+    List<RoomDO> getOperatingRoomList();
 }

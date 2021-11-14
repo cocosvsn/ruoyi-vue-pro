@@ -54,7 +54,7 @@
                    v-hasPermi="['dors:device:create']">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button plain icon="el-icon-refresh" size="mini" @click="handleRefresh"
+        <el-button type="danger" plain icon="el-icon-refresh" size="mini" @click="handleRefresh"
                    v-hasPermi="['dors:device:create']">重新发现</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -331,10 +331,16 @@ export default {
     },
     // 重新发现设备
     handleRefresh() {
-      rediscover().then(response => {
+      this.$confirm('重新发现会修改通道信息导致推流输出不正常，是否确认需要重新获取?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return rediscover();
+        }).then(response => {
           this.msgSuccess("操作成功");
           this.getList();
-        });
+        })
     },
     /** 导出按钮操作 */
     handleExport() {

@@ -2,6 +2,7 @@ package cn.iocoder.yudao.adminserver.modules.dors.service.room.impl;
 
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.device.DeviceDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.device.DeviceMapper;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -128,5 +129,15 @@ public class RoomServiceImpl implements RoomService {
         RoomDO roomDO = this.roomMapper.selectById(deviceDO.getRoom());
         roomDO.setDevices(this.deviceMapper.selectList(new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId())));
         return roomDO;
+    }
+
+    /**
+     * 获得手术室房间列表
+     * @return 房间列表
+     */
+    public List<RoomDO> getOperatingRoomList() {
+        return this.roomMapper.selectList(new QueryWrapperX<RoomDO>()
+                .eq("type", RoomType.OPERATING_ROOM)
+        );
     }
 }
