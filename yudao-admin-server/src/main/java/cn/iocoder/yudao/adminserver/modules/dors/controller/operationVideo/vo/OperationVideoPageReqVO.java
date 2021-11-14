@@ -1,6 +1,5 @@
-package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
+package cn.iocoder.yudao.adminserver.modules.dors.controller.operationVideo.vo;
 
-import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -9,20 +8,26 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
-@ApiModel("房间分页 Request VO")
+@ApiModel("手术视频分页 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class RoomPageReqVO extends PageParam {
+public class OperationVideoPageReqVO extends PageParam {
 
-    @ApiModelProperty(value = "类型（手术室/会议室）")
-    private RoomType type;
+    @ApiModelProperty(value = "所属手术室")
+    private Integer room;
 
-    @ApiModelProperty(value = "房间名称")
-    private String name;
+    @ApiModelProperty(value = "手术名称")
+    private String title;
 
-    @ApiModelProperty(value = "录制状态")
-    private Boolean record;
+    @ApiModelProperty(value = "医生")
+    private String doctor;
+
+    @ApiModelProperty(value = "患者")
+    private String patient;
+
+    @ApiModelProperty(value = "手术简介")
+    private String operationInfo;
 
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     @ApiModelProperty(value = "开始创建时间")
@@ -31,8 +36,5 @@ public class RoomPageReqVO extends PageParam {
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     @ApiModelProperty(value = "结束创建时间")
     private Date endCreateTime;
-
-    @ApiModelProperty(value = "备注")
-    private String remarks;
 
 }

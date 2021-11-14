@@ -121,4 +121,23 @@ public class RoomController {
         List<RoomDO> roomDOs = roomService.getOperatingRoomList();
         return success(RoomConvert.INSTANCE.convertList(roomDOs));
     }
+
+    @PutMapping("/start-record")
+    @ApiOperation("开始录制")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "房间编号", required = true, example = "1024", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "channelIds", value = "录制的频道ID列表", required = true, example = "1024,2048", dataTypeClass = List.class)
+    })
+    public CommonResult<Boolean> startRecord(@RequestParam("id") Integer id,
+                                              @RequestParam("channelIds") List<Integer> channelIds) {
+        return success(this.roomService.startRecord(id, channelIds));
+    }
+
+    @PutMapping("/stop-record")
+    @ApiOperation("停止录制")
+    @ApiImplicitParam(name = "id", value = "房间编号", required = true, example = "1024", dataTypeClass = Integer.class)
+    public CommonResult<Boolean> stopRecord(@RequestParam("id") Integer id) {
+        this.roomService.stopRecord(id);
+        return success(true);
+    }
 }

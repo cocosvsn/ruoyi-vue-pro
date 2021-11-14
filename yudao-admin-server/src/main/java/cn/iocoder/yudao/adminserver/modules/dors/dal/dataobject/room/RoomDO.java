@@ -39,6 +39,10 @@ public class RoomDO extends BaseDO {
      */
     private String name;
     /**
+     * 录制状态
+     */
+    private Boolean record;
+    /**
      * 备注
      */
     private String remarks;

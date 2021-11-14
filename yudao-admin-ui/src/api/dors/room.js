@@ -52,6 +52,14 @@ export function listRoom(query) {
   })
 }
 
+// 获得房间列表
+export function listOperatingRoom() {
+  return request({
+    url: '/dors/room/list-operating',
+    method: 'get'
+  })
+}
+
 // 获得房间分页
 export function getRoomPage(query) {
   return request({

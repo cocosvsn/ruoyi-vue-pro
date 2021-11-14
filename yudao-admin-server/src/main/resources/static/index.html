@@ -413,7 +413,7 @@
             '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
             '    <div class="check">' +
             '      <div class="checkbox-custom checkbox_default">' +
-            '      <input type="checkbox">' +
+            '      <input type="checkbox" value="'+element.id+'">' +
             '      <label></label>' +
             '    </div>' +
             '  </div>' +
@@ -475,15 +475,7 @@
         checkboxList.each((i, element) => {
           let _this_check_box = $(element);
           if(_this_check_box.is(":checked")) {
-            checkedList.push({
-              "enc_id": _this_check_box.attr("enc_id"),
-              "room_name": parseInt(GetQueryString('category_id')),
-              "surgery_name": "手术录像",
-              "doctor": "",
-              "patient": "",
-              "addr": _this_check_box.attr("addr"),
-              "ch_name": parseInt(_this_check_box.attr("ch_no"))
-            });
+            checkedList.push(_this_check_box.val());
           }
         });
         console.log(checkedList);
@@ -491,39 +483,12 @@
           layer.alert("请选择需要录制的通道");
           return;
         }
-        isRecord = !isRecord;
+        currentRoom.record = !currentRoom.record;
         // 修改按钮图标显示与显示文本
-        if(isRecord) { // 录制中
-          var obj = {
-            list: checkedList
-          }
-          $.post("{:url('/admin/api/start_work')}", obj, function (data) {
-            var json = JSON.parse(data)
-            if (parseInt(json.result) == 0) {
-              recordId = json.subid;
-              $("#btn1").attr("disabled", true);
-              isRecord = true;
-              _this.children('.btn-icon').attr('src', 'images/111.png');
-              _this.children('.btn-title').text('停止录像');
-            } else {
-              isRecord = false;
-              layer.alert("开启录像失败！");
-            }
-          })
+        if(currentRoom.record) { // 录制中
+          console.log("开始录制");
         } else { // 停止录制
-          if (recordId != "" && recordId != null) {
-            var obj = {
-              subj_id: recordId,
-            }
-            // console.log(sub)
-            $.post("{:url('/admin/api/stop_work')}", obj, function (data) {
-              console.log(data)
-              _this.children('.btn-icon').attr('src', 'images/110.png');
-              _this.children('.btn-title').text('开始录像');
-            })
-          } else {
-            layer.alert("没有正在录制的项目");
-          }
+          console.log("停止录制");
         }
       } else if ('capture' === recordBtnTitle) { // 截图按钮
         try { // 调用截图

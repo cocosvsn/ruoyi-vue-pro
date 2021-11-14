@@ -87,4 +87,19 @@ public interface RoomService {
      * @return 房间列表
      */
     List<RoomDO> getOperatingRoomList();
+
+    /**
+     * 启动指定房间视频通道列表录制
+     * @param id 房间编号
+     * @param channelIds 通道编号列表
+     * @return
+     */
+    boolean startRecord(Integer id, List<Integer> channelIds);
+
+    /**
+     * 停止指定房间视频录制
+     * @param id 房间编号
+     * @return
+     */
+    void stopRecord(Integer id);
 }

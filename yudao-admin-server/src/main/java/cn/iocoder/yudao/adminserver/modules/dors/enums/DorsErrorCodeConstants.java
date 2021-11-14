@@ -21,5 +21,12 @@ public interface DorsErrorCodeConstants {
 
     // ========== VERSION 应用版本 模块 2001003000 ==========
     ErrorCode VERSION_NOT_EXISTS = new ErrorCode(2001003000, "应用版本不存在");
+
+    // ========== VERSION 手术视频 模块 2001004000 ==========
+    ErrorCode OPERATION_VIDEO_NOT_EXISTS = new ErrorCode(2001004000, "手术视频不存在");
+
+    // ========== VERSION 手术视频 模块 2001005000 ==========
+    ErrorCode VIDEO_FILE_NOT_EXISTS = new ErrorCode(2001005000, "手术视频文件不存在");
+
 }
 

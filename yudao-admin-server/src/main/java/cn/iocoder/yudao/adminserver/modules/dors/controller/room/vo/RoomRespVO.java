@@ -14,6 +14,9 @@ public class RoomRespVO extends RoomBaseVO {
     @ApiModelProperty(value = "主键（自增）", required = true)
     private Integer id;
 
+    @ApiModelProperty(value = "录制状态")
+    private Boolean record;
+
     @ApiModelProperty(value = "绑定的设备列表", required = false)
     private List<DeviceRespVO> devices;
 

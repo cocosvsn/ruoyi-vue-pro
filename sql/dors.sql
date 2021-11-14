@@ -151,6 +151,7 @@ CREATE TABLE IF NOT EXISTS `dors_version` (
   INDEX `lastest_version` (`package_name` ASC, `version_num` DESC) VISIBLE)
 ENGINE = InnoDB
 COMMENT = '应用版本'
+
 -- ----------------------------
 -- Records of dors_version
 -- ----------------------------
@@ -158,3 +159,59 @@ BEGIN;
 COMMIT;
 
 
+-- ----------------------------
+-- Table structure for dors_operation_video
+-- ----------------------------
+DROP TABLE IF EXISTS `dors_operation_video`;
+CREATE TABLE IF NOT EXISTS `dors_operation_video` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '主键（自增）',
+  `room` INT NULL COMMENT '所属手术室',
+  `title` VARCHAR(255) NULL COMMENT '手术名称',
+  `doctor` VARCHAR(128) NULL COMMENT '医生',
+  `patient` VARCHAR(128) NULL COMMENT '患者',
+  `operation_info` VARCHAR(512) NULL COMMENT '手术简介',
+  `creator` VARCHAR(64) NULL COMMENT '创建者',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` VARCHAR(64) NULL COMMENT '更新者',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` BIT(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `remarks` VARCHAR(512) NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  INDEX `dors_operation_video_room_idx` (`room` ASC) VISIBLE)
+ENGINE = InnoDB
+COMMENT = '手术视频'
+
+-- ----------------------------
+-- Records of dors_operation_video
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+
+-- ----------------------------
+-- Table structure for dors_video_file
+-- ----------------------------
+DROP TABLE IF EXISTS `dors_video_file`;
+CREATE TABLE IF NOT EXISTS `dors_video_file` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '主键（自增）',
+  `operation_video` INT NULL COMMENT '关联手术',
+  `title` VARCHAR(255) NULL COMMENT '标题',
+  `content_type` VARCHAR(128) NULL COMMENT '文件类型',
+  `file_size` INT NULL COMMENT '文件大小',
+  `relative_path` VARCHAR(256) NULL COMMENT '相对路径',
+  `creator` VARCHAR(64) NULL COMMENT '创建者',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` VARCHAR(64) NULL COMMENT '更新者',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` BIT(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `remarks` VARCHAR(512) NULL COMMENT '备注',
+  PRIMARY KEY (`id`),
+  INDEX `dors_video_file_operation_video_idx` (`operation_video` ASC) VISIBLE)
+ENGINE = InnoDB
+COMMENT = '手术视频文件'
+
+-- ----------------------------
+-- Records of dors_video_file
+-- ----------------------------
+BEGIN;
+COMMIT;
