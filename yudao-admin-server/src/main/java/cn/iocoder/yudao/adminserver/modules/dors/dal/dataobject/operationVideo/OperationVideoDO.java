@@ -35,6 +35,10 @@ public class OperationVideoDO extends BaseDO {
      */
     private String title;
     /**
+     * 视频截图
+     */
+    private String poster;
+    /**
      * 医生
      */
     private String doctor;

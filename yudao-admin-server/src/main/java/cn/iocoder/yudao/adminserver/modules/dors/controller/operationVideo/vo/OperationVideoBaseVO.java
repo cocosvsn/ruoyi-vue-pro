@@ -18,6 +18,9 @@ public class OperationVideoBaseVO {
     @ApiModelProperty(value = "手术名称")
     private String title;
 
+    @ApiModelProperty(value = "视频截图")
+    private String poster;
+
     @ApiModelProperty(value = "医生")
     private String doctor;
 

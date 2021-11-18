@@ -37,62 +37,58 @@
           </el-form-item>
         </el-form> -->
 
-        <el-card v-for="v in list" :key="v.id" shadow="always" class="program">
+        <!-- <el-card v-for="v in list" :key="v.id" shadow="always" class="program">
           <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image">
           <div style="padding: 14px;">
-            <span>{{ v.title }}</span>
-            <div class="bottom clearfix">
-              <time class="time">{{ parseTime(v.createTime) }}</time>
-              <el-button type="text" class="button">查看</el-button>
-            </div>
+            <span>{{ v.title }} <time class="time">{{ parseTime(v.createTime) }}</time></span>
+            <el-select v-model="value" placeholder="请选择">
+              <el-option
+                v-for="item in cities"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+                <span style="float: left">{{ item.label }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+              </el-option>
+            </el-select>
           </div>
-        </el-card>
-        <!-- <el-row>
-          <el-col :span="8" v-for="(o, index) in 3" :key="o" :offset="index > 0 ? 2 : 0">
+        </el-card> -->
+        <el-row :gutter="20">
+          <el-col :span="6" v-for="v in list" :key="v.id" shadow="always" >
             <el-card :body-style="{ padding: '0px' }">
               <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image">
               <div style="padding: 14px;">
-                <span>好吃的汉堡</span>
-                <div class="bottom clearfix">
-                  <time class="time">{{ currentDate }}</time>
-                  <el-button type="text" class="button">操作按钮</el-button>
-                </div>
+                <span class="video-title">{{ v.title }}</span><span class="time">{{ parseTime(v.createTime) }}</span>
               </div>
+              <!-- <el-popover
+                placement="right"
+                width="400"
+                trigger="hover">
+                <el-table :data="gridData">
+                    <el-table-column width="150" property="date" label="日期"></el-table-column>
+                    <el-table-column width="100" property="name" label="姓名"></el-table-column>
+                    <el-table-column width="300" property="address" label="地址"></el-table-column>
+                </el-table>
+                <el-button slot="reference" style="width: 100%;">查看通道视频</el-button>
+              </el-popover> -->
+              <el-select v-model="value" placeholder="查看通道视频" style="width: 100%;">
+                <el-option
+                    v-for="item in cities"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    <span style="float: left">{{ item.label }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+                </el-option>
+              </el-select>
             </el-card>
           </el-col>
-        </el-row> -->
+        </el-row>
         <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNo" :limit.sync="queryParams.pageSize"
                     @pagination="getList"/>
       </el-col>
     </el-row>
     <!-- 对话框(添加 / 修改) -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="关联手术" prop="operationVideo">
-          <el-select v-model="form.operationVideo" placeholder="请选择关联手术">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
-        </el-form-item>
-        <el-form-item label="文件类型" prop="contentType">
-          <el-select v-model="form.contentType" placeholder="请选择文件类型">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="文件大小" prop="fileSize">
-          <el-input v-model="form.fileSize" placeholder="请输入文件大小" />
-        </el-form-item>
-        <el-form-item label="相对路径" prop="relativePath">
-          <el-input v-model="form.relativePath" placeholder="请输入相对路径" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -186,7 +182,10 @@ export default {
   .program {
       width: 24%;
   }
+  .video-title {
+  }
   .time {
+    padding-left: 10px;
     font-size: 13px;
     color: #999;
   }
