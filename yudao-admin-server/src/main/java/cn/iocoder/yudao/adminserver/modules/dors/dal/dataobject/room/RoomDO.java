@@ -43,6 +43,10 @@ public class RoomDO extends BaseDO {
      */
     private Boolean record;
     /**
+     * 正在录制状态的视频ID
+     */
+    private Integer recordVideo;
+    /**
      * 备注
      */
     private String remarks;

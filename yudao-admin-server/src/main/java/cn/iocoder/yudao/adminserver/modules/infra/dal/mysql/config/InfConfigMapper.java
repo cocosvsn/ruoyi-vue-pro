@@ -20,6 +20,7 @@ public interface InfConfigMapper extends BaseMapperX<InfConfigDO> {
 
     default PageResult<InfConfigDO> selectPage(InfConfigPageReqVO reqVO) {
         return selectPage(reqVO, new QueryWrapperX<InfConfigDO>()
+                .eqIfPresent("`group`", reqVO.getGroup())
                 .likeIfPresent("name", reqVO.getName())
                 .likeIfPresent("`key`", reqVO.getKey())
                 .eqIfPresent("`type`", reqVO.getType())

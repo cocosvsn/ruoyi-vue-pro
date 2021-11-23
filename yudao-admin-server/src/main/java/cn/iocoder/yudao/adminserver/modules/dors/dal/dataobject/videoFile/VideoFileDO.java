@@ -45,6 +45,10 @@ public class VideoFileDO extends BaseDO {
      */
     private String relativePath;
     /**
+     * 视频视频的任务编号
+     */
+    private String taskId;
+    /**
      * 备注
      */
     private String remarks;

@@ -18,6 +18,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class InfConfigPageReqVO extends PageParam {
 
+    @ApiModelProperty(value = "参数分组", example = "精确匹配")
+    private String group;
+
     @ApiModelProperty(value = "参数名称", example = "模糊匹配")
     private String name;
 

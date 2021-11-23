@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.dors.service.channel.impl;
 
 import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -87,13 +88,13 @@ public class ChannelServiceImpl implements ChannelService {
      * @return
      */
     public List<ChannelDO> getList(ChannelPageReqVO pageReqVO) {
-        QueryWrapperX queryWrapperX = new QueryWrapperX<ChannelDO>()
+        QueryWrapper queryWrapper = new QueryWrapperX<ChannelDO>()
                 .eqIfPresent("device", pageReqVO.getDevice())
                 .eqIfPresent("type", pageReqVO.getType())
                 .likeIfPresent("name", pageReqVO.getName())
                 .betweenIfPresent("create_time", pageReqVO.getBeginCreateTime(), pageReqVO.getEndCreateTime())
-                .orderByDesc("id");
-        return channelMapper.selectList(queryWrapperX);
+                .orderByAsc("channel_id");
+        return channelMapper.selectList(queryWrapper);
     }
 
     /**
@@ -107,6 +108,7 @@ public class ChannelServiceImpl implements ChannelService {
                 .eq("device", deviceId)
                 .eq("type", type)
                 .eq("display", true)
+                .orderByAsc("channel_id")
         );
     }
 }

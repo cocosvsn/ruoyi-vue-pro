@@ -29,6 +29,9 @@ public class OperationVideoPageReqVO extends PageParam {
     @ApiModelProperty(value = "手术简介")
     private String operationInfo;
 
+    @ApiModelProperty(value = "上线状态")
+    private Boolean onlineStatus;
+
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     @ApiModelProperty(value = "开始创建时间")
     private Date beginCreateTime;

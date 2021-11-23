@@ -173,6 +173,7 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
                 ,"/dors/channel"
                 ,"/dors/channel/device"
                 ,"/dors/version/latest"
+                ,"/dors/operation-video/room"
         };
         return Arrays.stream(apis).map(a -> api(a)).toArray(String[]::new);
     }

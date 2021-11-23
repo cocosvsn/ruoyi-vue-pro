@@ -24,6 +24,7 @@ public interface OperationVideoMapper extends BaseMapperX<OperationVideoDO> {
                 .eqIfPresent("doctor", reqVO.getDoctor())
                 .eqIfPresent("patient", reqVO.getPatient())
                 .eqIfPresent("operation_info", reqVO.getOperationInfo())
+                .eqIfPresent("online_status", reqVO.getOnlineStatus())
                 .betweenIfPresent("create_time", reqVO.getBeginCreateTime(), reqVO.getEndCreateTime())
                 .orderByDesc("id")        );
     }

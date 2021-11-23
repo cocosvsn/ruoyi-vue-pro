@@ -175,7 +175,10 @@ yudao:
   udp:
     server:
       enable: true
-
+  dors:
+    redord:
+      api:
+        url: http://192.168.1.248:7011
 justauth:
   enabled: true
   type:

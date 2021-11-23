@@ -16,4 +16,6 @@ public interface InfDictTypeConstants {
 
     String ERROR_CODE_TYPE = "inf_error_code_type"; // 错误码的类型枚举
 
+    // 手术视频默认上下线状态
+    String DEFAULT_OPERATION_VIDEO_ONLINE_STATUS = "operation.video.online.status";
 }

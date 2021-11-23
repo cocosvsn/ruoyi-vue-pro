@@ -11,27 +11,30 @@ import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.operationVideo.Operat
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.videoFile.VideoFileMapper;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
+import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
+import cn.iocoder.yudao.adminserver.modules.infra.dal.mysql.config.InfConfigMapper;
 import cn.iocoder.yudao.framework.file.config.FileProperties;
 import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo.*;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.room.RoomDO;
@@ -40,7 +43,9 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.adminserver.modules.dors.convert.room.RoomConvert;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.room.RoomMapper;
 import cn.iocoder.yudao.adminserver.modules.dors.service.room.RoomService;
+import org.springframework.web.client.RestTemplate;
 
+import static cn.iocoder.yudao.adminserver.modules.infra.enums.InfDictTypeConstants.DEFAULT_OPERATION_VIDEO_ONLINE_STATUS;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConstants.*;
 
@@ -65,10 +70,13 @@ public class RoomServiceImpl implements RoomService {
     @Resource
     private OperationVideoMapper operationVideoMapper;
     @Resource
-    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private InfConfigMapper infConfigMapper;
     @Resource
     private FileProperties fileProperties;
-    private Map<Integer, List<RecordVideoRunnable>> recordList = new HashMap<>();
+    @Resource
+    private RestTemplate restTemplate;
+    @Value("${yudao.dors.redord.api.url:http://192.168.1.248:7011/api/record/}")
+    private String dorsRecordApiUrl;
 
     @Override
     public Integer create(RoomCreateReqVO createReqVO) {
@@ -180,6 +188,7 @@ public class RoomServiceImpl implements RoomService {
      * @param channelIds 通道编号列表
      * @return
      */
+    @SneakyThrows
     public boolean startRecord(Integer id, List<Integer> channelIds) {
         logger.info("updateRecord thread[{}]: {}, {}", Thread.currentThread().getName(), id, channelIds);
         RoomDO roomDO = this.roomMapper.selectById(id);
@@ -190,40 +199,71 @@ public class RoomServiceImpl implements RoomService {
         List<ChannelDO> channelDOList = this.channelMapper.selectBatchIds(channelIds);
         roomDO.setDevices(this.deviceMapper.selectList(new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId())));
 
-        List<RecordVideoRunnable> recordChannelList = new ArrayList<>();
         DeviceDO deviceDO = getEncoder(roomDO.getDevices());
+        InfConfigDO infConfigDO = this.infConfigMapper.selectByKey(DEFAULT_OPERATION_VIDEO_ONLINE_STATUS);
 
         OperationVideoDO operationVideoDO = OperationVideoDO.builder()
                 .room(roomDO.getId())
                 .title("未命名")
+                .onlineStatus(Boolean.valueOf(infConfigDO.getValue()))
                 .build();
         int ret = this.operationVideoMapper.insert(operationVideoDO);
         logger.info("Save OperationVideoDO: {}, result: {}", operationVideoDO, ret);
 
+        String poster = null;
         for (ChannelDO channel: channelDOList) {
             // 提交每个通道的录制。
             String relativePath = roomDO.getName() + File.separator + DateUtil.today() + File.separator +
-                    channel.getName() + "-" + DateUtil.format(new Date(), "yyyyMMddHHmmss") +
-                    ".mp4";
+                    channel.getName() + "-" + DateUtil.format(new Date(), "yyyyMMddHHmmss");
+            String input = "rtsp://"+ deviceDO.getLastOnlineIp()+ "/stream" + channel.getChannelId();
+            String output = fileProperties.getLocal().getDirectory() + relativePath + ".mp4";
+            File outputFile = new File(output);
+            if (!outputFile.getParentFile().exists()) {
+                logger.info("Record output dir【{}】 not exist, make it: {}", output, outputFile.getParentFile().mkdirs());
+            }
+
+            /**
+             * 截图
+             * ffmpeg -i rtsp://192.168.1.230/stream0 -y -f mjpeg -t 0.001 -s 1920x1080 test.jpg
+             * ffmpeg -i rtsp://192.168.1.230/stream0 -y -f mjpeg -ss 0 -t 0.001  -s 1920x1080 test.jpg
+             * ffmpeg -i rtsp://192.168.1.230/stream0 -y -f image2 -ss 1.0 -t 0.001  -s 1920x1080 test.jpg
+             */
+            Runtime runtime = Runtime.getRuntime();
+            Process process = runtime.exec(new String[] { "/usr/bin/ffmpeg", "-i", input, "-y", "-f", "mjpeg", "-t", "0.001",  "-s", "1920x1080",
+                    fileProperties.getLocal().getDirectory() + relativePath + ".jpg"});
+            process.waitFor();
+
+            logger.info("截图完成，开始请求！");
+            // 请求接口录制视频。
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("url", input);
+            jsonObject.put("video_type", "MP4");
+            jsonObject.put("video_path", output);
+            Result result = request("start", jsonObject);
+
+            logger.info("截图完成，开始请求！");
+            // 保存录制记录
             VideoFileDO videoFileDO = VideoFileDO.builder()
                     .operationVideo(operationVideoDO.getId())
                     .title(channel.getName() + " - " + channel.getChannelId())
-                    .relativePath(relativePath)
+                    .relativePath(relativePath + ".mp4")
+//                    .contentType(result.getData())
+                    .taskId(result.getData())
                     .build();
             this.videoFileMapper.insert(videoFileDO);
-            String input = "rtsp://"+ deviceDO.getLastOnlineIp()+ "/stream" + channel.getChannelId();
-            String output = fileProperties.getLocal().getDirectory() + relativePath;
-            File outputFile = new File(output);
-            if (!outputFile.getParentFile().exists()) {
-                logger.info("Record output dir not exist, make it: {}", outputFile.getParentFile().mkdirs());
+
+            if (null == poster) {
+                // 将第一个通道的截图，赋值给海报。
+                poster = relativePath + ".jpg";
             }
-            RecordVideoRunnable r = new RecordVideoRunnable(input, output);
-            this.threadPoolTaskExecutor.execute(r);
-            recordChannelList.add(r);
         }
-        recordList.put(id, recordChannelList);
+
+        // 更新海报信息。
+        operationVideoDO.setPoster(poster);
+        this.operationVideoMapper.updateById(operationVideoDO);
 
         roomDO.setRecord(true);
+        roomDO.setRecordVideo(operationVideoDO.getId());
         this.roomMapper.updateById(roomDO);
         return true;
     }
@@ -233,22 +273,24 @@ public class RoomServiceImpl implements RoomService {
      * @param id 房间编号
      * @return
      */
+    @SneakyThrows
     public void stopRecord(Integer id) {
-        List<RecordVideoRunnable> list = recordList.get(id);
-        list.forEach(s -> {
-            try {
-                if (s.isRunning()) {
-                    Runtime.getRuntime().exec(new String[]{"kill", "-9", String.valueOf(s.getPid())}).waitFor();
-                }
-            } catch (IOException e) {
-                logger.error("", e);
-            } catch (InterruptedException e) {
-                logger.error("", e);
-            }
-        });
         RoomDO roomDO = this.roomMapper.selectById(id);
-        roomDO.setRecord(false);
-        this.roomMapper.updateById(roomDO);
+        if (roomDO.getRecord()) { // 只有正在录制的状态，才需要停止。
+            List<VideoFileDO> videoFileDOS = this.videoFileMapper.selectList("operation_video", roomDO.getRecordVideo());
+
+            for (VideoFileDO vf: videoFileDOS) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("task_id", vf.getTaskId());
+                Result result = request("stop", jsonObject);
+                logger.info("stop record room id: {}, room title: {}, task id: {}, video file id: {}, result: {}",
+                        id, roomDO.getName(), vf.getTaskId(), vf.getId(), result.isSuccess());
+            }
+
+            roomDO.setRecord(false);
+            roomDO.setRecordVideo(null);
+            this.roomMapper.updateById(roomDO);
+        }
     }
 
     private DeviceDO getEncoder(List<DeviceDO> list) {
@@ -263,36 +305,25 @@ public class RoomServiceImpl implements RoomService {
         return null;
     }
 
-    class RecordVideoRunnable implements Runnable {
-        private String inputStream;
-        private String outputPath;
-        private Process process;
-        private boolean running;
+    @SneakyThrows
+    private Result request(String method, JSONObject json) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        // 设置请求类型
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        // 封装参数和头信息
+        HttpEntity<JSONObject> httpEntity = new HttpEntity(json, httpHeaders);
+        String url = dorsRecordApiUrl + method;
+        logger.info("request url: {}, {}", url, json.toJSONString());
+        ResponseEntity<String> mapResponseEntity = restTemplate.postForEntity(url, httpEntity, String.class);
+        String result = mapResponseEntity.getBody();
+        logger.info("response: {}", result);
+        return new ObjectMapper().readValue(result, Result.class);
+    }
 
-        public RecordVideoRunnable(String inputStream, String outputPath) {
-            this.inputStream = inputStream;
-            this.outputPath = outputPath;
-        }
-
-        public Long getPid() {
-            if (null != process) {
-                return process.pid();
-            }
-            return null;
-        }
-
-        public boolean isRunning() {
-            return running;
-        }
-
-        @SneakyThrows
-        @Override
-        public void run() {
-            Runtime runtime = Runtime.getRuntime();
-            process = runtime.exec(new String[]{"/usr/bin/ffmpeg", "-i", inputStream, "-c", "copy", "-f", "mp4", outputPath});
-            running = true;
-            int exitValue = process.waitFor();
-            logger.info("Record process exit: {}", exitValue);
-        }
+    @Data
+    static class Result implements Serializable {
+        private boolean success;
+        private String data;
+        private String msg;
     }
 }

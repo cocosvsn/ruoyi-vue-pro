@@ -393,6 +393,7 @@
   let previewWindowY = null;
   let previewWindowWidth = null;
   let previewWindowHeight = null;
+  let canStopRecord = false;
   
   let currentRoom = null;
   let currentRoomChannels = null;
@@ -403,7 +404,7 @@
       // 获取当前房间信息
       currentRoom = JSON.parse(AOV.getCurrentRoom());
       currentRoomChannels = JSON.parse(AOV.getChannels());
-      console.log("current room 【"+currentRoom.name+"】channels: " + currentRoomChannels.length);
+      console.log("current room 【"+currentRoom.name+"】record: "+currentRoom.record+",channels: " + currentRoomChannels.length);
       // 获取通道信息
       let cameraEle = $(".camera");
       currentRoomChannels.forEach((element, i) => {
@@ -420,6 +421,7 @@
             '</div>'
           );
       });
+      showRecord(currentRoom.record);
       // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
       changeVideoViewpostion();
       // 默认播放第1个通道的视频
@@ -430,23 +432,31 @@
       let arrowTitle = $(this).attr('title');
       if ('up' === arrowTitle) { // 上
         try { // 调用安卓发送串口指令 上
-          window.AOV.up();
-          autoStopControl(arrowTitle);
+          AOV.sendCommand('FF0100083F3F');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
-          window.AOV.left();
-          autoStopControl(arrowTitle);
+          AOV.sendCommand('FF0100043F3F');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
-          window.AOV.right();
-          autoStopControl(arrowTitle);
+          AOV.sendCommand('FF0100023F3F');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
-          window.AOV.down();
-          autoStopControl(arrowTitle);
+          AOV.sendCommand('FF0100103F3F');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch (e) { console.error(e); }
       }
     });
@@ -455,13 +465,17 @@
       let btnTitle = $(this).attr('title');
       if ('zoom-in' === btnTitle) { // 放大
         try { // 调用安卓发送串口指令 缩小
-          window.AOV.zoomAdd();
-          autoStopControl(btnTitle);
+          AOV.sendCommand('FF0100200000');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
-          window.AOV.zoomDesc();
-          autoStopControl(btnTitle);
+          AOV.sendCommand('FF0100400000');
+          setTimeout(() => {
+            AOV.sendCommand('FF0100000000');
+          }, 1000);
         } catch(e) { console.error(e); }
       }
     });
@@ -479,17 +493,24 @@
           }
         });
         console.log(checkedList);
-        if(1 > checkedList.length) {
-          layer.alert("请选择需要录制的通道");
-          return;
-        }
-        currentRoom.record = !currentRoom.record;
-        // 修改按钮图标显示与显示文本
-        if(currentRoom.record) { // 录制中
-          console.log("开始录制");
-        } else { // 停止录制
-          console.log("停止录制");
-        }
+        // if(1 > checkedList.length) {
+        //   layer.alert("请选择需要录制的通道");
+        //   return;
+        // }
+        // currentRoom.record = !currentRoom.record;
+        // // 修改按钮图标显示与显示文本
+        // if(currentRoom.record) { // 录制中
+        //   console.log("开始录制");
+        //   AOV.startRecord(currentRoom.id, checkedList);
+        //   _this.children('.btn-icon').attr('src', 'images/111.png');
+        //   _this.children('.btn-title').text('停止录像');
+        // } else if(canStopRecord) { // 停止录制(必须任务成功开始后才能停止录制)
+        //   console.log("停止录制");
+        //   AOV.stopRecord(currentRoom.id);
+        //   _this.children('.btn-icon').attr('src', 'images/110.png');
+        //   _this.children('.btn-title').text('开始录像');
+        // }
+        AOV.changeRecord(currentRoom.id, checkedList);
       } else if ('capture' === recordBtnTitle) { // 截图按钮
         try { // 调用截图
           captureImage()
@@ -504,6 +525,26 @@
     if(_this.hasClass('active')) { // 当前元素重复选中不作处理
       return;
     }
+    switch(channelIndex) {
+      case 0:
+        AOV.openSerialPort('/dev/ttyS0', 9600);
+        break;
+      case 1:
+        AOV.openSerialPort('/dev/ttyS1', 9600);
+        break;
+      case 2:
+        AOV.openSerialPort('/dev/ttyS2', 9600);
+        break;
+      case 3:
+        AOV.openSerialPort('/dev/ttyS3', 9600);
+        break;
+      case 4:
+        AOV.openSerialPort('/dev/ttyS4', 9600);
+        break;
+      default:
+        break;
+    }
+    
     // 设置点击的通道图标边框为选中状态，其它通道图标边框设置为未选中状态
     _this.addClass("active");
     _this.siblings().each((i, element) => {
@@ -527,6 +568,18 @@
     try {
       window.AOV.changeToSerial(x);
     } catch (e) { console.error(e); }
+  }
+  function showRecord(stat) {
+    let recordEle = $('.record-btns>.item-btn:first-child');
+    if(stat) {
+      canStopRecord = true;
+      recordEle.children('.btn-icon').attr('src', 'images/111.png');
+      recordEle.children('.btn-title').text('停止录像');
+    } else {
+      canStopRecord = false;
+      recordEle.children('.btn-icon').attr('src', 'images/110.png');
+      recordEle.children('.btn-title').text('开始录像');
+    }
   }
   /**
    * 从显示器上截图

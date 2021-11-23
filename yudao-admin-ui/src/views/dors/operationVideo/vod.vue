@@ -55,8 +55,8 @@
         </el-card> -->
         <el-row :gutter="20">
           <el-col :span="6" v-for="v in list" :key="v.id" shadow="always" >
-            <el-card :body-style="{ padding: '0px' }">
-              <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image">
+            <el-card :body-style="{ padding: '0px' }" class="program">
+              <img :src="prefix + v.poster" class="image">
               <div style="padding: 14px;">
                 <span class="video-title">{{ v.title }}</span><span class="time">{{ parseTime(v.createTime) }}</span>
               </div>
@@ -71,24 +71,27 @@
                 </el-table>
                 <el-button slot="reference" style="width: 100%;">查看通道视频</el-button>
               </el-popover> -->
-              <el-select v-model="value" placeholder="查看通道视频" style="width: 100%;">
+              <el-select v-model="selectedVideo" placeholder="查看通道视频" style="width: 100%;" @change="videoChange" @visible-change="playVideo">
                 <el-option
-                    v-for="item in cities"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    <span style="float: left">{{ item.label }}</span>
-                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.value }}</span>
+                    v-for="item in v.videoFiles"
+                    :key="item.id"
+                    :label="item.title"
+                    :value="item">
+                    <span style="float: left">{{ v.title }}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ item.title }}</span>
                 </el-option>
               </el-select>
             </el-card>
           </el-col>
         </el-row>
-        <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNo" :limit.sync="queryParams.pageSize"
+        <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNo" :limit.sync="queryParams.pageSize" :pageSizes="queryPageSizes"
                     @pagination="getList"/>
       </el-col>
     </el-row>
     <!-- 对话框(添加 / 修改) -->
+    <el-dialog :title="title" :visible.sync="open" width="640px" append-to-body @close="playerClose">
+      <video-player ref="player" :options="videoOptions"/>
+    </el-dialog>
   </div>
 </template>
 
@@ -97,11 +100,12 @@ import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { listOperatingRoom } from "@/api/dors/room";
 import { createOperationVideo, updateOperationVideo, deleteOperationVideo, getOperationVideo, getOperationVideoPage, exportOperationVideoExcel } from "@/api/dors/operationVideo";
-
+import VideoPlayer from "@/components/VideoPlayer";
+import "video.js/dist/video-js.css"
 
 export default {
   name: "OperationVideoVod",
-  components: { Treeselect },
+  components: { Treeselect, VideoPlayer },
   data() {
     return {
       // 遮罩层
@@ -114,25 +118,37 @@ export default {
         children: "children",
         label: "name"
       },
+      selectedVideo: null,
+      videoOptions: {
+        autoplay: false,
+        controls: true,
+        width: '600px',
+        playbackRates: [0.5, 1, 1.5, 2],
+        sources: []
+      },
       // 总条数
       total: 0,
       // 手术视频列表
       list: [],
+      prefix: '',
       // 弹出层标题
       title: "",
       // 是否显示弹出层
       open: false,
       dateRangeCreateTime: [],
+      player: null,
       // 查询参数
       queryParams: {
         pageNo: 1,
-        pageSize: 10,
+        pageSize: 12,
         room: null,
         title: null,
         doctor: null,
         patient: null,
         operationInfo: null,
+        onlineStatus: true,
       },
+      queryPageSizes: [12, 24, 36, 48],
     };
   },
   watch: {
@@ -159,6 +175,7 @@ export default {
       getOperationVideoPage(params).then(response => {
         this.list = response.data.list;
         this.total = response.data.total;
+        this.prefix = response.msg;
         this.loading = false;
       });
     },
@@ -167,6 +184,36 @@ export default {
       this.queryParams.room = data.id;
       this.getList();
     },
+    videoChange(val) {
+      console.log("videoChange: ", val);
+    },
+    playVideo(state) {
+      console.log("playVideo: " + this.selectedVideo.id + ", state: " + state);
+      if(!state && null != this.selectedVideo) { // 选中了视频，并隐藏时，显示播放器开始播放。
+        this.title = this.selectedVideo.title;
+        this.videoOptions.autoplay = true;
+        // this.$refs.player.player.start();
+        // this.videoOptions.sources = [{
+        //     src: this.selectedVideo.relativePath,
+        //     type: "video/mp4"
+        // }];
+        let _currentUrl = this.prefix + this.selectedVideo.relativePath;
+        this.open = true;
+        setTimeout(() => {
+          console.log(this.$refs.player.player);
+          this.$refs.player.player.src({
+            src: _currentUrl,
+            type: "video/mp4"
+          });
+          this.$refs.player.player.play();
+        }, 100);
+      }
+    },
+    playerClose() {
+      this.selectedVideo = null;
+      this.$refs.player.player.pause();
+      console.log("playerClose", this.$refs.player.player);
+    }
   }
 };
 </script>
@@ -180,7 +227,7 @@ export default {
     font-size: 14px;
   }
   .program {
-      width: 24%;
+      margin-bottom: 20px;;
   }
   .video-title {
   }

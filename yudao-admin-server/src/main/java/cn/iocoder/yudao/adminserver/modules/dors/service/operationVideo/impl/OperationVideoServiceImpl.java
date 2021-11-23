@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.adminserver.modules.dors.service.operationVideo.impl;
 
+import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.videoFile.VideoFileDO;
+import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.videoFile.VideoFileMapper;
+import cn.iocoder.yudao.framework.file.config.FileProperties;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +28,8 @@ import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConst
 @Validated
 public class OperationVideoServiceImpl implements OperationVideoService {
 
+    @Resource
+    private VideoFileMapper videoFileMapper;
     @Resource
     private OperationVideoMapper operationVideoMapper;
 
@@ -72,7 +77,12 @@ public class OperationVideoServiceImpl implements OperationVideoService {
 
     @Override
     public PageResult<OperationVideoDO> getOperationVideoPage(OperationVideoPageReqVO pageReqVO) {
-        return operationVideoMapper.selectPage(pageReqVO);
+        PageResult<OperationVideoDO> pageResult = operationVideoMapper.selectPage(pageReqVO);
+
+        pageResult.getList().forEach(ov -> {
+            ov.setVideoFiles(videoFileMapper.selectList("operation_video", ov.getId()));
+        });
+        return pageResult;
     }
 
     @Override

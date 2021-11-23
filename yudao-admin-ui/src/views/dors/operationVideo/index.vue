@@ -46,11 +46,20 @@
     <!-- 列表 -->
     <el-table v-loading="loading" :data="list">
       <!-- <el-table-column label="主键（自增）" align="center" prop="id" /> -->
-      <el-table-column label="所属手术室" align="center" prop="room" />
+      <el-table-column label="所属手术室" align="center" prop="room" >
+        <template slot-scope="scope">
+          <span>{{ getRoomName(scope.row.room) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="手术名称" align="center" prop="title" />
       <el-table-column label="医生" align="center" prop="doctor" />
       <el-table-column label="患者" align="center" prop="patient" />
       <el-table-column label="手术简介" align="center" prop="operationInfo" />
+      <el-table-column label="上线状态" align="center">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.onlineStatus" @change="handleOnlineStatusChange(scope.row)" />
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -88,7 +97,7 @@
           <el-input v-model="form.patient" placeholder="请输入患者" />
         </el-form-item>
         <el-form-item label="手术简介" prop="operationInfo">
-          <el-input v-model="form.operationInfo" placeholder="请输入手术简介" />
+          <el-input v-model="form.operationInfo" type="textarea" placeholder="请输入手术简介" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -259,6 +268,30 @@ export default {
         }).then(response => {
           this.downloadExcel(response, '手术视频.xls');
         })
+    },
+    handleOnlineStatusChange(row) {
+      let text = row.onlineStatus ? "上线" : "下线";
+      this.$confirm('确认要"' + text + '""' + row.title + '"吗?', "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }).then(function() {
+          return updateOperationVideo(row);
+        }).then(() => {
+          this.msgSuccess(text + "成功");
+        }).catch(function() {
+          row.onlineStatus = !row.onlineStatus;
+        });
+    },
+    getRoomName(roomId) {
+      let roomName = null;
+      for(var i = 0; i < this.operatingRooms.length; i ++) {
+        if (roomId === this.operatingRooms[i].id) {
+          roomName = this.operatingRooms[i].name;
+          break;
+        }
+      }
+      return roomName;
     }
   }
 };
