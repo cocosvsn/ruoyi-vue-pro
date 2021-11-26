@@ -432,31 +432,31 @@
       let arrowTitle = $(this).attr('title');
       if ('up' === arrowTitle) { // 上
         try { // 调用安卓发送串口指令 上
-          AOV.sendCommand('FF0100083F3F');
+          AOV.sendCommand('FF0100083F3F87');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
-          AOV.sendCommand('FF0100043F3F');
+          AOV.sendCommand('FF0100043F3F83');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
-          AOV.sendCommand('FF0100023F3F');
+          AOV.sendCommand('FF0100023F3F81');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
-          AOV.sendCommand('FF0100103F3F');
+          AOV.sendCommand('FF0100103F3F8F');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch (e) { console.error(e); }
       }
     });
@@ -465,17 +465,17 @@
       let btnTitle = $(this).attr('title');
       if ('zoom-in' === btnTitle) { // 放大
         try { // 调用安卓发送串口指令 缩小
-          AOV.sendCommand('FF0100200000');
+          AOV.sendCommand('FF010020000021');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
-          AOV.sendCommand('FF0100400000');
+          AOV.sendCommand('FF010040000041');
           setTimeout(() => {
-            AOV.sendCommand('FF0100000000');
-          }, 1000);
+            AOV.sendCommand('FF010000000001');
+          }, 200);
         } catch(e) { console.error(e); }
       }
     });
