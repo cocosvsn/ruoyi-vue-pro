@@ -248,7 +248,11 @@
      */
     function turnToScreen(index) {
       //将输入输出传给安卓
-      AOV.sendCommand('3'+(currentChannel+1)+'563'+(index+1)+'2E');
+      let commandStr = '3'+(currentChannel+1)+'563'+(index+1)+'2E';
+      // Videohub RS-422 Protocol
+      // @ X:0/目标,源 \n
+      commandStr = '4020583A302F3'+(index)+'2C3'+(currentChannel)+'200A';
+      AOV.sendCommand(commandStr);
     }
 
     // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
