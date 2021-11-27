@@ -387,7 +387,7 @@
 </div>
 </body>
 <script type="text/javascript">
-  let currentChannel = null;
+  let currentChannel = 0;
   let snapTimes = 0;
   let previewWindowX = null;
   let previewWindowY = null;
@@ -426,36 +426,46 @@
       changeVideoViewpostion();
       // 默认播放第1个通道的视频
       previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
+      // 打开串口，准备控制摄像机
+      AOV.openSerialPort('/dev/ttyS4', 9600);
     } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
     $('.pads>.arrow').click(function () {
       let arrowTitle = $(this).attr('title');
       if ('up' === arrowTitle) { // 上
         try { // 调用安卓发送串口指令 上
-          AOV.sendCommand('FF0100083F3F87');
+          // 十进制校验码计算
+          let checkcode = 134 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
-          AOV.sendCommand('FF0100043F3F83');
+          // 十进制校验码计算
+          let checkcode = 130 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
-          AOV.sendCommand('FF0100023F3F81');
+          // 十进制校验码计算
+          let checkcode = 128 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
-          AOV.sendCommand('FF0100103F3F8F');
+          // 十进制校验码计算
+          let checkcode = 142 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch (e) { console.error(e); }
       }
@@ -465,16 +475,20 @@
       let btnTitle = $(this).attr('title');
       if ('zoom-in' === btnTitle) { // 放大
         try { // 调用安卓发送串口指令 缩小
-          AOV.sendCommand('FF010020000021');
+          // 十进制校验码计算
+          let checkcode = 32 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
-          AOV.sendCommand('FF010040000041');
+          // 十进制校验码计算
+          let checkcode = 64 + (currentChannel+1);
+          AOV.sendCommand('FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16));
           setTimeout(() => {
-            AOV.sendCommand('FF010000000001');
+            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
           }, 200);
         } catch(e) { console.error(e); }
       }
@@ -524,25 +538,6 @@
     let _this = $(el);
     if(_this.hasClass('active')) { // 当前元素重复选中不作处理
       return;
-    }
-    switch(channelIndex) {
-      case 0:
-        AOV.openSerialPort('/dev/ttyS0', 9600);
-        break;
-      case 1:
-        AOV.openSerialPort('/dev/ttyS1', 9600);
-        break;
-      case 2:
-        AOV.openSerialPort('/dev/ttyS2', 9600);
-        break;
-      case 3:
-        AOV.openSerialPort('/dev/ttyS3', 9600);
-        break;
-      case 4:
-        AOV.openSerialPort('/dev/ttyS4', 9600);
-        break;
-      default:
-        break;
     }
     
     // 设置点击的通道图标边框为选中状态，其它通道图标边框设置为未选中状态

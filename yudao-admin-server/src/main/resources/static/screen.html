@@ -221,6 +221,7 @@
         changeVideoViewpostion();
         // 默认播放第1个通道的视频
         previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
+        AOV.openSerialPort('/dev/ttyS3', 9600);
       } catch (e) { console.error(e); }
     })
 
@@ -243,90 +244,13 @@
     }
 
     /**
-     * PTZ控制块
-     */
-    //从安卓返回的dors信息
-    function loadDorsInfo(dorsConfig) {
-      if (!dorsConfig) {
-        //未从安卓获取到dors配置
-        $("#noRead").attr("hidden", null);
-
-      } else {
-        // //拿取摄像机信息
-        // let cameras = dorsConfig.camera;
-        //
-        // let x=document.getElementById("channel_choice");
-        // cameras.forEach(function (n,i){
-        //     let option= document.createElement("option");
-        //     option.text = n.title;
-        //     option.value = n.title;
-        //     x.add(option,null)
-        // })
-        //
-        // let selected = $("#channel_choice option:selected").text();
-        // //获取默认选中的值
-        // window.AOV.openSerial(selected);
-
-        //从安卓获取到dors配置
-        //清除数据，加载安卓端反送的矩阵配置
-        // $("#martix").empty();
-        // let martix = dorsConfig.matrix.out;
-
-        // martix.forEach(function (n, i) {
-        //   $("#martix").append(" <div id='screen" + n.sort.toString() + "' style=\"float: left;width: 25%;height: 200px;position: relative\" onclick=\"turnToScreen(this.id);\">\n" +
-        //     "                            <img src=\"/public/image/computer.png\" style=\"width: 70%;height: auto;top: 45%;left: 50%;position: absolute;transform: translateY(-50%) translateX(-50%)\"/>\n" +
-        //     "                            <span style=\"width: 100%;top:81%;color: white;font-size: 19px;position: absolute;text-align: center\">" + n.title + "</span>\n" +
-        //     "                        </div>")
-        // })
-      }
-    }
-    //停止控制
-    function stopControl() {
-      // console.log("点击 停止");
-      setTimeout(function () {
-        window.AOV.stop();
-      }, 400)
-    }
-    //切换串口
-    function gradeChange(x) {
-      // console.log("点击 切换串口："+x);
-      window.AOV.changeToSerial(x);
-    }
-    function ptzcontrol(id) {
-      if (id === "up") {
-        // console.log("点击 上");
-        window.AOV.up();
-      } else if (id === "left") {
-        // console.log("点击 左");
-        window.AOV.left();
-      } else if (id === "right") {
-        // console.log("点击 右");
-        window.AOV.right();
-      } else if (id === "down") {
-        // console.log("点击 下");
-        window.AOV.down();
-      } else if (id === "zoomDes") {
-        // console.log("点击 变倍减");
-        window.AOV.zoomDesc();
-      } else if (id === "zoomAdd") {
-        // console.log("点击 变倍加");
-        window.AOV.zoomAdd();
-      } else if (id === "focusDes") {
-        // console.log("点击 聚焦减");
-        window.AOV.focusDesc();
-      } else if (id === "focusAdd") {
-        // console.log("点击 聚焦加");
-        window.AOV.focusAdd();
-      }
-    }
-
-    /**
      * 矩阵切换,index从0开始
      */
     function turnToScreen(index) {
       //将输入输出传给安卓
-      window.AOV.screenControl(currentChannel, index);
+      AOV.sendCommand('3'+(currentChannel+1)+'563'+(index+1)+'2E');
     }
+
     // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
     function changeVideoViewpostion() {
       let videoView = $("#videoView");
