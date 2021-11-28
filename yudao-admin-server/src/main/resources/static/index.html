@@ -388,6 +388,7 @@
 </body>
 <script type="text/javascript">
   let currentChannel = 0;
+  let currentChannelIndex = 0;
   let snapTimes = 0;
   let previewWindowX = null;
   let previewWindowY = null;
@@ -409,7 +410,7 @@
       let cameraEle = $(".camera");
       currentRoomChannels.forEach((element, i) => {
         cameraEle.append(
-            '<div class="col-md-1 item" onclick="selectItem(this, '+i+')" >' +
+            '<div class="col-md-1 item'+(i===0?' active':'')+'" onclick="selectItem(this, '+element.channelId+', '+i+')" >' +
             '  <div class="title">'+element.name+'</div>' +
             '    <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
             '    <div class="check">' +
@@ -436,37 +437,33 @@
         try { // 调用安卓发送串口指令 上
           // 十进制校验码计算
           let checkcode = 134 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let upCommandStr = 'FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16);
+          AOV.sendCommand(upCommandStr);
+          autoStopControl(upCommandStr);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
           // 十进制校验码计算
           let checkcode = 130 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let leftCommandStr = 'FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16);
+          AOV.sendCommand(leftCommandStr);
+          autoStopControl(leftCommandStr);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
           // 十进制校验码计算
           let checkcode = 128 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let rightCommandStr = 'FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16);
+          AOV.sendCommand(rightCommandStr);
+          autoStopControl(rightCommandStr);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
           // 十进制校验码计算
           let checkcode = 142 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let downCommandStr = 'FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16);
+          AOV.sendCommand(downCommandStr);
+          autoStopControl(downCommandStr);
         } catch (e) { console.error(e); }
       }
     });
@@ -477,19 +474,17 @@
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
           let checkcode = 32 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let zoomInCommandStr = 'FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16);
+          AOV.sendCommand(zoomInCommandStr);
+          autoStopControl(zoomInCommandStr);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
           let checkcode = 64 + (currentChannel+1);
-          AOV.sendCommand('FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16));
-          setTimeout(() => {
-            AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
-          }, 200);
+          let zoomOutCommandStr = 'FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16);
+          AOV.sendCommand(zoomOutCommandStr);
+          autoStopControl(zoomOutCommandStr);
         } catch(e) { console.error(e); }
       }
     });
@@ -506,24 +501,7 @@
             checkedList.push(_this_check_box.val());
           }
         });
-        console.log(checkedList);
-        // if(1 > checkedList.length) {
-        //   layer.alert("请选择需要录制的通道");
-        //   return;
-        // }
-        // currentRoom.record = !currentRoom.record;
-        // // 修改按钮图标显示与显示文本
-        // if(currentRoom.record) { // 录制中
-        //   console.log("开始录制");
-        //   AOV.startRecord(currentRoom.id, checkedList);
-        //   _this.children('.btn-icon').attr('src', 'images/111.png');
-        //   _this.children('.btn-title').text('停止录像');
-        // } else if(canStopRecord) { // 停止录制(必须任务成功开始后才能停止录制)
-        //   console.log("停止录制");
-        //   AOV.stopRecord(currentRoom.id);
-        //   _this.children('.btn-icon').attr('src', 'images/110.png');
-        //   _this.children('.btn-title').text('开始录像');
-        // }
+        
         AOV.changeRecord(currentRoom.id, checkedList);
       } else if ('capture' === recordBtnTitle) { // 截图按钮
         try { // 调用截图
@@ -534,7 +512,7 @@
       }
     });
   });
-  function selectItem(el, channelIndex) {
+  function selectItem(el, channelId, channelIndex) {
     let _this = $(el);
     if(_this.hasClass('active')) { // 当前元素重复选中不作处理
       return;
@@ -545,25 +523,14 @@
     _this.siblings().each((i, element) => {
       $(element).removeClass("active");
     });
-    // 串口切换
-    // gradeChange(_this.attr("channel_name"));
-    // try {
-      
-    //   beforUrl = _this.attr("rtsp");
-    //   window.AOV.changeVideo(beforUrl);
-    // } catch (e) { console.error(e); }
+    
     // 预览通道视频
-    let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelIndex;
+    let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
     previewChannel(previewChannelUrl);
-    currentChannel = channelIndex;
+    currentChannel = channelId;
+    currentChannelIndex = channelIndex;
   }
-  //切换串口
-  function gradeChange(x) {
-    // console.log("点击 切换串口："+x);
-    try {
-      window.AOV.changeToSerial(x);
-    } catch (e) { console.error(e); }
-  }
+  // 切换显示录像状态
   function showRecord(stat) {
     let recordEle = $('.record-btns>.item-btn:first-child');
     if(stat) {
@@ -581,58 +548,8 @@
    */
   function captureImage() {
     //如果没有播放则提示没有课截图的对象
-    if (beforUrl != "") {
-      switch (parseInt(GetQueryString("protocol"))) {
-        case 0:
-          //灵派截图
-          linkPiSnap();
-          break;
-      }
-    } else {
-      layer.msg("暂无正在播放的视频源！")
-    }
-  }
-  /**
-   * 灵派编码器截图
-   */
-  function linkPiSnap() {
-    snapTimes = 2;
-    snapImage()
-  }
-  function snapImage() {
-    //循环截图4次
-    let obj = {
-      ip: GetQueryString('ip')
-    }
-
-    $.ajax({
-      type: "POST",
-      url: "{:url('/admin/api/snapImage')}",
-      contentType: "application/json", //必须这样写
-      dataType: "json",
-      data: JSON.stringify(obj),//schoolList是你要提交是json字符串
-      success: function (data) {
-        if (parseInt(data.result) == 0) {
-          // console.log(snapTimes);
-          snapTimes--;
-          if (snapTimes > 0) {
-            snapImage();
-          } else {
-            downLoadPictureToLocal();
-          }
-        } else {
-          snapTimes++;
-          snapImage();
-        }
-      }
-    })
-  }
-  // 保存截图到本地
-  function downLoadPictureToLocal() {
-    var src = "http://" + GetQueryString("ip") + "/snap/snap" + currentChannel.toString() + ".jpg?" + "rnd=" + Math.random()
-    try {
-      window.AOV.savePicToLocal(src)
-    } catch (e) { console.error(e); }
+    let snapUrl = "http://" + currentRoom.encoder.lastOnlineIp + "/snap/snap" + currentChannel + ".jpg?" + "rnd=" + Math.random();
+    AOV.takeScreenshot(snapUrl);
   }
   // 延时自动停止控制
   let currentControlObj = null;
@@ -644,8 +561,8 @@
       currentControlObj = obj;
     }
     currentControlObjTimeout = setTimeout(function () {
-      window.AOV.stop();
-    }, 400);
+      AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
+    }, 200);
   }
   /**
    * 跳转安卓本地文件管理

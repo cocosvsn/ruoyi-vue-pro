@@ -196,7 +196,7 @@
 
   <script type="text/javascript">
     var channel_list = [];
-    var currentChannel = 0;
+    var currentChannelIndex = 0;
 
     let currentRoom = null;
     $(document).ready(function () {
@@ -211,7 +211,7 @@
         let cameraEle = $(".camera");
         currentRoomChannels.forEach((element, i) => {
           cameraEle.append(
-            '<div class="col-md-1 item" onclick="selectItem(this, '+i+')">' +
+            '<div class="col-md-1 item'+(i===0?' active':'')+'" onclick="selectItem(this, '+element.channelId+', '+i+')">' +
               '  <div class="title">'+element.name+'</div>' +
               '  <div class="icon"><img src="images/10'+(i+1)+'.png" /></div>' +
               '</div>'
@@ -225,7 +225,7 @@
       } catch (e) { console.error(e); }
     })
 
-    function selectItem(el, channelIndex) {
+    function selectItem(el, channelId, channelIndex) {
       let _this = $(el);;
       if (_this.hasClass('active')) { // 当前元素重复选中
         return;
@@ -238,9 +238,9 @@
       });
 
       // 预览通道视频
-      let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelIndex;
+      let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
       previewChannel(previewChannelUrl);
-      currentChannel = channelIndex;
+      currentChannelIndex = channelIndex;
     }
 
     /**
@@ -248,10 +248,10 @@
      */
     function turnToScreen(index) {
       //将输入输出传给安卓
-      let commandStr = '3'+(currentChannel+1)+'563'+(index+1)+'2E';
+      let commandStr = '3'+(currentChannelIndex+1)+'563'+(index+1)+'2E';
       // Videohub RS-422 Protocol
       // @ X:0/目标,源 \n
-      commandStr = '4020583A302F3'+(index)+'2C3'+(currentChannel)+'200A';
+      commandStr = '4020583A302F3'+(index)+'2C3'+(currentChannelIndex)+'200A';
       AOV.sendCommand(commandStr);
     }
 

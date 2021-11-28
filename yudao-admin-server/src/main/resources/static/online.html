@@ -460,6 +460,11 @@ $(document).ready(function() {
     // 获取当前连接中的会议室
     refreshMeetingRoom();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
+
+    // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
+    changeVideoViewpostion();
+      // 默认播放第1个通道的视频
+      previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub17');
   } catch (e) { console.error(e); }
 
   // 切换Mix通道视频布局
@@ -715,6 +720,23 @@ function getArrayIndex(arr, obj) {
     }
   }
   return -1;
+}
+// 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
+function changeVideoViewpostion() {
+  let videoView = $("#videoView");
+  let videoViewOffset = videoView.offset();
+  
+  previewWindowX = videoViewOffset.left;
+  previewWindowY = videoViewOffset.top;
+  previewWindowWidth = videoView.width() + 2;  // 如果有边框则需要增加边框宽度
+  previewWindowHeight = videoView.height() + 2;// 如果有边框则需要增加边框宽度
+}
+
+// 预览通道
+function previewChannel(url) {
+  try {
+    AOV.previewChannel(url, previewWindowX, previewWindowY, previewWindowWidth, previewWindowHeight);
+  } catch(e) { console.error(e); }
 }
 </script>
 </html>
