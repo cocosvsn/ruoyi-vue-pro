@@ -39,7 +39,7 @@ public class VideoFileDO extends BaseDO {
     /**
      * 文件大小
      */
-    private Integer fileSize;
+    private Long fileSize;
     /**
      * 相对路径
      */

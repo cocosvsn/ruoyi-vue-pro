@@ -27,7 +27,7 @@ public class VideoFileExcelVO {
     private String contentType;
 
     @ExcelProperty("文件大小")
-    private Integer fileSize;
+    private Long fileSize;
 
     @ExcelProperty("相对路径")
     private String relativePath;

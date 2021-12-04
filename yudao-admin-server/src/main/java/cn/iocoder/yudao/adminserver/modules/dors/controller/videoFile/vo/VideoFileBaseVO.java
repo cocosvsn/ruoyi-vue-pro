@@ -22,7 +22,7 @@ public class VideoFileBaseVO {
     private String contentType;
 
     @ApiModelProperty(value = "文件大小")
-    private Integer fileSize;
+    private Long fileSize;
 
     @ApiModelProperty(value = "相对路径")
     private String relativePath;

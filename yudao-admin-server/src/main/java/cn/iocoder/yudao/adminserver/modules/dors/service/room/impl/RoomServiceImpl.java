@@ -277,19 +277,38 @@ public class RoomServiceImpl implements RoomService {
     public void stopRecord(Integer id) {
         RoomDO roomDO = this.roomMapper.selectById(id);
         if (roomDO.getRecord()) { // 只有正在录制的状态，才需要停止。
+            OperationVideoDO operationVideoDO = this.operationVideoMapper.selectById(roomDO.getRecordVideo());
             List<VideoFileDO> videoFileDOS = this.videoFileMapper.selectList("operation_video", roomDO.getRecordVideo());
 
+            long totalSize = 0;
             for (VideoFileDO vf: videoFileDOS) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("task_id", vf.getTaskId());
                 Result result = request("stop", jsonObject);
                 logger.info("stop record room id: {}, room title: {}, task id: {}, video file id: {}, result: {}",
                         id, roomDO.getName(), vf.getTaskId(), vf.getId(), result.isSuccess());
+
+                // 停止录制后，获取实际录制的视频文件大小。
+                // Tip： 当前由于偷懒没有判断停止录制的状态，因此可能有Bug存在。
+                File file = new File(fileProperties.getLocal().getDirectory() + vf.getRelativePath());
+                if (file.exists()) {
+                    totalSize += file.length();
+                    vf.setFileSize(file.length());
+                }
+                // 更新通道视频文件大小至数据库。
+                this.videoFileMapper.updateById(vf);
             }
 
+            // 更新全部通道视频文件总大小至数据库。
+            operationVideoDO.setTotalSize(totalSize);
+            this.operationVideoMapper.updateById(operationVideoDO);
+
+            // 更新房间录制状态至数据库。
             roomDO.setRecord(false);
             roomDO.setRecordVideo(null);
             this.roomMapper.updateById(roomDO);
+        } else {
+            logger.warn("{} record status is false!", roomDO.getName());
         }
     }
 

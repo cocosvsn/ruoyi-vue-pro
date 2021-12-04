@@ -30,6 +30,9 @@ public class OperationVideoBaseVO {
     @ApiModelProperty(value = "手术简介")
     private String operationInfo;
 
+    @ApiModelProperty(value = "全部通道视频总大小")
+    private Long totalSize;
+
     @ApiModelProperty(value = "上线状态")
     private Boolean onlineStatus;
 

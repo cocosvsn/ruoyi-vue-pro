@@ -51,6 +51,10 @@ public class OperationVideoDO extends BaseDO {
      */
     private String operationInfo;
     /**
+     * 全部通道视频总大小
+     */
+    private Long totalSize;
+    /**
      * 上线状态
      */
     private Boolean onlineStatus;
