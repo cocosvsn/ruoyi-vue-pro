@@ -54,7 +54,7 @@
     .video-files {
       font-size: 26px;
     }
-    .dropdown-menu {
+    .dropdown-menu,.down {
       font-size: 26px;
     }
     /* .poster {
@@ -131,18 +131,21 @@
           <img class="img-rounded" src="https://image-static.segmentfault.com/411/604/411604166-d90c71bcf59710e8_fix732" />
         </a>
         <div>0</div>
-        <div class="dropdown">
-          <a href="#" id="dLabel0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Dropdown trigger
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="dLabel0">
-            <li class="list-group-item">0</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-          </ul>
+        <div class="row">
+          <div class="dropdown col-md-8">
+            <a href="#" id="dLabel0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown trigger
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dLabel0">
+              <li class="list-group-item">0</li>
+              <li class="list-group-item">Dapibus ac facilisis in</li>
+              <li class="list-group-item">Morbi leo risus</li>
+              <li class="list-group-item">Porta ac consectetur ac</li>
+              <li class="list-group-item">Vestibulum at eros</li>
+            </ul>
+          </div>
+          <div class="col-md-3">下载</div>
         </div>
       </div> -->
     </div>
@@ -191,6 +194,8 @@
   }
   let totalPages = 0;
   let currentRoom = null;
+  let videoIndex = 0;
+  let operationVideoData = [];
 
   let player = videojs('video-player', {});
 
@@ -199,8 +204,13 @@
     $('.menu .item:nth-child(3)').addClass("active");
 
     // 获取当前房间信息
-    currentRoom = JSON.parse(AOV.getCurrentRoom());
-    queryParams.room = currentRoom.id;
+    try {
+      currentRoom = JSON.parse(AOV.getCurrentRoom());
+      queryParams.room = currentRoom.id;
+    } catch (e) { 
+      queryParams.room = 15;
+      console.error(e); 
+    }
 
     // 加载视频列表。
     showVideo();
@@ -234,19 +244,21 @@
       console.log(res);
       totalPages = res.data.total;
       prefix = res.msg;
-      let i = 0;
+      
+      operationVideoData = operationVideoData.concat(res.data.list);
       res.data.list.forEach(element => {
         let videoEle = '<div class="col-md-3 program">' +
             '  <a href="#" class="thumbnail" >' +
             '    <img class="img-rounded" src="'+prefix+element.poster+'" />' +
             '  </a>' +
             '  <div class="program-title">'+element.title+'</div>' +
-            '  <div class="dropdown">' +
-            '    <a href="#" id="videoFile'+i+'" class="video-files" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-            '      查看通道视频' +
-            '      <span class="caret"></span>' +
-            '    </a>' +
-            '    <ul class="dropdown-menu" aria-labelledby="videoFile'+i+'">';
+            '  <div class="row">' +
+            '    <div class="dropdown col-md-8">' +
+            '      <a href="#" id="videoFile'+videoIndex+'" class="video-files" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+            '        查看通道视频' +
+            '        <span class="caret"></span>' +
+            '      </a>' +
+            '      <ul class="dropdown-menu" aria-labelledby="videoFile'+videoIndex+'">';
             // '      <li class="list-group-item">0</li>' +
             // '      <li class="list-group-item">Dapibus ac facilisis in</li>' +
             // '      <li class="list-group-item">Morbi leo risus</li>' +
@@ -254,12 +266,15 @@
             // '      <li class="list-group-item">Vestibulum at eros</li>' +
             
         element.videoFiles.forEach(e => {
-          videoEle += '      <li class="list-group-item" data-url="'+prefix+e.relativePath+'" onclick="playVideo(this);">'+e.title+'</li>';
+          videoEle += '        <li class="list-group-item" data-url="'+prefix+e.relativePath+'" onclick="playVideo(this);">'+e.title+'</li>';
         });
-        videoEle += '    </ul>' +
+        videoEle += '      </ul>' +
+            '    </div>' +
+            '    <div class="col-md-3 col-md-offset-1 down" onclick="downloadVideo('+videoIndex+')">下载</div>' +
             '  </div>' +
             '</div>';
         
+        videoIndex ++;
         _this.append(videoEle);
       });
     });
@@ -273,6 +288,12 @@
       type: "video/mp4"
     });
     player.play();
+  }
+  function downloadVideo(index) {
+    console.log(index, operationVideoData[index].title);
+    AOV.downloadVideo(operationVideoData[index].totalSize, operationVideoData[index].videoFiles.map(s => {
+      return prefix + s.relativePath;
+    }));
   }
 </script>
 </html>
