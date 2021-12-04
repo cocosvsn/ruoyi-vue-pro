@@ -80,6 +80,7 @@ public class WebSocketServerEndpoint {
                 case reject:                 // 拒接
                 case ring_off:               // 挂断
                 case control_serial_port:    // 串口控制
+                case change_serial_port:     // 切换串口
                     // 转发消息至目标
                     sendMessage(clientMap.get(messageInfo.getTo().getId()), message);
                     break;

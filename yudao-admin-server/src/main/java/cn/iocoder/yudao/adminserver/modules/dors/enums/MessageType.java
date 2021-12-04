@@ -53,4 +53,8 @@ public enum MessageType {
      * 串口控制
      */
     control_serial_port,
+    /**
+     * 切换并打开串口
+     */
+    change_serial_port;
 }
