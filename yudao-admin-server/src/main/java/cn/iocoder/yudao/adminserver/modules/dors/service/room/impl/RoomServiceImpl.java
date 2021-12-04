@@ -301,6 +301,9 @@ public class RoomServiceImpl implements RoomService {
 
             // 更新全部通道视频文件总大小至数据库。
             operationVideoDO.setTotalSize(totalSize);
+            // 根据配置项目，设置录制视频的默认上线状态。
+            InfConfigDO infConfigDO = this.infConfigMapper.selectByKey(DEFAULT_OPERATION_VIDEO_ONLINE_STATUS);
+            operationVideoDO.setOnlineStatus("1".equals(infConfigDO.getValue()) ? true : false);
             this.operationVideoMapper.updateById(operationVideoDO);
 
             // 更新房间录制状态至数据库。
