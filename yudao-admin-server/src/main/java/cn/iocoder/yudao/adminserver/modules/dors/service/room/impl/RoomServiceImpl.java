@@ -75,7 +75,7 @@ public class RoomServiceImpl implements RoomService {
     private FileProperties fileProperties;
     @Resource
     private RestTemplate restTemplate;
-    @Value("${yudao.dors.redord.api.url:http://192.168.1.248:7011/api/record/}")
+    @Value("${yudao.dors.record.api.url:http://192.168.1.248:7011/api/record/}")
     private String dorsRecordApiUrl;
 
     @Override
