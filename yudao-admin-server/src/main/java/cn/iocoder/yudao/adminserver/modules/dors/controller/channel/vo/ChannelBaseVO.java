@@ -33,4 +33,10 @@ public class ChannelBaseVO {
 
     @ApiModelProperty(value = "是否显示")
     private Boolean display;
+
+    @ApiModelProperty(value = "是否绑定摄像机")
+    private Boolean isCamera;
+
+    @ApiModelProperty(value = "摄像机云台控制串口信息")
+    private String cameraSerialPort;
 }

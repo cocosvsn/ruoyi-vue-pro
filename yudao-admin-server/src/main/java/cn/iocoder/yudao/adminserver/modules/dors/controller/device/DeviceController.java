@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.device;
 
+import cn.iocoder.yudao.framework.file.config.FileProperties;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -10,6 +11,7 @@ import io.swagger.annotations.*;
 import javax.validation.constraints.*;
 import javax.validation.*;
 import javax.servlet.http.*;
+import java.io.File;
 import java.util.*;
 import java.io.IOException;
 
@@ -35,6 +37,8 @@ public class DeviceController {
 
     @Resource
     private DeviceService deviceService;
+    @Resource
+    private FileProperties fileProperties;
 
     @PostMapping("/create")
     @ApiOperation("创建设备")
@@ -106,4 +110,24 @@ public class DeviceController {
         ExcelUtils.write(response, "设备.xls", "数据", DeviceExcelVO.class, datas);
     }
 
+    @GetMapping("/usage")
+    @ApiOperation("获得服务器磁盘使用情况")
+    @PreAuthorize("@ss.hasPermission('dors:device:query')")
+    public CommonResult<List<DeviceSpaseVO>> getDiskUsage() {
+        String dir = fileProperties.getLocal().getDirectory();
+        File file = new File(dir);
+        List<DeviceSpaseVO> list = new ArrayList<>();
+        long totalSpace = file.getTotalSpace();
+        long usableSpace = file.getUsableSpace();
+        DeviceSpaseVO usedSpaceVo = new DeviceSpaseVO();
+        usedSpaceVo.setName("已用空间");
+        usedSpaceVo.setValue(totalSpace - usableSpace);
+        list.add(usedSpaceVo);
+
+        DeviceSpaseVO usableSpaceVo = new DeviceSpaseVO();
+        usableSpaceVo.setName("可用空间");
+        usableSpaceVo.setValue(usableSpace);
+        list.add(usableSpaceVo);
+        return success(list);
+    }
 }

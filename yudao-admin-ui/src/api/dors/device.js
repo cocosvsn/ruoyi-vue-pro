@@ -42,6 +42,14 @@ export function rediscover() {
   })
 }
 
+// 获取服务器磁盘使用统计
+export function usage() {
+  return request({
+    url: '/dors/device/usage',
+    method: 'get'
+  })
+}
+
 // 获得设备分页
 export function getDevicePage(query) {
   return request({

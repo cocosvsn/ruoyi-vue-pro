@@ -3,6 +3,7 @@
 </template>
 
 <script>
+import { usage } from "@/api/dors/device";
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
@@ -25,13 +26,24 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      chartData: [
+        { value: 320, name: '可用空间' },
+        { value: 240, name: '已用空间' },
+      ]
     }
   },
   mounted() {
     this.$nextTick(() => {
       this.initChart()
     })
+    usage().then(res => {
+      console.log(res);
+      this.chartData = res.data;
+      let op = this.chart.getOption();
+      op.series[0].data = this.chartData;
+      this.chart.setOption(op); 
+    });
   },
   beforeDestroy() {
     if (!this.chart) {
@@ -65,10 +77,7 @@ export default {
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [
-              { value: 320, name: '可用空间' },
-              { value: 240, name: '已用空间' },
-            ],
+            data: this.chartData,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }

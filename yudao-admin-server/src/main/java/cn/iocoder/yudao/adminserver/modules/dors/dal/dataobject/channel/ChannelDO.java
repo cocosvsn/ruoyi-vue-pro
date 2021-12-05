@@ -51,6 +51,14 @@ public class ChannelDO extends BaseDO {
      */
     private Boolean display;
     /**
+     * 是否绑定摄像机
+     */
+    private Boolean isCamera;
+    /**
+     * 摄像机云台控制串口信息
+     */
+    private String cameraSerialPort;
+    /**
      * 备注
      */
     private String remarks;
