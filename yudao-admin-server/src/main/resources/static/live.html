@@ -367,6 +367,7 @@
 
     .camera-control {
       background: url(images/109.png) center no-repeat;
+      background-size: 30% 50%;
     }
 
     .pad {
@@ -424,6 +425,9 @@
       /* float: right; */
       position: relative;
       left: 223px;
+    }
+    .modal-dialog {
+      margin: 220px auto;
     }
   </style>
 </head>
@@ -748,6 +752,9 @@ let currentRoomConnectedEncoderConfig = null;
 let currentChannelSerialPort = null;
 $(document).ready(function() {
   try {
+    // $('#pad').modal({
+    //   show: true
+    // });
     // 获取当前房间信息
     currentRoom = JSON.parse(AOV.getCurrentRoom());
     // 获取当前房间连线中的手术室信息
