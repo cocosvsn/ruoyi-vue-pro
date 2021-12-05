@@ -597,14 +597,14 @@
             <div class="pad">
               <div class="pad-group">
                 <div class="pads">
-                    <div title="up" class="arrow up"></div>
-                    <div title="left" class="arrow left"></div>
-                    <div title="right" class="arrow right"></div>
-                    <div title="down" class="arrow down"></div>
+                    <div title="up" onclick="upControl();" class="arrow up"></div>
+                    <div title="left" onclick="leftControl();" class="arrow left"></div>
+                    <div title="right" onclick="rightControl();" class="arrow right"></div>
+                    <div title="down" onclick="downControl();" class="arrow down"></div>
                 </div>
                 <div class="zoom-group">
-                    <img title="zoom-in" src="images/1092.png" />
-                    <img title="zoom-out" src="images/1093.png" />
+                    <img title="zoom-in" onclick="zoomInControl();" src="images/1092.png" />
+                    <img title="zoom-out" onclick="zoomOutControl();" src="images/1093.png" />
                 </div>
               </div>
             </div>
@@ -743,6 +743,7 @@ let connectedOperatingRoom = null;
 let currentRoom = null;
 let currentRoomEncoder = null;
 let currentRoomConnectedEncoderConfig = null;
+let currentChannelSerialPort = null;
 $(document).ready(function() {
   try {
     // 获取当前房间信息
@@ -840,84 +841,108 @@ $(document).ready(function() {
     console.log("对话框即将显示，切换串口: " + currentChannel.cameraSerialPort);
   // })
   // .on('shown.bs.modal', function (e) {
-    let addr = 0;
     try {
-      addr = JSON.parse(currentChannel.cameraSerialPort).addr;
+      currentChannelSerialPort = JSON.parse(currentChannel.cameraSerialPort);
       AOV.changeRemoteSerialPort(currentChannel.cameraSerialPort);
     } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
-    $('.pads>.arrow').click(function () {
-      let arrowTitle = $(this).attr('title');
-      console.log(arrowTitle);
-      if ('up' === arrowTitle) { // 上
-        try { // 调用安卓发送串口指令 上
-          // 十进制校验码计算
-          let checkcode = 134 + addr;
-          let upCommandStr = 'FF0'+addr+'00083F3F' + checkcode.toString(16);
-          AOV.sendRemoteCommand(upCommandStr);
-          autoStopControl(upCommandStr, addr);
-        } catch (e) { console.error(e); }
-      } else if ('left' === arrowTitle) { // 左
-        try { // 调用安卓发送串口指令 左
-          // 十进制校验码计算
-          let checkcode = 130 + addr;
-          let leftCommandStr = 'FF0'+addr+'00043F3F' + checkcode.toString(16);
-          AOV.sendRemoteCommand(leftCommandStr);
-          autoStopControl(leftCommandStr, addr);
-        } catch (e) { console.error(e); }
-      } else if ('right' === arrowTitle) { // 右
-        try { // 调用安卓发送串口指令 右
-          // 十进制校验码计算
-          let checkcode = 128 + addr;
-          let rightCommandStr = 'FF0'+addr+'00023F3F' + checkcode.toString(16);
-          AOV.sendRemoteCommand(rightCommandStr);
-          autoStopControl(rightCommandStr, addr);
-        } catch (e) { console.error(e); }
-      } else if ('down' === arrowTitle) { // 下
-        try { // 调用安卓发送串口指令 下
-          // 十进制校验码计算
-          let checkcode = 142 + addr;
-          let downCommandStr = 'FF0'+addr+'00103F3F' + checkcode.toString(16);
-          AOV.sendRemoteCommand(downCommandStr);
-          autoStopControl(downCommandStr, addr);
-        } catch (e) { console.error(e); }
-      }
-    });
+    // $('.pads>.arrow').click(function () {
+    //   let arrowTitle = $(this).attr('title');
+    //   console.log(arrowTitle);
+    //   if ('up' === arrowTitle) { // 上
+        
+    //   } else if ('left' === arrowTitle) { // 左
+        
+    //   } else if ('right' === arrowTitle) { // 右
+        
+    //   } else if ('down' === arrowTitle) { // 下
+        
+    //   }
+    // });
     // 监控放大缩小按钮点击事件
-    $('.zoom-group>img').click(function() {
-      let btnTitle = $(this).attr('title');
-      console.log(btnTitle);
-      if ('zoom-in' === btnTitle) { // 放大
-        try { // 调用安卓发送串口指令 缩小
-          // 十进制校验码计算
-          let checkcode = 32 + addr;
-          let zoomInCommandStr = 'FF0'+addr+'00200000' + checkcode.toString(16);
-          AOV.sendRemoteCommand(zoomInCommandStr);
-          autoStopControl(zoomInCommandStr, addr);
-        } catch (e) { console.error(e); }
-      } else if ('zoom-out' === btnTitle) { // 缩小
-        try { // 调用安卓发送串口指令 缩小
-          // 十进制校验码计算
-          let checkcode = 64 + addr;
-          let zoomOutCommandStr = 'FF0'+addr+'00400000' + checkcode.toString(16);
-          AOV.sendRemoteCommand(zoomOutCommandStr);
-          autoStopControl(zoomOutCommandStr, addr);
-        } catch(e) { console.error(e); }
-      }
-    });
+    // $('.zoom-group>img').click(function() {
+    //   let btnTitle = $(this).attr('title');
+    //   console.log(btnTitle);
+    //   if ('zoom-in' === btnTitle) { // 放大
+        
+    //   } else if ('zoom-out' === btnTitle) { // 缩小
+        
+    //   }
+    // });
   })
 });
+function upControl() {
+  console.log("up");
+  try { // 调用安卓发送串口指令 上
+    // 十进制校验码计算
+    let checkcode = 134 + currentChannelSerialPort.addr;
+    let upCommandStr = 'FF0'+currentChannelSerialPort.addr+'00083F3F' + checkcode.toString(16);
+    AOV.sendRemoteCommand(upCommandStr);
+    autoStopControl(upCommandStr);
+  } catch (e) { console.error(e); }
+}
+function downControl() {
+  console.log("down");
+  try { // 调用安卓发送串口指令 下
+    // 十进制校验码计算
+    let checkcode = 142 + currentChannelSerialPort.addr;
+    let downCommandStr = 'FF0'+currentChannelSerialPort.addr+'00103F3F' + checkcode.toString(16);
+    AOV.sendRemoteCommand(downCommandStr);
+    autoStopControl(downCommandStr);
+  } catch (e) { console.error(e); }
+}
+function leftControl() {
+  console.log("left");
+  try { // 调用安卓发送串口指令 左
+    // 十进制校验码计算
+    let checkcode = 130 + currentChannelSerialPort.addr;
+    let leftCommandStr = 'FF0'+currentChannelSerialPort.addr+'00043F3F' + checkcode.toString(16);
+    AOV.sendRemoteCommand(leftCommandStr);
+    autoStopControl(leftCommandStr);
+  } catch (e) { console.error(e); }
+}
+function rightControl() {
+  console.log("right");
+  try { // 调用安卓发送串口指令 右
+    // 十进制校验码计算
+    let checkcode = 128 + currentChannelSerialPort.addr;
+    let rightCommandStr = 'FF0'+currentChannelSerialPort.addr+'00023F3F' + checkcode.toString(16);
+    AOV.sendRemoteCommand(rightCommandStr);
+    autoStopControl(rightCommandStr);
+  } catch (e) { console.error(e); }
+}
+function zoomInControl() {
+  console.log("zoom-in");
+  try { // 调用安卓发送串口指令 缩小
+    // 十进制校验码计算
+    let checkcode = 32 + currentChannelSerialPort.addr;
+    let zoomInCommandStr = 'FF0'+currentChannelSerialPort.addr+'00200000' + checkcode.toString(16);
+    AOV.sendRemoteCommand(zoomInCommandStr);
+    autoStopControl(zoomInCommandStr);
+  } catch (e) { console.error(e); }
+}
+function zoomOutControl() {
+  console.log("zoom-out");
+  try { // 调用安卓发送串口指令 缩小
+    // 十进制校验码计算
+    let checkcode = 64 + currentChannelSerialPort.addr;
+    let zoomOutCommandStr = 'FF0'+currentChannelSerialPort.addr+'00400000' + checkcode.toString(16);
+    AOV.sendRemoteCommand(zoomOutCommandStr);
+    autoStopControl(zoomOutCommandStr);
+  } catch(e) { console.error(e); }
+}
+
 // 延时自动停止控制
 let currentControlObj = null;
 let currentControlObjTimeout = null;
-function autoStopControl(obj, addr) {
+function autoStopControl(obj) {
   if(obj === currentControlObj) { // 如果当前控制对象没有发生改变, 则先清除该对象的定时器, 再重设定时器.
     clearTimeout(currentControlObjTimeout);
   } else { // 当前控制对象不是之前的, 则不清空原定时器. 修改当前控制对象赋值.
     currentControlObj = obj;
   }
   currentControlObjTimeout = setTimeout(function () {
-    AOV.sendRemoteCommand('FF0'+addr+'000000000'+addr);
+    AOV.sendRemoteCommand('FF0'+currentChannelSerialPort.addr+'000000000'+currentChannelSerialPort.addr);
   }, 200);
 }
 // 为绑定了摄像机的通道绑定点击事件，点击后弹出云台控制面板
