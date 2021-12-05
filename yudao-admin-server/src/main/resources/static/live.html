@@ -364,6 +364,65 @@
       margin-top: 160px;
       font-size: 22px;
     }
+
+
+
+    .pad {
+      /* border: 1px solid red;
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      z-index: 100;
+      background-color: rgba(0, 0, 0, 0.4); */
+    }
+    .pad .pad-group {
+      /* margin: 40px 0 0 293px; */
+      border: 1px solid gray;
+      border-radius: 20px;
+      /* width: 290px; */
+      padding: 20px;
+    }
+    .pad .pad-group .pads {
+      width: 256px;
+      height: 256px;
+      margin: auto;
+      background-image: url('images/1091.png');
+    }
+    .pad .pad-group .pads .arrow {
+      /* border: 1px solid red; */
+      width: 100px;
+      height: 100px;
+      position: relative;
+    }
+    .pad .pad-group .pads .left {
+      top: -22px;
+    }
+    .pad .pad-group .pads .right {
+      float: right;
+      top: -122px;
+    }
+    .pad .pad-group .pads .up,
+    .pad .pad-group .pads .down {
+      left: 78px;
+    }
+    .pad .pad-group .pads .down {
+      top: -44px;    
+    }
+    .pad .pad-group .zoom-group img {
+      margin-top: 10px;
+      width: 96px;
+      height: 96px;
+    }
+    .pad .pad-group .zoom-group img:first-child {
+      /* float: right; */
+      position: relative;
+      left: 107px;
+    }
+    .pad .pad-group .zoom-group img:last-child {
+      /* float: right; */
+      position: relative;
+      left: 223px;
+    }
   </style>
 </head>
   
@@ -522,6 +581,37 @@
                 <!-- <span class="input-group-addon"><img src="images/voice.png" /></span> -->
               </div><!-- /input-group -->
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="pad" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">云台控制</h4>
+          </div>
+          <div class="modal-body">
+            <div class="pad">
+              <div class="pad-group">
+                <div class="pads">
+                    <div title="up" class="arrow up"></div>
+                    <div title="left" class="arrow left"></div>
+                    <div title="right" class="arrow right"></div>
+                    <div title="down" class="arrow down"></div>
+                </div>
+                <div class="zoom-group">
+                    <img title="zoom-in" src="images/1092.png" />
+                    <img title="zoom-out" src="images/1093.png" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
           </div>
         </div>
       </div>
@@ -720,7 +810,8 @@ $(document).ready(function() {
     }
     commitSreenSet();
   });
-  $(".box .input-group-addon").click(function() {
+  $(".box .input-group-addon").click(function(event) {
+    event.stopPropagation(); // 阻止事件冒泡，避免传递到空白区域，造成重复点击而显示弹窗。
     // console.log("音频按钮被点击");
     let _this_voice_span = $(this);
     let _this_select = _this_voice_span.parent().find('select');
@@ -739,7 +830,85 @@ $(document).ready(function() {
     }
     commitSreenSet();
   });
+
+  $(".box").click(function(event) {
+    if('box' === event.target.className) { 
+      // 被点击，弹出云台控制模态窗口
+      $('#pad').modal({
+        show: true
+      });
+    }
+  });
+
+  $('#pad').on('show.bs.modal', function(e) {
+    console.log("对话框即将显示，切换串口！");
+  })
+  .on('shown.bs.modal', function (e) {
+    console.log("对话框已显示，绑定事件！");
+    // 监控方向按钮点击事件
+    $('.pads>.arrow').click(function () {
+      let arrowTitle = $(this).attr('title');
+      console.log(arrowTitle);
+      if ('up' === arrowTitle) { // 上
+        try { // 调用安卓发送串口指令 上
+          // 十进制校验码计算
+          let checkcode = 134 + (currentChannel+1);
+          let upCommandStr = 'FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16);
+          AOV.sendCommand(upCommandStr);
+          autoStopControl(upCommandStr);
+        } catch (e) { console.error(e); }
+      } else if ('left' === arrowTitle) { // 左
+        try { // 调用安卓发送串口指令 左
+          // 十进制校验码计算
+          let checkcode = 130 + (currentChannel+1);
+          let leftCommandStr = 'FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16);
+          AOV.sendCommand(leftCommandStr);
+          autoStopControl(leftCommandStr);
+        } catch (e) { console.error(e); }
+      } else if ('right' === arrowTitle) { // 右
+        try { // 调用安卓发送串口指令 右
+          // 十进制校验码计算
+          let checkcode = 128 + (currentChannel+1);
+          let rightCommandStr = 'FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16);
+          AOV.sendCommand(rightCommandStr);
+          autoStopControl(rightCommandStr);
+        } catch (e) { console.error(e); }
+      } else if ('down' === arrowTitle) { // 下
+        try { // 调用安卓发送串口指令 下
+          // 十进制校验码计算
+          let checkcode = 142 + (currentChannel+1);
+          let downCommandStr = 'FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16);
+          AOV.sendCommand(downCommandStr);
+          autoStopControl(downCommandStr);
+        } catch (e) { console.error(e); }
+      }
+    });
+    // 监控放大缩小按钮点击事件
+    $('.zoom-group>img').click(function() {
+      let btnTitle = $(this).attr('title');
+      console.log(btnTitle);
+      if ('zoom-in' === btnTitle) { // 放大
+        try { // 调用安卓发送串口指令 缩小
+          // 十进制校验码计算
+          let checkcode = 32 + (currentChannel+1);
+          let zoomInCommandStr = 'FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16);
+          AOV.sendCommand(zoomInCommandStr);
+          autoStopControl(zoomInCommandStr);
+        } catch (e) { console.error(e); }
+      } else if ('zoom-out' === btnTitle) { // 缩小
+        try { // 调用安卓发送串口指令 缩小
+          // 十进制校验码计算
+          let checkcode = 64 + (currentChannel+1);
+          let zoomOutCommandStr = 'FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16);
+          AOV.sendCommand(zoomOutCommandStr);
+          autoStopControl(zoomOutCommandStr);
+        } catch(e) { console.error(e); }
+      }
+    });
+  })
 });
+
+
 
 // 刷新手术室通道列表
 function refreshOperatingChannels() {

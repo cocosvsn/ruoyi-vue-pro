@@ -45,6 +45,10 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
 
       this.chart.setOption({
+        title: {
+          text: '服务器磁盘统计',
+          left: 'left'
+        },
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -52,21 +56,18 @@ export default {
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          data: ['可用空间', '已用空间']
         },
         series: [
           {
-            name: 'WEEKLY WRITE ARTICLES',
+            name: '磁盘空间',
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
             data: [
-              { value: 320, name: 'Industries' },
-              { value: 240, name: 'Technology' },
-              { value: 149, name: 'Forex' },
-              { value: 100, name: 'Gold' },
-              { value: 59, name: 'Forecasts' }
+              { value: 320, name: '可用空间' },
+              { value: 240, name: '已用空间' },
             ],
             animationEasing: 'cubicInOut',
             animationDuration: 2600
