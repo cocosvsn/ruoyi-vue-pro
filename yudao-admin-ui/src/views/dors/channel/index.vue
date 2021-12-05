@@ -62,6 +62,11 @@
           <el-switch v-model="scope.row.display" @change="handleStatusChange(scope.row)" />
         </template>
       </el-table-column>
+      <el-table-column label="是否绑定摄像机" align="center">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.isCamera" />
+        </template>
+      </el-table-column>
       <el-table-column label="修改时间" align="center" prop="updateTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updateTime) }}</span>
@@ -99,11 +104,20 @@
         <el-form-item label="频道名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入频道名称" />
         </el-form-item>
+        <el-form-item label="状态" prop="display">
+          <el-switch v-model="form.display" />
+        </el-form-item>
+        <el-form-item label="摄像机" prop="isCamera">
+          <el-switch v-model="form.isCamera" />
+        </el-form-item>
+        <el-form-item v-if="form.isCamera" label="摄像机云台串口配置" prop="cameraSerialPort">
+          <el-input type="textarea" rows="3" v-model="form.cameraSerialPort" placeholder="摄像机云台串口配置JSON" />
+        </el-form-item>
         <el-form-item label="频道JSON数据信息" prop="jsonInfo">
-          <el-input type="textarea" v-model="form.jsonInfo" placeholder="请输入频道JSON数据信息" />
+          <el-input type="textarea" rows="3" v-model="form.jsonInfo" placeholder="请输入频道JSON数据信息" />
         </el-form-item>
         <el-form-item label="备注" prop="remarks">
-          <el-input type="textarea" v-model="form.remarks" placeholder="请输入备注" />
+          <el-input type="textarea" rows="3" v-model="form.remarks" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -209,6 +223,9 @@ export default {
         device: undefined,
         type: undefined,
         name: undefined,
+        display: undefined,
+        isCamera: undefined,
+        cameraSerialPort: undefined,
         jsonInfo: undefined,
         remarks: undefined,
       };

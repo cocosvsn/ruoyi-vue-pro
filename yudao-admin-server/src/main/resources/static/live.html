@@ -794,6 +794,11 @@ $(document).ready(function() {
     let _i = 0;
     let _this_select = $(this);
     let boxElement = $(this).parents('.box');//.index(this);
+    let _selected_text = _this_select.find("option:selected").text();
+    // console.log(_selected_text);
+    // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+    dealEvent(boxElement, _selected_text);
+    
     // $(this).siblings().each(function(i, element) {
     //   console.log(element, element === _this_select);
     // });
@@ -831,20 +836,15 @@ $(document).ready(function() {
     commitSreenSet();
   });
 
-  $(".box").click(function(event) {
-    if('box' === event.target.className) { 
-      // 被点击，弹出云台控制模态窗口
-      $('#pad').modal({
-        show: true
-      });
-    }
-  });
-
   $('#pad').on('show.bs.modal', function(e) {
-    console.log("对话框即将显示，切换串口！");
-  })
-  .on('shown.bs.modal', function (e) {
-    console.log("对话框已显示，绑定事件！");
+    console.log("对话框即将显示，切换串口: " + currentChannel.cameraSerialPort);
+  // })
+  // .on('shown.bs.modal', function (e) {
+    let addr = 0;
+    try {
+      addr = JSON.parse(currentChannel.cameraSerialPort).addr;
+      AOV.changeRemoteSerialPort(currentChannel.cameraSerialPort);
+    } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
     $('.pads>.arrow').click(function () {
       let arrowTitle = $(this).attr('title');
@@ -852,34 +852,34 @@ $(document).ready(function() {
       if ('up' === arrowTitle) { // 上
         try { // 调用安卓发送串口指令 上
           // 十进制校验码计算
-          let checkcode = 134 + (currentChannel+1);
-          let upCommandStr = 'FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16);
-          AOV.sendCommand(upCommandStr);
-          autoStopControl(upCommandStr);
+          let checkcode = 134 + addr;
+          let upCommandStr = 'FF0'+addr+'00083F3F' + checkcode.toString(16);
+          AOV.sendRemoteCommand(upCommandStr);
+          autoStopControl(upCommandStr, addr);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
           // 十进制校验码计算
-          let checkcode = 130 + (currentChannel+1);
-          let leftCommandStr = 'FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16);
-          AOV.sendCommand(leftCommandStr);
-          autoStopControl(leftCommandStr);
+          let checkcode = 130 + addr;
+          let leftCommandStr = 'FF0'+addr+'00043F3F' + checkcode.toString(16);
+          AOV.sendRemoteCommand(leftCommandStr);
+          autoStopControl(leftCommandStr, addr);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
           // 十进制校验码计算
-          let checkcode = 128 + (currentChannel+1);
-          let rightCommandStr = 'FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16);
-          AOV.sendCommand(rightCommandStr);
-          autoStopControl(rightCommandStr);
+          let checkcode = 128 + addr;
+          let rightCommandStr = 'FF0'+addr+'00023F3F' + checkcode.toString(16);
+          AOV.sendRemoteCommand(rightCommandStr);
+          autoStopControl(rightCommandStr, addr);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
           // 十进制校验码计算
-          let checkcode = 142 + (currentChannel+1);
-          let downCommandStr = 'FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16);
-          AOV.sendCommand(downCommandStr);
-          autoStopControl(downCommandStr);
+          let checkcode = 142 + addr;
+          let downCommandStr = 'FF0'+addr+'00103F3F' + checkcode.toString(16);
+          AOV.sendRemoteCommand(downCommandStr);
+          autoStopControl(downCommandStr, addr);
         } catch (e) { console.error(e); }
       }
     });
@@ -890,25 +890,75 @@ $(document).ready(function() {
       if ('zoom-in' === btnTitle) { // 放大
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
-          let checkcode = 32 + (currentChannel+1);
-          let zoomInCommandStr = 'FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16);
-          AOV.sendCommand(zoomInCommandStr);
-          autoStopControl(zoomInCommandStr);
+          let checkcode = 32 + addr;
+          let zoomInCommandStr = 'FF0'+addr+'00200000' + checkcode.toString(16);
+          AOV.sendRemoteCommand(zoomInCommandStr);
+          autoStopControl(zoomInCommandStr, addr);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
-          let checkcode = 64 + (currentChannel+1);
-          let zoomOutCommandStr = 'FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16);
-          AOV.sendCommand(zoomOutCommandStr);
-          autoStopControl(zoomOutCommandStr);
+          let checkcode = 64 + addr;
+          let zoomOutCommandStr = 'FF0'+addr+'00400000' + checkcode.toString(16);
+          AOV.sendRemoteCommand(zoomOutCommandStr);
+          autoStopControl(zoomOutCommandStr, addr);
         } catch(e) { console.error(e); }
       }
     });
   })
 });
+// 延时自动停止控制
+let currentControlObj = null;
+let currentControlObjTimeout = null;
+function autoStopControl(obj, addr) {
+  if(obj === currentControlObj) { // 如果当前控制对象没有发生改变, 则先清除该对象的定时器, 再重设定时器.
+    clearTimeout(currentControlObjTimeout);
+  } else { // 当前控制对象不是之前的, 则不清空原定时器. 修改当前控制对象赋值.
+    currentControlObj = obj;
+  }
+  currentControlObjTimeout = setTimeout(function () {
+    AOV.sendRemoteCommand('FF0'+addr+'000000000'+addr);
+  }, 200);
+}
+// 为绑定了摄像机的通道绑定点击事件，点击后弹出云台控制面板
+function dealEvent(ele, text) {
+  // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+  let currentChannel = getChannel(text);
+    if(null != currentChannel && currentChannel.isCamera) { 
+      // 当前通道绑定了摄像机，因此可以使用云台控制功能，需要绑定点击事件。
+      ele.bind('click', {channelInfo: currentChannel}, showPad);
+    } else {
+      // 当前通道未绑定摄像机，需要解绑点击事件。
+      ele.unbind('click');
+    }
+}
 
+let currentChannel = null;
+function showPad(e) {
+  console.log(e.data.channelInfo.name);
+  if('box' === e.target.className) {
+    console.log('box clicked!');
+    // 被点击，弹出云台控制模态窗口
+    currentChannel = e.data.channelInfo;
+    $('#pad').modal({
+      show: true
+    });
+  } else {
+    currentChannel = null;
+  }
+}
 
+/**
+ * 遍历通道列表，根据通道名称获取通道信息。
+ */
+function getChannel(channelName) {
+  for(var i = 0; i < operatingRoomChannelList.length; i++) {
+    if(channelName === operatingRoomChannelList[i].name) {
+      return operatingRoomChannelList[i];
+    }
+  }
+  return null;
+}
 
 // 刷新手术室通道列表
 function refreshOperatingChannels() {
@@ -959,6 +1009,9 @@ function changeScreen(count) {
         // bootstrap-select 必须调用一次刷新才会更新选中状态
         $(e).selectpicker('refresh');
         let parentBox = $(e).parents('.box');
+        let _selected_text = $(e).find("option:selected").text();
+        // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+        dealEvent(parentBox, _selected_text);
         // 设置音频激活状态
         let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
         srcA.forEach((v, j) => {
@@ -994,6 +1047,9 @@ function changeScreen(count) {
         // bootstrap-select 必须调用一次刷新才会更新选中状态
         $(e).selectpicker('refresh');
         let parentBox = $(e).parents('.box');
+        let _selected_text = $(e).find("option:selected").text();
+        // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+        dealEvent(parentBox, _selected_text);
         // 设置音频激活状态
         let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
         srcA.forEach((v, j) => {
@@ -1034,6 +1090,10 @@ function changeScreen(count) {
           }
         });
         let parentBox = $(e).parents('.box');
+        let _selected_text = $(e).find("option:selected").text();
+        // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+        dealEvent(parentBox, _selected_text);
+
         if (null !== srcVPreviewInterval[i]) { // 清除原定时器
           clearInterval(srcVPreviewInterval[i]);
           srcVPreviewInterval[i] = null;
