@@ -365,7 +365,9 @@
       font-size: 22px;
     }
 
-
+    .camera-control {
+      background: url(images/109.png) center no-repeat;
+    }
 
     .pad {
       /* border: 1px solid red;
@@ -951,17 +953,19 @@ function dealEvent(ele, text) {
   let currentChannel = getChannel(text);
     if(null != currentChannel && currentChannel.isCamera) { 
       // 当前通道绑定了摄像机，因此可以使用云台控制功能，需要绑定点击事件。
+      ele.addClass('camera-control');
       ele.bind('click', {channelInfo: currentChannel}, showPad);
     } else {
       // 当前通道未绑定摄像机，需要解绑点击事件。
+      ele.removeClass('camera-control');
       ele.unbind('click');
     }
 }
 
 let currentChannel = null;
 function showPad(e) {
-  console.log(e.data.channelInfo.name);
-  if('box' === e.target.className) {
+  console.log(e.data.channelInfo.name + " " + e.target.className);
+  if('box camera-control' === e.target.className) {
     console.log('box clicked!');
     // 被点击，弹出云台控制模态窗口
     currentChannel = e.data.channelInfo;

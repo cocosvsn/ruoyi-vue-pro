@@ -389,6 +389,7 @@
 <script type="text/javascript">
   let currentChannel = 0;
   let currentChannelIndex = 0;
+  let currentChannelSerialPort = null;
   let snapTimes = 0;
   let previewWindowX = null;
   let previewWindowY = null;
@@ -409,6 +410,9 @@
       // 获取通道信息
       let cameraEle = $(".camera");
       currentRoomChannels.forEach((element, i) => {
+        if(0 === i && element.isCamera) {
+          currentChannelSerialPort = JSON.parse(element.cameraSerialPort);
+        }
         cameraEle.append(
             '<div class="col-md-1 item'+(i===0?' active':'')+'" onclick="selectItem(this, '+element.channelId+', '+i+')" >' +
             '  <div class="title">'+element.name+'</div>' +
@@ -427,41 +431,49 @@
       changeVideoViewpostion();
       // 默认播放第1个通道的视频
       previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
-      // 打开串口，准备控制摄像机
-      AOV.openSerialPort('/dev/ttyS4', 9600);
+      if(null != currentChannelSerialPort) {
+        // 当前通道为摄像机通道。打开串口，准备控制摄像机
+        AOV.openSerialPort(currentChannelSerialPort.device, currentChannelSerialPort.baudRate);
+      }
     } catch (e) { console.error(e); }
     // 监控方向按钮点击事件
     $('.pads>.arrow').click(function () {
       let arrowTitle = $(this).attr('title');
+      if(null == currentChannelSerialPort) {
+        // 如果当前选中的通道串口为空，则云台点击无反应。
+        console.log(arrowTitle + ' currentChannelSerialPort is null index: ' + currentChannelIndex);
+        return;
+      }
+      
       if ('up' === arrowTitle) { // 上
         try { // 调用安卓发送串口指令 上
           // 十进制校验码计算
-          let checkcode = 134 + (currentChannel+1);
-          let upCommandStr = 'FF0'+(currentChannel+1)+'00083F3F' + checkcode.toString(16);
+          let checkcode = 134 + currentChannelSerialPort.addr;
+          let upCommandStr = 'FF0'+currentChannelSerialPort.addr+'00083F3F' + checkcode.toString(16);
           AOV.sendCommand(upCommandStr);
           autoStopControl(upCommandStr);
         } catch (e) { console.error(e); }
       } else if ('left' === arrowTitle) { // 左
         try { // 调用安卓发送串口指令 左
           // 十进制校验码计算
-          let checkcode = 130 + (currentChannel+1);
-          let leftCommandStr = 'FF0'+(currentChannel+1)+'00043F3F' + checkcode.toString(16);
+          let checkcode = 130 + currentChannelSerialPort.addr;
+          let leftCommandStr = 'FF0'+currentChannelSerialPort.addr+'00043F3F' + checkcode.toString(16);
           AOV.sendCommand(leftCommandStr);
           autoStopControl(leftCommandStr);
         } catch (e) { console.error(e); }
       } else if ('right' === arrowTitle) { // 右
         try { // 调用安卓发送串口指令 右
           // 十进制校验码计算
-          let checkcode = 128 + (currentChannel+1);
-          let rightCommandStr = 'FF0'+(currentChannel+1)+'00023F3F' + checkcode.toString(16);
+          let checkcode = 128 + currentChannelSerialPort.addr;
+          let rightCommandStr = 'FF0'+currentChannelSerialPort.addr+'00023F3F' + checkcode.toString(16);
           AOV.sendCommand(rightCommandStr);
           autoStopControl(rightCommandStr);
         } catch (e) { console.error(e); }
       } else if ('down' === arrowTitle) { // 下
         try { // 调用安卓发送串口指令 下
           // 十进制校验码计算
-          let checkcode = 142 + (currentChannel+1);
-          let downCommandStr = 'FF0'+(currentChannel+1)+'00103F3F' + checkcode.toString(16);
+          let checkcode = 142 + currentChannelSerialPort.addr;
+          let downCommandStr = 'FF0'+currentChannelSerialPort.addr+'00103F3F' + checkcode.toString(16);
           AOV.sendCommand(downCommandStr);
           autoStopControl(downCommandStr);
         } catch (e) { console.error(e); }
@@ -470,19 +482,24 @@
     // 监控放大缩小按钮点击事件
     $('.zoom-group>img').click(function() {
       let btnTitle = $(this).attr('title');
+      if(null == currentChannelSerialPort) {
+        // 如果当前选中的通道串口为空，则云台点击无反应。
+        console.log(btnTitle + ' currentChannelSerialPort is null index: ' + currentChannelIndex);
+        return;
+      }
       if ('zoom-in' === btnTitle) { // 放大
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
-          let checkcode = 32 + (currentChannel+1);
-          let zoomInCommandStr = 'FF0'+(currentChannel+1)+'00200000' + checkcode.toString(16);
+          let checkcode = 32 + currentChannelSerialPort.addr;
+          let zoomInCommandStr = 'FF0'+currentChannelSerialPort.addr+'00200000' + checkcode.toString(16);
           AOV.sendCommand(zoomInCommandStr);
           autoStopControl(zoomInCommandStr);
         } catch (e) { console.error(e); }
       } else if ('zoom-out' === btnTitle) { // 缩小
         try { // 调用安卓发送串口指令 缩小
           // 十进制校验码计算
-          let checkcode = 64 + (currentChannel+1);
-          let zoomOutCommandStr = 'FF0'+(currentChannel+1)+'00400000' + checkcode.toString(16);
+          let checkcode = 64 + currentChannelSerialPort.addr;
+          let zoomOutCommandStr = 'FF0'+currentChannelSerialPort.addr+'00400000' + checkcode.toString(16);
           AOV.sendCommand(zoomOutCommandStr);
           autoStopControl(zoomOutCommandStr);
         } catch(e) { console.error(e); }
@@ -529,6 +546,14 @@
     previewChannel(previewChannelUrl);
     currentChannel = channelId;
     currentChannelIndex = channelIndex;
+    if (currentRoomChannels[channelIndex].isCamera) { // 判断当前通道是否绑定了摄像机。绑定了摄像机，则调用打开绑定摄像机串口设备，用于云台控制。
+      currentChannelSerialPort = JSON.parse(currentRoomChannels[channelIndex].cameraSerialPort);
+      // 打开串口
+      AOV.openSerialPort(currentChannelSerialPort.device, currentChannelSerialPort.baudRate);
+    } else {
+      // 置空当前串口，避免被误控。
+      currentChannelSerialPort = null;
+    }
   }
   // 切换显示录像状态
   function showRecord(stat) {
@@ -561,7 +586,7 @@
       currentControlObj = obj;
     }
     currentControlObjTimeout = setTimeout(function () {
-      AOV.sendCommand('FF0'+(currentChannel+1)+'000000000'+(currentChannel+1));
+      AOV.sendCommand('FF0'+(currentChannelSerialPort.addr)+'000000000'+(currentChannelSerialPort.addr));
     }, 200);
   }
   /**
