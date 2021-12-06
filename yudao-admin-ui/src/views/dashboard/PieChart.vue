@@ -63,7 +63,8 @@ export default {
         },
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
+          // formatter: '{a} <br/>{b} : {c} ({d}%)'
+          formatter: this.tooltipFormatter
         },
         legend: {
           left: 'center',
@@ -83,6 +84,28 @@ export default {
           }
         ]
       })
+    },
+    tooltipFormatter(params) {
+      return params.seriesName + '<br/>' + params.data.name + ' : ' + this.formatFileSize(params.data.value) + 
+          '&nbsp;(' + params.percent + '%)'
+    },
+    // 磁盘空间/文件大小格式化显示
+    formatFileSize(fileSize) {
+      if (fileSize < 1024) {
+        return fileSize + 'B';
+      } else if (fileSize < (1024*1024)) {
+        let temp = fileSize / 1024;
+        temp = temp.toFixed(2);
+        return temp + 'KB';
+      } else if (fileSize < (1024*1024*1024)) {
+        let temp = fileSize / (1024*1024);
+        temp = temp.toFixed(2);
+        return temp + 'MB';
+      } else {
+        let temp = fileSize / (1024*1024*1024);
+        temp = temp.toFixed(2);
+        return temp + 'GB';
+      }
     }
   }
 }

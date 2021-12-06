@@ -87,6 +87,8 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         this.validateExists(id);
         // 删除
         deviceMapper.deleteById(id);
+        // 删除设备时，将绑定该设备的通道列表一并删除。
+        this.channelMapper.delete(new QueryWrapper<ChannelDO>().eq("device", id));
     }
 
     private void validateExists(Integer id) {
