@@ -562,21 +562,21 @@ function changeScreen(count) {
           //   voiceSpan.removeClass('active');
           }
         });
-        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-          clearInterval(srcVPreviewInterval[i]);
-          srcVPreviewInterval[i] = null;
-        }
+        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+        //   clearInterval(srcVPreviewInterval[i]);
+        //   srcVPreviewInterval[i] = null;
+        // }
         // 预览通道截图
-        setPreview(parentBox, srcV[i]);
-        previewChannel(parentBox, i);
+        // setPreview(parentBox, srcV[i]);
+        // previewChannel(parentBox, i);
       });
       // 清空其它定时器
-      srcVPreviewInterval.forEach((e, i) => {
-        if (0 < i && null !== e) {
-          clearInterval(e);
-          srcVPreviewInterval[i] = null;
-        }
-      });
+      // srcVPreviewInterval.forEach((e, i) => {
+      //   if (0 < i && null !== e) {
+      //     clearInterval(e);
+      //     srcVPreviewInterval[i] = null;
+      //   }
+      // });
       break;
     case 3:
       oneElement.attr('hidden', 'hidden');
@@ -597,17 +597,17 @@ function changeScreen(count) {
           //   voiceSpan.removeClass('active');
           }
         });
-        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-          clearInterval(srcVPreviewInterval[i]);
-          srcVPreviewInterval[i] = null;
-        }
-        setPreview(parentBox, srcV[i]);
-        previewChannel(parentBox, i);
+        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+        //   clearInterval(srcVPreviewInterval[i]);
+        //   srcVPreviewInterval[i] = null;
+        // }
+        // setPreview(parentBox, srcV[i]);
+        // previewChannel(parentBox, i);
       });
-      if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
-        clearInterval(srcVPreviewInterval[3]);
-        srcVPreviewInterval[3] = null;
-      }
+      // if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
+      //   clearInterval(srcVPreviewInterval[3]);
+      //   srcVPreviewInterval[3] = null;
+      // }
       break
     case 4:
       oneElement.attr('hidden', 'hidden');
@@ -627,13 +627,13 @@ function changeScreen(count) {
           //   voiceSpan.removeClass('active');
           }
         });
-        let parentBox = $(e).parents('.box');
-        if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-          clearInterval(srcVPreviewInterval[i]);
-          srcVPreviewInterval[i] = null;
-        }
-        setPreview(parentBox, srcV[i]);
-        previewChannel(parentBox, i);
+        // let parentBox = $(e).parents('.box');
+        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
+        //   clearInterval(srcVPreviewInterval[i]);
+        //   srcVPreviewInterval[i] = null;
+        // }
+        // setPreview(parentBox, srcV[i]);
+        // previewChannel(parentBox, i);
       });
       break;
     default: break;
