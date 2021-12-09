@@ -251,7 +251,19 @@ border: 1px solid red;
      * 新的手术室上线
      */
     function onlineOperatingRoom(room) {
-      onlineOperatingRooms.push(JSON.parse(room));
+      let onlineRoomTmp = JSON.parse(room);
+      let isExists = false
+      for(var i = 0; i < onlineOperatingRooms.length; i ++) {
+        if(onlineRoomTmp.id == onlineOperatingRooms[i].id) {
+          isExists = true;
+          break;
+        }
+      }
+
+      if(!isExists) {
+        onlineOperatingRooms.push(onlineRoomTmp);
+      }
+      
       showOnlineOperatingRoom();
     }
     /**
