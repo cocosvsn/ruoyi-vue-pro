@@ -155,7 +155,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-image: url("http://static.yudao.iocoder.cn/login-background.jpg");
+  background-image: url("@/assets/images/index1200.jpg");
   background-size: cover;
 }
 .title {
