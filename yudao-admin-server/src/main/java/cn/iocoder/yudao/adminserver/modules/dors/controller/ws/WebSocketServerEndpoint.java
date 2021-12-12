@@ -126,9 +126,11 @@ public class WebSocketServerEndpoint {
      * @param session
      * @param message
      */
-    private void sendMessage(Session session, String message) {
+    private void sendMessage(Session session, String message) throws IOException {
         log.info("发送消息： {}", message);
-        session.getAsyncRemote().sendText(message);
+        synchronized (session) {
+            session.getBasicRemote().sendText(message);
+        }
     }
 
     /**
@@ -142,6 +144,8 @@ public class WebSocketServerEndpoint {
             sendMessage(session, objectMapper.writeValueAsString(message));
         } catch (JsonProcessingException e) {
             log.error("JSON 处理异常：", e);
+        } catch (IOException e) {
+            log.error("发送消息异常：", e);
         }
     }
 
