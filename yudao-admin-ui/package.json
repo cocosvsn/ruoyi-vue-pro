@@ -1,7 +1,7 @@
 {
   "name": "aov",
   "version": "3.3.0",
-  "description": "手术示教管理系统",
+  "description": "数字化手术室管理系统",
   "author": "Bunco",
   "license": "MIT",
   "scripts": {

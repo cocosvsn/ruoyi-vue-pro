@@ -1,5 +1,5 @@
 module.exports = {
-  title: '手术示教管理系统',
+  title: '数字化手术室管理系统',
 
   /**
    * 侧边栏主题 深色主题theme-dark，浅色主题theme-light

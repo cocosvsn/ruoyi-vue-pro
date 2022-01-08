@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '手术示教管理系统',
+      title: '数字化手术室管理系统',
       logo: logoImg
     }
   }
