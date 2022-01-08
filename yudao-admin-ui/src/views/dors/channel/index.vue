@@ -86,8 +86,8 @@
                 @pagination="getList"/>
 
     <!-- 对话框(添加 / 修改) -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="所属设备" prop="device">
           {{getDeviceName(form.device)}}
           <!-- <el-select v-model="form.device" placeholder="请选择所属设备">
@@ -139,6 +139,17 @@ export default {
   components: {
   },
   data() {
+    const checkJson = (rule, value, callback) => {
+      console.log(value);
+      try {
+        if(this.form.isCamera) {
+          JSON.parse(value);
+        }
+        callback();
+      } catch (e) {
+        callback(new Error("JSON 格式错误，请仔细检查后重新输入！"));
+      }
+    };
     return {
       // 遮罩层
       loading: true,
@@ -170,6 +181,7 @@ export default {
         device: [{ required: true, message: "所属设备不能为空", trigger: "blur" }],
         type: [{ required: true, message: "频道类型（vi/usb/net/ndi/file/mix)不能为空", trigger: "change" }],
         name: [{ required: true, message: "频道名称不能为空", trigger: "blur" }],
+        cameraSerialPort: [{required: true, validator: checkJson, trigger: "blur"}],
       }
     };
   },
