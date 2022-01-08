@@ -58,7 +58,9 @@
             <el-card :body-style="{ padding: '0px' }" class="program">
               <img :src="prefix + v.poster" class="image">
               <div style="padding: 14px;">
-                <span class="video-title">{{ v.title }}</span><span class="time">{{ parseTime(v.createTime) }}</span>
+                <span class="video-title">{{ v.title }}</span>
+                <span class="time">{{ parseTime(v.createTime) }}</span>
+                <el-button type="text" icon="el-icon-download" size="mini" style="float: right;" @click="downloadVideo(v);">下载</el-button>
               </div>
               <!-- <el-popover
                 placement="right"
@@ -213,6 +215,13 @@ export default {
       this.selectedVideo = null;
       this.$refs.player.player.pause();
       console.log("playerClose", this.$refs.player.player);
+    },
+    // 视频文件下载
+    downloadVideo(v) {
+      for(var i = 0; i < v.videoFiles.length; i ++) {
+        let _relativePath = v.videoFiles[i].relativePath;
+        this.downloadMp4(this.prefix + _relativePath, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
+      }
     }
   }
 };

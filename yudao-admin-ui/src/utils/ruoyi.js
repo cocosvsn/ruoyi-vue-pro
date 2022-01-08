@@ -140,6 +140,11 @@ export function downloadMarkdown(data, fileName) {
   download0(data, fileName, 'text/markdown');
 }
 
+// 下载 mp4 方法
+export function downloadMp4(data, fileName) {
+  download0(data, fileName, 'video/mp4');
+}
+
 function download0(data, fileName, mineType) {
   // 创建 blob
   let blob = new Blob([data], {type: mineType});

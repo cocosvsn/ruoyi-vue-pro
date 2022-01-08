@@ -29,6 +29,7 @@ import {
   downloadZip,
   downloadHtml,
   downloadMarkdown,
+  downloadMp4,
 } from "@/utils/ruoyi";
 import Pagination from "@/components/Pagination";
 // 自定义表格工具扩展
@@ -54,6 +55,7 @@ Vue.prototype.downloadExcel = downloadExcel
 Vue.prototype.downloadWord = downloadWord
 Vue.prototype.downloadHtml = downloadHtml
 Vue.prototype.downloadMarkdown = downloadMarkdown
+Vue.prototype.downloadMp4 = downloadMp4
 Vue.prototype.downloadZip = downloadZip
 Vue.prototype.handleTree = handleTree
 
