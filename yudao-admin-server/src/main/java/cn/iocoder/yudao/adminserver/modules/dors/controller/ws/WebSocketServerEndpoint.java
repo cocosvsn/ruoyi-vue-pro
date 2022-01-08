@@ -7,18 +7,22 @@ import cn.iocoder.yudao.adminserver.modules.dors.service.room.RoomService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.adminserver.modules.dors.controller.ws.message.MessageInfo.*;
+import static cn.iocoder.yudao.adminserver.modules.dors.controller.ws.message.MessageInfo.buildHeartbeatMessage;
 import static cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType.MEETING_ROOM;
 import static cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType.OPERATING_ROOM;
 
@@ -34,6 +38,26 @@ public class WebSocketServerEndpoint {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private RoomService roomService = SpringCtxUtils.getBean(RoomService.class);
+
+    /**
+     * 每10秒钟检测一次Session有效性
+     */
+    @Scheduled(cron="*/10 * * * * ?")
+    private void checkSession() {
+        for (Map.Entry<Integer, Session> sessionEntry : clientMap.entrySet()) {
+            try {
+                sendMessage(sessionEntry.getValue(), buildHeartbeatMessage());
+            } catch (Exception e) {
+                log.error("发送告警消息失败,删除session"+sessionEntry.getValue());
+                try {
+                    clientMap.remove(sessionEntry.getKey());
+                } catch (Exception e1){
+                    log.error("根据sessionId删除失败，清除sessionMap");
+                    clientMap.clear();
+                }
+            }
+        }
+    }
 
     @OnOpen
     public void onOpen(Session session, @PathParam("roomId") Integer roomId) throws IOException {
@@ -85,7 +109,7 @@ public class WebSocketServerEndpoint {
                     sendMessage(clientMap.get(messageInfo.getTo().getId()), message);
                     break;
                 default:
-                    log.warn("未知类型消息：{}", message);
+                    log.warn("其它类型消息：{}", message);
                     break;
             }
         } catch (Exception e) {
@@ -117,8 +141,9 @@ public class WebSocketServerEndpoint {
     }
 
     @OnError
-    public void onError(Session session, @PathParam("roomId") Integer roomId, Throwable throwable) {
+    public void onError(Session session, @PathParam("roomId") Integer roomId, Throwable throwable) throws IOException {
         log.error("[onError][房间编号({}) 发生异常]", roomId, throwable);
+        session.close();
     }
 
     /**

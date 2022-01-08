@@ -50,6 +50,14 @@ public class MessageInfo<T> {
         return buildMessage(MessageType.online_operating_rooms, null, null, data);
     }
 
+    /**
+     * 构建心跳消息
+     * @return
+     */
+    public static MessageInfo buildHeartbeatMessage() {
+        return buildMessage(MessageType.heartbeat, null, null, null);
+    }
+
     private static <T> MessageInfo buildMessage(MessageType typeOf, RoomDO from, RoomDO to, T data) {
         return MessageInfo.builder()
                 .typeOf(typeOf)
