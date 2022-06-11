@@ -59,6 +59,32 @@ function goPatient() {
     window.location.href = "patient.html" + params;
 }
 
+function goAnesthesia() {
+    try {
+        if (isRecord) {
+            layer.alert("正在录像中, 请先停止录像!");
+            return;
+        }
+    } catch (e) { console.error(e); }
+    try {
+        AOV.hiddenPreview();
+    } catch (e) { console.error(e); }
+    window.location.href = "anesthesia.html" + params;
+}
+
+function goScheduling() {
+    try {
+        if (isRecord) {
+            layer.alert("正在录像中, 请先停止录像!");
+            return;
+        }
+    } catch (e) { console.error(e); }
+    try {
+        AOV.hiddenPreview();
+    } catch (e) { console.error(e); }
+    window.location.href = "scheduling.html" + params;
+}
+
 function goBedlight() {
     try {
         if (isRecord) {

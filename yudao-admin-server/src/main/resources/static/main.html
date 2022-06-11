@@ -203,6 +203,7 @@ border: 1px solid red;
         // let sss = AOV.getOnlineOperatingRoom();
         onlineOperatingRooms = JSON.parse(AOV.getOnlineOperatingRoom());
       } catch(e) {
+        onlineOperatingRooms = [{name: '1号手术室'}];
         console.error(e);
       }
       showOnlineOperatingRoom();
