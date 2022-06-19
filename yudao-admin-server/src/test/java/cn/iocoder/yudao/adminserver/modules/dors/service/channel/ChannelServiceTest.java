@@ -103,14 +103,14 @@ public class ChannelServiceTest extends BaseDbUnitTest {
     public void testGetPage() {
        // mock 数据
        ChannelDO db = randomPojo(ChannelDO.class, o -> { // 等会查询到
-           o.setDevice(null);
+           o.setRoom(null);
            o.setType(null);
            o.setName(null);
            o.setCreateTime(null);
        });
         channelMapper.insert(db);
        // 测试 device 不匹配
-        channelMapper.insert(ObjectUtils.clone(db, o -> o.setDevice(null)));
+        channelMapper.insert(ObjectUtils.clone(db, o -> o.setRoom(null)));
        // 测试 type 不匹配
         channelMapper.insert(ObjectUtils.clone(db, o -> o.setType(null)));
        // 测试 name 不匹配
@@ -119,7 +119,7 @@ public class ChannelServiceTest extends BaseDbUnitTest {
         channelMapper.insert(ObjectUtils.clone(db, o -> o.setCreateTime(null)));
        // 准备参数
        ChannelPageReqVO reqVO = new ChannelPageReqVO();
-       reqVO.setDevice(null);
+       reqVO.setRoom(null);
        reqVO.setType(null);
        reqVO.setName(null);
        reqVO.setBeginCreateTime(null);
@@ -137,14 +137,14 @@ public class ChannelServiceTest extends BaseDbUnitTest {
     public void testGetList() {
         // mock 数据
         ChannelDO db = randomPojo(ChannelDO.class, o -> { // 等会查询到
-            o.setDevice(null);
+            o.setRoom(null);
             o.setType(null);
             o.setName(null);
             o.setCreateTime(null);
         });
         channelMapper.insert(db);
         // 测试 device 不匹配
-        channelMapper.insert(ObjectUtils.clone(db, o -> o.setDevice(null)));
+        channelMapper.insert(ObjectUtils.clone(db, o -> o.setRoom(null)));
         // 测试 type 不匹配
         channelMapper.insert(ObjectUtils.clone(db, o -> o.setType(null)));
         // 测试 name 不匹配
@@ -153,7 +153,7 @@ public class ChannelServiceTest extends BaseDbUnitTest {
         channelMapper.insert(ObjectUtils.clone(db, o -> o.setCreateTime(null)));
         // 准备参数
         ChannelExportReqVO reqVO = new ChannelExportReqVO();
-        reqVO.setDevice(null);
+        reqVO.setRoom(null);
         reqVO.setType(null);
         reqVO.setName(null);
         reqVO.setBeginCreateTime(null);

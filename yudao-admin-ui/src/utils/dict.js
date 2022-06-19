@@ -34,6 +34,20 @@ export const DICT_TYPE = {
   DORS_ROOM_TYPE: 'dors_room_type',
   DORS_DEVICE_TYPE: 'dors_device_type',
   DORS_CHANNEL_TYPE: 'dors_channel_type',
+  DORS_ENCODER_TYPE: 'dors_encoder_type',
+  DORS_ENCODER_STREAM_TYPE: 'dors_encoder_stream_type',
+}
+
+export const ROOM_TYPE = {
+  OPERATING_ROOM: 'OPERATING_ROOM',
+  MEETING_ROOM: 'MEETING_ROOM',
+}
+
+export const DEVICE_TYPE = {
+  ENCODER: 'ENCODER',
+  DECODER: 'DECODER',
+  IPC: "IPC",
+  TV: "TV",
 }
 
 /**

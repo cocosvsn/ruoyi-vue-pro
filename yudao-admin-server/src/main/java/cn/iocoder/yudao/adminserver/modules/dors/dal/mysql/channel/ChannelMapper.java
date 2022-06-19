@@ -19,20 +19,24 @@ public interface ChannelMapper extends BaseMapperX<ChannelDO> {
 
     default PageResult<ChannelDO> selectPage(ChannelPageReqVO reqVO) {
         return selectPage(reqVO, new QueryWrapperX<ChannelDO>()
-                .eqIfPresent("device", reqVO.getDevice())
+                .eqIfPresent("room", reqVO.getRoom())
                 .eqIfPresent("type", reqVO.getType())
+                .eqIfPresent("stream_type", reqVO.getStreamType())
                 .likeIfPresent("name", reqVO.getName())
                 .betweenIfPresent("create_time", reqVO.getBeginCreateTime(), reqVO.getEndCreateTime())
-                .orderByDesc("id")        );
+                .orderByDesc("id")
+        );
     }
 
     default List<ChannelDO> selectList(ChannelExportReqVO reqVO) {
         return selectList(new QueryWrapperX<ChannelDO>()
-                .eqIfPresent("device", reqVO.getDevice())
+                .eqIfPresent("room", reqVO.getRoom())
                 .eqIfPresent("type", reqVO.getType())
+                .eqIfPresent("stream_type", reqVO.getStreamType())
                 .likeIfPresent("name", reqVO.getName())
                 .betweenIfPresent("create_time", reqVO.getBeginCreateTime(), reqVO.getEndCreateTime())
-                .orderByDesc("id")        );
+                .orderByDesc("id")
+        );
     }
 
 }

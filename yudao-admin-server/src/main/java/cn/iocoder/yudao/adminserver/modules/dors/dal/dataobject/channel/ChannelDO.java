@@ -1,12 +1,14 @@
 package cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamDirectionType;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamProtocol;
 import lombok.*;
 import java.util.*;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 
 /**
- * 频道 DO
+ * 通道 DO
  *
  * @author Bunco
  */
@@ -25,6 +27,10 @@ public class ChannelDO extends BaseDO {
     @TableId
     private Integer id;
     /**
+     * 所属房间
+     */
+    private Integer room;
+    /**
      * 所属设备
      */
     private Integer device;
@@ -39,9 +45,31 @@ public class ChannelDO extends BaseDO {
      */
     private String type;
     /**
-     * 频道名称
+     * 流协议（SRT/RTSP）
+     */
+    private StreamProtocol streamProtocol;
+    /**
+     * 流类型（编码器输出流/网络输入流)
+     *
+     * 枚举 {@link StreamDirectionType}
+     */
+    private StreamDirectionType streamType;
+    /**
+     * 通道名称
      */
     private String name;
+    /**
+     * 通道图标
+     */
+    private String icon;
+    /**
+     * 流地址
+     */
+    private String url;
+    /**
+     * 排序
+     */
+    private Integer sort;
     /**
      * 频道JSON数据信息
      */
@@ -50,6 +78,14 @@ public class ChannelDO extends BaseDO {
      * 是否显示
      */
     private Boolean display;
+    /**
+     * 连接至矩阵的端口
+     */
+    private String matrixPort;
+    /**
+     * 串口
+     */
+    private String serialPort;
     /**
      * 是否绑定摄像机
      */
@@ -62,5 +98,6 @@ public class ChannelDO extends BaseDO {
      * 备注
      */
     private String remarks;
+
 
 }

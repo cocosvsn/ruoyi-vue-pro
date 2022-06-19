@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamDirectionType;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -14,14 +15,17 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @ToString(callSuper = true)
 public class ChannelPageReqVO extends PageParam {
 
-    @ApiModelProperty(value = "所属设备")
-    private Integer device;
+    @ApiModelProperty(value = "所属房间")
+    private Integer room;
 
     @ApiModelProperty(value = "频道ID")
     private Integer channelId;
 
     @ApiModelProperty(value = "频道类型（vi/usb/net/ndi/file/mix)")
     private String type;
+
+    @ApiModelProperty(value = "流类型（编码器输出流/网络输入流)")
+    private StreamDirectionType streamType;
 
     @ApiModelProperty(value = "频道名称")
     private String name;

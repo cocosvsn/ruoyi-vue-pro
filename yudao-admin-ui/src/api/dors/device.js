@@ -68,3 +68,26 @@ export function exportDeviceExcel(query) {
     responseType: 'blob'
   })
 }
+
+// 导出设备 Excel
+export function configDecoderDevice(device) {
+  if('LINKPI' === device.type) { // 灵派
+    configDecoderLinkPi(device);
+  } else if('SHXIT' === device.type) { // 示见
+    configDecoderShxit(device);
+  }
+}
+
+/** 
+ * 灵派编码器配置 
+ * 配置流程：
+ * 1. 获取灵派编码器配置。
+ * 2. 获取网络输入类型的接口配置。
+ * 3. 比较灵派编码器支持的网络通道数量和当前解码器配置的通道数量， 取小者。
+ * 4. 将灵派编码器网络通道的输入地址一一配置为解码器配置的通道URL。
+ * 5. 将灵派编码器配置保存。
+ */
+function configDecoderLinkPi(device) {}
+
+/** 示见编码器配置 */
+function configDecoderShxit(device) {}

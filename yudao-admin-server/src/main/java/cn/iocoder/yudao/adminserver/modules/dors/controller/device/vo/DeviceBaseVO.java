@@ -19,9 +19,23 @@ public class DeviceBaseVO {
     @ApiModelProperty(value = "所属房间")
     private Integer room;
 
-    @ApiModelProperty(value = "设备类型（PAD/ENCODER/DECODER）", required = true)
-    @NotNull(message = "设备类型（PAD/ENCODER/DECODER）不能为空")
+    @ApiModelProperty(value = "设备类型（ENCODER/DECODER/IPC/TV）")
     private DeviceType type;
+
+    @ApiModelProperty(value = "设备生厂商")
+    private String manufacturer;
+
+    @ApiModelProperty(value = "设备名称")
+    private String name;
+
+    @ApiModelProperty(value = "设备IP地址")
+    private String ip;
+
+    @ApiModelProperty(value = "设备通道数量")
+    private Integer channelCount;
+
+    @ApiModelProperty(value = "连接至矩阵的端口")
+    private String matrixPort;
 
     @ApiModelProperty(value = "设备序列号")
     private String serialNo;

@@ -33,7 +33,9 @@ public interface SysUserMapper extends BaseMapperX<SysUserDO> {
                 .likeIfPresent("mobile", reqVO.getMobile())
                 .eqIfPresent("status", reqVO.getStatus())
                 .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime())
-                .inIfPresent("dept_id", deptIds));
+                .inIfPresent("dept_id", deptIds)
+                .gt("id", 0)
+        );
     }
 
     default List<SysUserDO> selectList(SysUserExportReqVO reqVO, Collection<Long> deptIds) {
@@ -41,7 +43,9 @@ public interface SysUserMapper extends BaseMapperX<SysUserDO> {
                 .likeIfPresent("mobile", reqVO.getMobile())
                 .eqIfPresent("status", reqVO.getStatus())
                 .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime())
-                .inIfPresent("dept_id", deptIds));
+                .inIfPresent("dept_id", deptIds)
+                .gt("id", 0)
+        );
     }
 
     default List<SysUserDO> selectListByNickname(String nickname) {

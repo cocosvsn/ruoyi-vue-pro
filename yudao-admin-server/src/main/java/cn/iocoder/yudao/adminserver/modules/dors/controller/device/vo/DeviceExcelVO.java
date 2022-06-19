@@ -24,9 +24,21 @@ public class DeviceExcelVO {
     @ExcelProperty("所属房间")
     private Integer room;
 
-    @ExcelProperty(value = "设备类型（PAD/ENCODER/DECODER）", converter = DictConvert.class)
+    @ExcelProperty(value = "设备类型（ENCODER/DECODER/IPC/TV）", converter = DictConvert.class)
     @DictFormat("dors_device_type") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
     private DeviceType type;
+
+    @ApiModelProperty(value = "设备名称")
+    private String name;
+
+    @ApiModelProperty(value = "设备IP地址")
+    private String ip;
+
+    @ApiModelProperty(value = "设备通道数量")
+    private Integer channelCount;
+
+    @ApiModelProperty(value = "连接至矩阵的端口")
+    private String matrixPort;
 
     @ExcelProperty("设备序列号")
     private String serialNo;

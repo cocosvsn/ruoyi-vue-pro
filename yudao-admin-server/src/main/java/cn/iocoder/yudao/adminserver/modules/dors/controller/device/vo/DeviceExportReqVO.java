@@ -7,6 +7,8 @@ import io.swagger.annotations.*;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
+
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @ApiModel(value = "设备 Excel 导出 Request VO", description = "参数和 DevicePageReqVO 是一致的")
@@ -16,8 +18,20 @@ public class DeviceExportReqVO {
     @ApiModelProperty(value = "所属房间")
     private Integer room;
 
-    @ApiModelProperty(value = "设备类型（PAD/ENCODER/DECODER）")
+    @ApiModelProperty(value = "设备类型（ENCODER/DECODER/IPC/TV）")
     private DeviceType type;
+
+    @ApiModelProperty(value = "设备名称")
+    private String name;
+
+    @ApiModelProperty(value = "设备IP地址")
+    private String ip;
+
+    @ApiModelProperty(value = "设备通道数量")
+    private Integer channelCount;
+
+    @ApiModelProperty(value = "连接至矩阵的端口")
+    private String matrixPort;
 
     @ApiModelProperty(value = "设备序列号")
     private String serialNo;

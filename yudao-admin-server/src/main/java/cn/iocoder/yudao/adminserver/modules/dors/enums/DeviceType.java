@@ -5,6 +5,8 @@ package cn.iocoder.yudao.adminserver.modules.dors.enums;
  * @author bunco
  */
 public enum DeviceType {
-    PAD,        // 安卓面板
-    C3531D;     // 灵派C3531D编码器
+    ENCODER,        // 编码器
+    DECODER,        // 解码器
+    IPC,            // IPC（网络摄像头）
+    TV;             // 电视大屏
 }

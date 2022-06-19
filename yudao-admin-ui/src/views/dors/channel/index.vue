@@ -3,16 +3,16 @@
 
     <!-- 搜索工作栏 -->
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="所属设备" prop="device">
-        <el-select v-model="queryParams.device" placeholder="请选择所属设备">
-          <el-option v-for="ed in getEncoderList"
-                    :key="ed.id" :label="getDeviceName(ed.id)" :value="ed.id" />
+      <el-form-item label="所属房间" prop="room">
+        <el-select v-model="queryParams.room" placeholder="请选择所属房间">
+          <el-option v-for="r in roomList"
+                    :key="r.id" :label="r.name" :value="r.id" />
         </el-select>
         <!-- <el-input v-model="queryParams.device" placeholder="请输入所属设备" clearable size="small" @keyup.enter.native="handleQuery"/> -->
       </el-form-item>
-      <el-form-item label="频道类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择频道类型" clearable size="small">
-          <el-option v-for="dict in this.getDictDatas(DICT_TYPE.DORS_CHANNEL_TYPE)"
+      <el-form-item label="频道类型" prop="streamType">
+        <el-select v-model="queryParams.streamType" placeholder="请选择频道类型" clearable size="small">
+          <el-option v-for="dict in this.getDictDatas(DICT_TYPE.DORS_ENCODER_STREAM_TYPE)"
                        :key="dict.value" :label="dict.label" :value="dict.value"/>
         </el-select>
       </el-form-item>
@@ -45,14 +45,14 @@
     <!-- 列表 -->
     <el-table v-loading="loading" :data="list">
       <!-- <el-table-column label="主键（自增）" align="center" prop="id" /> -->
-      <el-table-column label="所属设备" align="center" prop="device" width="400">
+      <el-table-column label="所属房间" align="center" prop="room" width="100">
         <template slot-scope="scope">
-          <span>{{ getDeviceName(scope.row.device) }}</span>
+          <span>{{ getRoomName(scope.row.room) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="频道类型" align="center" prop="type">
+      <el-table-column label="频道类型" align="center" prop="streamType">
         <template slot-scope="scope">
-          <span>{{ getDictDataLabel(DICT_TYPE.DORS_CHANNEL_TYPE, scope.row.type) }}</span>
+          <span>{{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_STREAM_TYPE, scope.row.streamType) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="频道名称" align="center" prop="name" />
@@ -74,6 +74,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-tooltip content="复制网络输入流地址（用于编码器配置）" placement="top-start">
+            <el-button size="mini" type="text" icon="el-icon-edit" @click="handleCopyInputStream(scope.row)" >复制输入流地址</el-button>
+          </el-tooltip>
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['dors:channel:update']">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
@@ -88,16 +91,16 @@
     <!-- 对话框(添加 / 修改) -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="所属设备" prop="device">
-          {{getDeviceName(form.device)}}
-          <!-- <el-select v-model="form.device" placeholder="请选择所属设备">
-            <el-option v-for="ed in deviceList"
-                      :key="ed.id" :label="getDeviceName(ed.id)" :value="ed.id" />
-          </el-select> -->
+        <el-form-item label="所属房间" prop="room">
+          <!-- {{getRoomName(form.room)}} -->
+          <el-select v-model="form.room" placeholder="请选择所属房间">
+            <el-option v-for="r in roomList"
+                      :key="r.id" :label="getRoomName(r.id)" :value="r.id" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="频道类型" prop="type">
-          <el-select v-model="form.type" disabled placeholder="请选择频道类型">
-            <el-option v-for="dict in this.getDictDatas(DICT_TYPE.DORS_CHANNEL_TYPE)"
+        <el-form-item label="频道类型" prop="streamType">
+          <el-select v-model="form.streamType" placeholder="请选择频道类型">
+            <el-option v-for="dict in this.getDictDatas(DICT_TYPE.DORS_ENCODER_STREAM_TYPE)"
                        :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
@@ -132,7 +135,7 @@
 import { createChannel, updateChannel, deleteChannel, getChannel, getChannelPage, exportChannelExcel } from "@/api/dors/channel";
 import { getDictDataLabel, DICT_TYPE } from '@/utils/dict';
 import { SysCommonStatusEnum } from "@/utils/constants";
-import { getDevicePage } from "@/api/dors/device";
+import { getRoomPage } from "@/api/dors/room";
 
 export default {
   name: "",
@@ -159,8 +162,8 @@ export default {
       total: 0,
       // 频道列表
       list: [],
-      // 设备列表
-      deviceList: [],
+      // 房间列表
+      roomList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -170,16 +173,16 @@ export default {
       queryParams: {
         pageNo: 1,
         pageSize: 10,
-        device: null,
-        type: 'mix',
+        room: null,
         name: null,
+        streamType: null,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        device: [{ required: true, message: "所属设备不能为空", trigger: "blur" }],
-        type: [{ required: true, message: "频道类型（vi/usb/net/ndi/file/mix)不能为空", trigger: "change" }],
+        room: [{ required: true, message: "所属房间不能为空", trigger: "blur" }],
+        streamType: [{ required: true, message: "频道类型（编码输出流/网络输入流)不能为空", trigger: "change" }],
         name: [{ required: true, message: "频道名称不能为空", trigger: "blur" }],
         cameraSerialPort: [{required: true, validator: checkJson, trigger: "blur"}],
       }
@@ -193,7 +196,7 @@ export default {
     }
   },
   created() {
-    this.getDeviceList();
+    this.getRoomList();
     this.getList();
   },
   methods: {
@@ -210,15 +213,15 @@ export default {
         this.loading = false;
       });
     },
-    getDeviceList() {
-      getDevicePage({pageSize:100}).then(response => {
-        this.deviceList = response.data.list;
+    getRoomList() {
+      getRoomPage({pageSize:100}).then(response => {
+        this.roomList = response.data.list;
       });
     },
-    getDeviceName(deviceId) {
-      for (const item of this.deviceList) {
-        if (item.id === deviceId) {
-          return getDictDataLabel(DICT_TYPE.DORS_DEVICE_TYPE, item.type) + " - " + item.deviceMac + " - " + item.lastOnlineIp;
+    getRoomName(roomId) {
+      for (const item of this.roomList) {
+        if (item.id === roomId) {
+          return item.name;
         }
       }
       return '';
@@ -235,7 +238,7 @@ export default {
         device: undefined,
         type: undefined,
         name: undefined,
-        display: undefined,
+        display: true,
         isCamera: undefined,
         cameraSerialPort: undefined,
         jsonInfo: undefined,
@@ -339,7 +342,26 @@ export default {
         }).catch(function() {
           row.display = !row.display;
         });
-    }
+    },
+    // 复制网络输入流地址（用于编码器配置）
+    handleCopyInputStream(row) {
+      let networkInputStream = 'rtsp://'+this.getRoomEncoderIp(row.room)+'/NIS/'+row.id;
+      this.$copyText(networkInputStream).then(e => {
+        // 拷贝成功
+        this.msgSuccess(e.text + " 拷贝成功");
+      }, err => {
+        // 拷贝失败
+        this.msgError(e.text + " 拷贝成功");
+      })
+    },
+    getRoomEncoderIp(roomId) {
+      for (const item of this.roomList) {
+        if (item.id === roomId) {
+          return item.encoderIp;
+        }
+      }
+      return '';
+    },
   }
 };
 </script>

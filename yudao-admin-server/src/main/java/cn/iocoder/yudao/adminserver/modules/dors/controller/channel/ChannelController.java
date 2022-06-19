@@ -104,16 +104,4 @@ public class ChannelController {
         List<ChannelDO> result = channelService.getList(pageVO);
         return success(ChannelConvert.INSTANCE.convertList(result));
     }
-
-    @GetMapping("/device")
-    @ApiOperation("获得设备指定类型频道列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "deviceId", value = "设备编号", required = true, example = "1024", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "type", value = "频道类型", required = true, example = "vi/usb/net/ndi/file/mix", dataTypeClass = String.class)
-    })
-    //    @PreAuthorize("@ss.hasPermission('dors:channel:query')")
-    public CommonResult<List<ChannelRespVO>> getByDeviceAndType(@RequestParam("deviceId") Integer deviceId, @RequestParam("type") String typeOf) {
-        List<ChannelDO> channelDOs = channelService.getByDeviceAndType(deviceId, typeOf);
-        return success(ChannelConvert.INSTANCE.convertList(channelDOs));
-    }
 }

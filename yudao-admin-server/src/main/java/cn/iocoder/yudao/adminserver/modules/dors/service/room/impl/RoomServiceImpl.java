@@ -1,6 +1,12 @@
 package cn.iocoder.yudao.adminserver.modules.dors.service.room.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo.ChannelCreateReqVO;
+import cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo.ChannelUpdateReqVO;
+import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceCreateReqVO;
+import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceUpdateReqVO;
+import cn.iocoder.yudao.adminserver.modules.dors.convert.channel.ChannelConvert;
+import cn.iocoder.yudao.adminserver.modules.dors.convert.device.DeviceConvert;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.device.DeviceDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.operationVideo.OperationVideoDO;
@@ -83,6 +89,65 @@ public class RoomServiceImpl implements RoomService {
         // 插入
         RoomDO roomDO = RoomConvert.INSTANCE.convert(createReqVO);
         roomMapper.insert(roomDO);
+
+        // 保存编码器设备
+        for (DeviceCreateReqVO encoderReqVO: createReqVO.getEncoderDevices()) {
+            DeviceDO encoderDeviceDO = DeviceConvert.INSTANCE.convert(encoderReqVO);
+            encoderDeviceDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+            encoderDeviceDO.setType(DeviceType.ENCODER);
+            this.deviceMapper.insert(encoderDeviceDO);
+
+            // 保存关联的通道信息
+            for (ChannelCreateReqVO encoderChannelReqVO: encoderReqVO.getChannels()) {
+                ChannelDO encoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
+                encoderChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+                encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                this.channelMapper.insert(encoderChannelDO);
+            }
+        }
+
+        // 保存解码器设备
+        for (DeviceCreateReqVO decoderReqVO: createReqVO.getDecoderDevices()) {
+            DeviceDO decoderDeviceDO = DeviceConvert.INSTANCE.convert(decoderReqVO);
+            decoderDeviceDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+            decoderDeviceDO.setType(DeviceType.DECODER);
+            this.deviceMapper.insert(decoderDeviceDO);
+
+            // 保存关联的通道信息
+            for (ChannelCreateReqVO encoderChannelReqVO: decoderReqVO.getChannels()) {
+                ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
+                decoderChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+                decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                this.channelMapper.insert(decoderChannelDO);
+            }
+        }
+
+        // 保存IPC设备
+        for (DeviceCreateReqVO ipcReqVO: createReqVO.getIpcDevices()) {
+            DeviceDO ipcDeviceDO = DeviceConvert.INSTANCE.convert(ipcReqVO);
+            ipcDeviceDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+            ipcDeviceDO.setType(DeviceType.IPC);
+            this.deviceMapper.insert(ipcDeviceDO);
+
+            // 保存关联的通道信息
+            for (ChannelCreateReqVO encoderChannelReqVO: ipcReqVO.getChannels()) {
+                ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
+                ipcChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+                ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                this.channelMapper.insert(ipcChannelDO);
+            }
+        }
+
+        // 保存大屏设备
+        for (DeviceCreateReqVO tvReqVO: createReqVO.getTvDevices()) {
+            DeviceDO tvDeviceDO = DeviceConvert.INSTANCE.convert(tvReqVO);
+            tvDeviceDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+            tvDeviceDO.setType(DeviceType.TV);
+            this.deviceMapper.insert(tvDeviceDO);
+
+            // 大屏设备没有通道关系不需要绑定
+        }
+
         // 返回
         return roomDO.getId();
     }
@@ -94,38 +159,254 @@ public class RoomServiceImpl implements RoomService {
         // 更新
         RoomDO updateObj = RoomConvert.INSTANCE.convert(updateReqVO);
         roomMapper.updateById(updateObj);
-    }
 
-    /**
-     * 房间绑定设备
-     *
-     * @param bindDeviceReqVO 设备绑定信息
-     */
-    @Override
-    public void bindDevice(@Valid RoomBindDeviceReqVO bindDeviceReqVO) {
-        DeviceDO padDevice = this.deviceMapper.selectById(bindDeviceReqVO.getPadId());
-        if (null == padDevice) {
-            throw exception(DEVICE_NOT_EXISTS);
+        // 查询出来当前房间的所有设备和通道
+        List<DeviceDO> deviceDOList = this.deviceMapper.selectList(
+                new QueryWrapperX<DeviceDO>().eq("room", updateReqVO.getId()));
+        List<ChannelDO> channelDOList = this.channelMapper.selectList(
+                new QueryWrapperX<ChannelDO>().eq("room", updateReqVO.getId()));
+
+        // 编码器设备
+        List<DeviceDO> encoderDevices = new ArrayList<>();
+        // 解码器设备
+        List<DeviceDO> decoderDevices = new ArrayList<>();
+        // IPC设备
+        List<DeviceDO> ipcDevices = new ArrayList<>();
+        // 大屏设备
+        List<DeviceDO> tvDevices = new ArrayList<>();
+        // 将设备分类
+        for (DeviceDO deviceDO: deviceDOList) {
+            // 将通道分类归置于设备中
+            List<ChannelDO> deviceChannels = new ArrayList<>();
+            for (ChannelDO channelDO: channelDOList) {
+                if (deviceDO.getId().equals(channelDO.getDevice())) {
+                    deviceChannels.add(channelDO);
+                }
+            }
+            deviceDO.setChannels(deviceChannels);
+            switch (deviceDO.getType()) {
+                case ENCODER:
+                    encoderDevices.add(deviceDO);
+                    break;
+                case DECODER:
+                    decoderDevices.add(deviceDO);
+                    break;
+                case IPC:
+                    ipcDevices.add(deviceDO);
+                    break;
+                case TV:
+                    tvDevices.add(deviceDO);
+                    break;
+                default:
+                    break;
+            }
         }
-        DeviceDO encoderDevice = this.deviceMapper.selectById(bindDeviceReqVO.getEncoderId());
-        if (null == encoderDevice) {
-            throw exception(DEVICE_NOT_EXISTS);
+
+        // 找出更新的设备列表中不存在的编码器设备，将其删除。
+        encoderDevices.stream().filter(existDevice -> !updateReqVO.getEncoderDevices().stream().filter(
+               updateDevice -> existDevice.getId().equals(updateDevice.getId())
+        ).findAny().isPresent()).forEach(persistDevice -> {
+            // 删除设备下的全部通道
+            this.channelMapper.delete(new QueryWrapperX<ChannelDO>()
+                    .eq("room", updateReqVO.getId())
+                    .eq("device", persistDevice.getId()));
+            // 删除设备
+            this.deviceMapper.deleteById(persistDevice.getId());
+        });
+
+        // 找出更新的设备列表中不存在的解码器设备，将其删除。
+        decoderDevices.stream().filter(existDevice -> !updateReqVO.getDecoderDevices().stream().filter(
+                updateDevice -> existDevice.getId().equals(updateDevice.getId())
+        ).findAny().isPresent()).forEach(persistDevice -> {
+            // 删除设备下的全部通道
+            this.channelMapper.delete(new QueryWrapperX<ChannelDO>()
+                    .eq("room", updateReqVO.getId())
+                    .eq("device", persistDevice.getId()));
+            // 删除设备
+            this.deviceMapper.deleteById(persistDevice.getId());
+        });
+        // 找出更新的设备列表中不存在的IPC设备，将其删除。
+        ipcDevices.stream().filter(existDevice -> !updateReqVO.getIpcDevices().stream().filter(
+                updateDevice -> existDevice.getId().equals(updateDevice.getId())
+        ).findAny().isPresent()).forEach(persistDevice -> {
+            // 删除设备下的全部通道
+            this.channelMapper.delete(new QueryWrapperX<ChannelDO>()
+                    .eq("room", updateReqVO.getId())
+                    .eq("device", persistDevice.getId()));
+            // 删除设备
+            this.deviceMapper.deleteById(persistDevice.getId());
+        });
+        // 找出更新的设备列表中不存在的大屏设备，将其删除。
+        tvDevices.stream().filter(existDevice -> !updateReqVO.getTvDevices().stream().filter(
+                updateDevice -> existDevice.getId().equals(updateDevice.getId())
+        ).findAny().isPresent()).forEach(persistDevice -> {
+            // 删除设备下的全部通道
+            this.channelMapper.delete(new QueryWrapperX<ChannelDO>()
+                    .eq("room", updateReqVO.getId())
+                    .eq("device", persistDevice.getId()));
+            // 删除设备
+            this.deviceMapper.deleteById(persistDevice.getId());
+        });
+
+        // 找出更新的编码器设备列表中不存在的通道，将其删除。
+        encoderDevices.stream().flatMap(existDevice -> existDevice.getChannels().stream())
+                .filter(existChannel -> !updateReqVO.getEncoderDevices().stream().flatMap(
+                        updateDevice -> updateDevice.getChannels().stream()).filter(
+                                updateChannel -> existChannel.getId().equals(updateChannel.getId()))
+                .findAny().isPresent()).forEach(persistChannel -> {
+                    this.channelMapper.deleteById(persistChannel.getId());
+        });
+        // 找出更新的解码器设备列表中不存在的通道，将其删除。
+        decoderDevices.stream().flatMap(existDevice -> existDevice.getChannels().stream())
+                .filter(existChannel -> !updateReqVO.getDecoderDevices().stream().flatMap(
+                        updateDevice -> updateDevice.getChannels().stream()).filter(
+                        updateChannel -> existChannel.getId().equals(updateChannel.getId()))
+                        .findAny().isPresent()).forEach(persistChannel -> {
+            this.channelMapper.deleteById(persistChannel.getId());
+        });
+        // 找出更新的IPC设备列表中不存在的通道，将其删除。
+        ipcDevices.stream().flatMap(existDevice -> existDevice.getChannels().stream())
+                .filter(existChannel -> !updateReqVO.getIpcDevices().stream().flatMap(
+                        updateDevice -> updateDevice.getChannels().stream()).filter(
+                        updateChannel -> existChannel.getId().equals(updateChannel.getId()))
+                        .findAny().isPresent()).forEach(persistChannel -> {
+            this.channelMapper.deleteById(persistChannel.getId());
+        });
+        // 找出更新的大屏设备列表中不存在的通道，将其删除。
+        tvDevices.stream().flatMap(existDevice -> existDevice.getChannels().stream())
+                .filter(existChannel -> !updateReqVO.getTvDevices().stream().flatMap(
+                        updateDevice -> updateDevice.getChannels().stream()).filter(
+                        updateChannel -> existChannel.getId().equals(updateChannel.getId()))
+                        .findAny().isPresent()).forEach(persistChannel -> {
+            this.channelMapper.deleteById(persistChannel.getId());
+        });
+
+        // 遍历编码器设备列表
+        for (DeviceUpdateReqVO encoderDeviceUpdateReqVO: updateReqVO.getEncoderDevices()) {
+            DeviceDO encoderDeviceDO = DeviceConvert.INSTANCE.convert(encoderDeviceUpdateReqVO);
+            if (null == encoderDeviceDO.getId()
+                    || 0 >= encoderDeviceDO.getId()) { // 新增设备保存
+                encoderDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                encoderDeviceDO.setType(DeviceType.ENCODER);
+                this.deviceMapper.insert(encoderDeviceDO);
+
+                // 保存关联的通道信息
+                for (ChannelUpdateReqVO encoderChannelUpdateReqVO: encoderDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO encoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelUpdateReqVO);
+                    encoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                    encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                    this.channelMapper.insert(encoderChannelDO);
+                }
+            } else { // 更新设备保存
+                this.deviceMapper.updateById(encoderDeviceDO);
+
+                // 更新关联的通道信息
+                for (ChannelUpdateReqVO encoderChannelUpdateReqVO: encoderDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO encoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelUpdateReqVO);
+                    if (null == encoderChannelDO.getId() || 0 >= encoderChannelDO.getId()) {
+                        // 新增通道保存
+                        encoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                        encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                        this.channelMapper.insert(encoderChannelDO);
+                    } else { // 更新通道保存
+                        this.channelMapper.updateById(encoderChannelDO);
+                    }
+                }
+            }
         }
-        padDevice.setRoom(bindDeviceReqVO.getRoomId());
-        this.deviceMapper.updateById(padDevice);
-        encoderDevice.setRoom(bindDeviceReqVO.getRoomId());
-        this.deviceMapper.updateById(encoderDevice);
+
+        // 遍历解码器设备列表
+        for (DeviceUpdateReqVO decoderDeviceUpdateReqVO: updateReqVO.getDecoderDevices()) {
+            DeviceDO decoderDeviceDO = DeviceConvert.INSTANCE.convert(decoderDeviceUpdateReqVO);
+            if (null == decoderDeviceDO.getId()
+                    || 0 >= decoderDeviceDO.getId()) { // 新增设备保存
+                decoderDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                decoderDeviceDO.setType(DeviceType.ENCODER);
+                this.deviceMapper.insert(decoderDeviceDO);
+
+                // 保存关联的通道信息
+                for (ChannelUpdateReqVO decoderChannelUpdateReqVO: decoderDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(decoderChannelUpdateReqVO);
+                    decoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                    decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                    this.channelMapper.insert(decoderChannelDO);
+                }
+            } else { // 更新设备保存
+                this.deviceMapper.updateById(decoderDeviceDO);
+
+                // 更新关联的通道信息
+                for (ChannelUpdateReqVO decoderChannelUpdateReqVO: decoderDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(decoderChannelUpdateReqVO);
+                    if (null == decoderChannelDO.getId() || 0 >= decoderChannelDO.getId()) {
+                        // 新增通道保存
+                        decoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                        decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                        this.channelMapper.insert(decoderChannelDO);
+                    } else { // 更新通道保存
+                        this.channelMapper.updateById(decoderChannelDO);
+                    }
+                }
+            }
+        }
+
+        // 遍历IPC设备列表
+        for (DeviceUpdateReqVO ipcDeviceUpdateReqVO: updateReqVO.getIpcDevices()) {
+            DeviceDO ipcDeviceDO = DeviceConvert.INSTANCE.convert(ipcDeviceUpdateReqVO);
+            if (null == ipcDeviceDO.getId()
+                    || 0 >= ipcDeviceDO.getId()) { // 新增设备保存
+                ipcDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                ipcDeviceDO.setType(DeviceType.ENCODER);
+                this.deviceMapper.insert(ipcDeviceDO);
+
+                // 保存关联的通道信息
+                for (ChannelUpdateReqVO ipcChannelUpdateReqVO: ipcDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(ipcChannelUpdateReqVO);
+                    ipcChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                    ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                    this.channelMapper.insert(ipcChannelDO);
+                }
+            } else { // 更新设备保存
+                this.deviceMapper.updateById(ipcDeviceDO);
+
+                // 更新关联的通道信息
+                for (ChannelUpdateReqVO ipcChannelUpdateReqVO: ipcDeviceUpdateReqVO.getChannels()) {
+                    ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(ipcChannelUpdateReqVO);
+                    if (null == ipcChannelDO.getId() || 0 >= ipcChannelDO.getId()) {
+                        // 新增通道保存
+                        ipcChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                        ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                        this.channelMapper.insert(ipcChannelDO);
+                    } else { // 更新通道保存
+                        this.channelMapper.updateById(ipcChannelDO);
+                    }
+                }
+            }
+        }
+
+        // 遍历大屏设备列表
+        for (DeviceUpdateReqVO tvDeviceUpdateReqVO: updateReqVO.getTvDevices()) {
+            DeviceDO tvDeviceDO = DeviceConvert.INSTANCE.convert(tvDeviceUpdateReqVO);
+            if (null == tvDeviceDO.getId() || 0 >= tvDeviceDO.getId()) { // 新增设备保存
+                tvDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
+                tvDeviceDO.setType(DeviceType.TV);
+                this.deviceMapper.insert(tvDeviceDO);
+            } else { // 更新设备保存
+                this.deviceMapper.updateById(tvDeviceDO);
+            }
+            // 大屏设备没有通道，因此不需要更新。
+        }
     }
 
     @Override
     public void delete(Integer id) {
         // 校验存在
         this.validateExists(id);
-        // 删除
-        roomMapper.deleteById(id);
-        // 将绑定该房间的设备解绑
-        this.deviceMapper.selectList(new QueryWrapperX<DeviceDO>().eqIfPresent("room", id))
-                .forEach(deviceDO -> {this.deviceMapper.updateById(deviceDO.setRoom(null));});
+        // 删除房间绑定的通道
+        this.channelMapper.delete(new QueryWrapperX<ChannelDO>().eq("room", id));
+        // 删除房间绑定的设备
+        this.deviceMapper.delete(new QueryWrapperX<DeviceDO>().eq("room", id));
+        // 删除房间
+        this.roomMapper.deleteById(id);
     }
 
     private void validateExists(Integer id) {
@@ -136,20 +417,24 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomDO get(Integer id) {
-        return roomMapper.selectById(id);
+        RoomDO roomDO =  roomMapper.selectById(id);
+        // 补充房间的设备与通道信息
+        completeDeviceAndChannel(roomDO);
+        return roomDO;
     }
 
     @Override
     public List<RoomDO> getList(Collection<Integer> ids) {
-        return roomMapper.selectBatchIds(ids);
+        List<RoomDO> list = roomMapper.selectBatchIds(ids);
+        list.forEach(room -> completeDeviceAndChannel(room));
+        return list;
     }
 
     @Override
     public PageResult<RoomDO> getPage(RoomPageReqVO pageReqVO) {
         PageResult<RoomDO> pageResult = roomMapper.selectPage(pageReqVO);
-        // 补全设备信息
-        pageResult.getList().forEach(roomDO -> { roomDO.setDevices(this.deviceMapper.selectList(
-                new QueryWrapperX<DeviceDO>().eqIfPresent("room", roomDO.getId())));});
+        // 补充房间的设备与通道信息
+        pageResult.getList().forEach(roomDO -> completeDeviceAndChannel(roomDO));
         return pageResult;
     }
 
@@ -159,19 +444,65 @@ public class RoomServiceImpl implements RoomService {
     }
 
     /**
-     * 根据设备MAC地址查询房间及房间绑定的设备信息
-     *
-     * @param mac 设备MAC地址
-     * @return 房间及房间绑定的设备信息
+     * 补充房间的设备与通道信息
+     * @param roomDO
      */
-    public RoomDO getByMac(String mac) {
-//        return this.roomMapper.selectByDeviceMac(mac);
-        DeviceDO deviceDO = this.deviceMapper.selectOne("device_mac", mac);
-        RoomDO roomDO = this.roomMapper.selectById(deviceDO.getRoom());
-        roomDO.setDevices(this.deviceMapper.selectList(new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId())));
-        return roomDO;
-    }
+    private void completeDeviceAndChannel(RoomDO roomDO) {
+        List<DeviceDO> deviceDOList = this.deviceMapper.selectList(
+                new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId()));
+        List<ChannelDO> channelDOList = this.channelMapper.selectList(
+                new QueryWrapperX<ChannelDO>().eq("room", roomDO.getId()));
 
+        if (null == roomDO.getChannels()) {
+            roomDO.setChannels(new ArrayList<>());
+        }
+        if (null == roomDO.getEncoderDevices()) {
+            roomDO.setEncoderDevices(new ArrayList<>());
+        }
+        if (null == roomDO.getDecoderDevices()) {
+            roomDO.setDecoderDevices(new ArrayList<>());
+        }
+        if (null == roomDO.getIpcDevices()) {
+            roomDO.setIpcDevices(new ArrayList<>());
+        }
+        if (null == roomDO.getTvDevices()) {
+            roomDO.setTvDevices(new ArrayList<>());
+        }
+        // 遍历设备列表，分类放到设备列表中
+        for (DeviceDO deviceDO: deviceDOList) {
+            // 将通道分类归置于设备中
+            List<ChannelDO> deviceChannels = new ArrayList<>();
+            for (ChannelDO channelDO: channelDOList) {
+                if (deviceDO.getId().equals(channelDO.getDevice())) {
+                    deviceChannels.add(channelDO);
+                }
+            }
+            deviceDO.setChannels(deviceChannels);
+            switch (deviceDO.getType()) {
+                case ENCODER:
+                    roomDO.getEncoderDevices().add(deviceDO);
+                    // 将编码器通道加入到房间的通道列表中。
+                    roomDO.getChannels().addAll(deviceDO.getChannels());
+                    break;
+                case DECODER:
+                    roomDO.getDecoderDevices().add(deviceDO);
+                    break;
+                case IPC:
+                    roomDO.getIpcDevices().add(deviceDO);
+                    // 将IPC通道加入到房间的通道列表中。
+                    roomDO.getChannels().addAll(deviceDO.getChannels());
+                    break;
+                case TV:
+                    roomDO.getTvDevices().add(deviceDO);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // 给房间通道进行排序，用于展示手术室的通道列表。
+        roomDO.getChannels().stream().sorted(Comparator.comparing(ChannelDO::getSort));
+    }
     /**
      * 获得手术室房间列表
      * @return 房间列表
@@ -197,9 +528,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         List<ChannelDO> channelDOList = this.channelMapper.selectBatchIds(channelIds);
-        roomDO.setDevices(this.deviceMapper.selectList(new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId())));
 
-        DeviceDO deviceDO = getEncoder(roomDO.getDevices());
         InfConfigDO infConfigDO = this.infConfigMapper.selectByKey(DEFAULT_OPERATION_VIDEO_ONLINE_STATUS);
 
         OperationVideoDO operationVideoDO = OperationVideoDO.builder()
@@ -215,7 +544,7 @@ public class RoomServiceImpl implements RoomService {
             // 提交每个通道的录制。
             String relativePath = roomDO.getName() + File.separator + DateUtil.today() + File.separator +
                     channel.getName() + "-" + DateUtil.format(new Date(), "yyyyMMddHHmmss");
-            String input = "rtsp://"+ deviceDO.getLastOnlineIp()+ "/stream" + channel.getChannelId();
+            String input = channel.getUrl();
             String output = fileProperties.getLocal().getDirectory() + relativePath + ".mp4";
             File outputFile = new File(output);
             if (!outputFile.getParentFile().exists()) {
@@ -313,18 +642,6 @@ public class RoomServiceImpl implements RoomService {
         } else {
             logger.warn("{} record status is false!", roomDO.getName());
         }
-    }
-
-    private DeviceDO getEncoder(List<DeviceDO> list) {
-        if (null == list) {
-            return null;
-        }
-        for (DeviceDO d: list) {
-            if (DeviceType.C3531D.equals(d.getType())) {
-                return d;
-            }
-        }
-        return null;
     }
 
     @SneakyThrows

@@ -50,14 +50,6 @@ public class RoomController {
         return success(true);
     }
 
-    @PutMapping("/bind-device")
-    @ApiOperation("房间绑定设备")
-    @PreAuthorize("@ss.hasPermission('dors:room:update')")
-    public CommonResult<Boolean> bindDevice(@Valid @RequestBody RoomBindDeviceReqVO bindDeviceReqVO) {
-        roomService.bindDevice(bindDeviceReqVO);
-        return success(true);
-    }
-
     @DeleteMapping("/delete")
     @ApiOperation("删除房间")
     @ApiImplicitParam(name = "id", value = "编号", required = true)
@@ -103,15 +95,6 @@ public class RoomController {
         // 导出 Excel
         List<RoomExcelVO> datas = RoomConvert.INSTANCE.convertList02(list);
         ExcelUtils.write(response, "房间.xls", "数据", RoomExcelVO.class, datas);
-    }
-
-    @GetMapping("/device")
-    @ApiOperation("根据设备MAC地址查询房间及房间绑定的设备信息")
-    @ApiImplicitParam(name = "mac", value = "设备MAC地址", required = true, example = "00:00:00:00:00:00", dataTypeClass = String.class)
-//    @PreAuthorize("@ss.hasPermission('dors:room:query')")
-    public CommonResult<RoomRespVO> getByDeviceMac(@RequestParam("mac") String mac) {
-        RoomDO roomDO = roomService.getByMac(mac);
-        return success(RoomConvert.INSTANCE.convert(roomDO));
     }
 
     @GetMapping("/list-operating")

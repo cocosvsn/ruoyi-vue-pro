@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.room;
 
+import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.device.DeviceDO;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.EncoderType;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -52,8 +54,32 @@ public class RoomDO extends BaseDO {
     private String remarks;
 
     /**
-     * 绑定的设备列表
+     * 频道列表（用于手术室显示）
      */
     @TableField(exist = false)
-    private List<DeviceDO> devices;
+    private List<ChannelDO> channels;
+
+    /**
+     * 编码器设备列表
+     */
+    @TableField(exist = false)
+    private List<DeviceDO> encoderDevices;
+
+    /**
+     * 解码器设备列表
+     */
+    @TableField(exist = false)
+    private List<DeviceDO> decoderDevices;
+
+    /**
+     * IPC设备列表
+     */
+    @TableField(exist = false)
+    private List<DeviceDO> ipcDevices;
+
+    /**
+     * TV设备列表
+     */
+    @TableField(exist = false)
+    private List<DeviceDO> tvDevices;
 }

@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo.ChannelRespVO;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -16,4 +17,6 @@ public class DeviceRespVO extends DeviceBaseVO {
     @ApiModelProperty(value = "创建时间", required = true)
     private Date createTime;
 
+    @ApiModelProperty(value = "设备下绑定的通道列表")
+    private List<ChannelRespVO> channels;
 }

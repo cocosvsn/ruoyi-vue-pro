@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceCreateReqVO;
 import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceRespVO;
 import lombok.*;
 import java.util.*;
@@ -17,10 +18,21 @@ public class RoomRespVO extends RoomBaseVO {
     @ApiModelProperty(value = "录制状态")
     private Boolean record;
 
-    @ApiModelProperty(value = "绑定的设备列表", required = false)
-    private List<DeviceRespVO> devices;
+    @ApiModelProperty(value = "编码器")
+    private List<DeviceRespVO> encoderDevices;
+
+    @ApiModelProperty(value = "解码器")
+    private List<DeviceRespVO> decoderDevices;
+
+    @ApiModelProperty(value = "IPC")
+    private List<DeviceRespVO> ipcDevices;
+
+    @ApiModelProperty(value = "TV")
+    private List<DeviceRespVO> tvDevices;
 
     @ApiModelProperty(value = "创建时间", required = true)
     private Date createTime;
 
+    @ApiModelProperty(value = "备注")
+    private String remarks;
 }

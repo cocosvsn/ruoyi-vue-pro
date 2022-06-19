@@ -38,6 +38,8 @@ import RightToolbar from "@/components/RightToolbar"
 // import hljs from 'highlight.js'
 // import 'highlight.js/styles/github-gist.css'
 import {DICT_TYPE, getDictDataLabel, getDictDatas} from "@/utils/dict";
+// 剪贴板插件
+import VueClipboard from 'vue-clipboard2'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -63,6 +65,10 @@ Vue.prototype.msgSuccess = function (msg) {
   this.$message({ showClose: true, message: msg, type: "success" });
 }
 
+Vue.prototype.msgWarning = function (msg) {
+  this.$message({ showClose: true, message: msg, type: "warning" });
+}
+
 Vue.prototype.msgError = function (msg) {
   this.$message({ showClose: true, message: msg, type: "error" });
 }
@@ -74,6 +80,9 @@ Vue.prototype.msgInfo = function (msg) {
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
+
+// 剪贴板插件
+Vue.use(VueClipboard) 
 
 Vue.use(permission)
 // Vue.use(hljs.vuePlugin);

@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RoleCodeEnum {
 
-    ADMIN("admin"), // 超级管理员
+    ADMIN("root"), // 超级管理员
     ;
 
     /**

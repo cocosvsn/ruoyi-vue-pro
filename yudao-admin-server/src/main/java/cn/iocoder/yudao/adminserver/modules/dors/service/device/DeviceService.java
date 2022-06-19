@@ -70,5 +70,5 @@ public interface DeviceService {
     /**
      * 重新扫描设备
      */
-    public void rediscover();
+    void rediscover();
 }

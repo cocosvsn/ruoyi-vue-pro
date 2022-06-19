@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.EncoderType;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
 import lombok.*;
 import io.swagger.annotations.*;
@@ -19,8 +20,4 @@ public class RoomBaseVO {
     @ApiModelProperty(value = "房间名称", required = true)
     @NotNull(message = "房间名称不能为空")
     private String name;
-
-    @ApiModelProperty(value = "备注")
-    private String remarks;
-
 }

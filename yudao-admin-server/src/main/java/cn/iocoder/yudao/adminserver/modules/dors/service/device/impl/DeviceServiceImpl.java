@@ -124,7 +124,6 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         discoveryDevice.clear();
     }
 
-    @Override
     @Async
     public void handlerMessage(String message, Map<String, Object> headers) {
         try {
@@ -160,9 +159,9 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
                 this.deviceMapper.updateById(deviceDO);
             }
             // 灵派编码器获取通道信息
-            if (DeviceType.C3531D.equals(deviceDiscovery.getDeviceType())) {
-                getDeviceChannelInfo(fromIp, deviceDO);
-            }
+//            if (DeviceType.C3531D.equals(deviceDiscovery.getDeviceType())) {
+//                getDeviceChannelInfo(fromIp, deviceDO);
+//            }
             // 放入已发现设备列表中，避免重复查库
             discoveryDevice.add(deviceDiscovery.getFrom());
         } catch (JsonProcessingException e) {
@@ -183,14 +182,14 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         log.info("{}", jsonNode);
         jsonNode.forEach(channel -> {
             ChannelDO channelDO = this.channelMapper.selectOne(new QueryWrapper<ChannelDO>().lambda()
-                    .and(qw -> qw.eq(ChannelDO::getDevice, device.getId()))
+//                    .and(qw -> qw.eq(ChannelDO::getDevice, device.getId()))
                     .and(qw -> qw.eq(ChannelDO::getChannelId, channel.get("id").intValue())));
             boolean isEnable = channel.get("enable").booleanValue();
             log.info("{}", channel);
             if (null == channelDO) {
                 channelDO = new ChannelDO();
                 channelDO.setChannelId(channel.get("id").intValue())
-                        .setDevice(device.getId())
+//                        .setDevice(device.getId())
                         .setType(channel.get("type").textValue())
                         .setName(channel.get("name").textValue())
                         .setJsonInfo(channel.toString())

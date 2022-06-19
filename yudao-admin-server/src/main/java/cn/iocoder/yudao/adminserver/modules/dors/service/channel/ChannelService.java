@@ -73,12 +73,4 @@ public interface ChannelService {
      * @return
      */
     List<ChannelDO> getList(ChannelPageReqVO pageReqVO);
-
-    /**
-     * 根据设备编号与频道类型查询频道列表
-     * @param deviceId 设备编号
-     * @param type 频道类型（vi/usb/net/ndi/file/mix)
-     * @return
-     */
-    List<ChannelDO> getByDeviceAndType(Integer deviceId, String type);
 }

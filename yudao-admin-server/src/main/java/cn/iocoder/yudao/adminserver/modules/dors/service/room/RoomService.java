@@ -29,13 +29,6 @@ public interface RoomService {
     void update(@Valid RoomUpdateReqVO updateReqVO);
 
     /**
-     * 房间绑定设备
-     *
-     * @param bindDeviceReqVO 设备绑定信息
-     */
-    void bindDevice(@Valid RoomBindDeviceReqVO bindDeviceReqVO);
-
-    /**
      * 删除房间
      *
      * @param id 编号
@@ -73,14 +66,6 @@ public interface RoomService {
      * @return 房间列表
      */
     List<RoomDO> getList(RoomExportReqVO exportReqVO);
-
-    /**
-     * 根据设备MAC地址查询房间及房间绑定的设备信息
-     *
-     * @param mac 设备MAC地址
-     * @return 房间及房间绑定的设备信息
-     */
-    RoomDO getByMac(String mac);
 
     /**
      * 获得手术室房间列表

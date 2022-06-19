@@ -21,14 +21,18 @@ public interface SysRoleMapper extends BaseMapperX<SysRoleDO> {
         return selectPage(reqVO, new QueryWrapperX<SysRoleDO>().likeIfPresent("name", reqVO.getName())
                 .likeIfPresent("code", reqVO.getCode())
                 .eqIfPresent("status", reqVO.getStatus())
-                .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime()));
+                .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime())
+                .gt("id", 0)
+        );
     }
 
     default List<SysRoleDO> listRoles(SysRoleExportReqVO reqVO) {
         return selectList(new QueryWrapperX<SysRoleDO>().likeIfPresent("name", reqVO.getName())
                 .likeIfPresent("code", reqVO.getCode())
                 .eqIfPresent("status", reqVO.getStatus())
-                .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime()));
+                .betweenIfPresent("create_time", reqVO.getBeginTime(), reqVO.getEndTime())
+                .gt("id", 0)
+        );
     }
 
     default SysRoleDO selectByName(String name) {
@@ -40,7 +44,7 @@ public interface SysRoleMapper extends BaseMapperX<SysRoleDO> {
     }
 
     default List<SysRoleDO> selectListByStatus(@Nullable Collection<Integer> statuses) {
-        return selectList(new QueryWrapperX<SysRoleDO>().in("status", statuses));
+        return selectList(new QueryWrapperX<SysRoleDO>().in("status", statuses).gt("id", 0));
     }
 
     default boolean selectExistsByUpdateTimeAfter(Date maxUpdateTime) {

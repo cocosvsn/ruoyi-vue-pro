@@ -47,12 +47,11 @@
         </template>
       </el-table-column>
       <el-table-column label="房间名称" align="center" prop="name" />
-      <el-table-column label="编码器类型" align="center" prop="encoderType">
+      <el-table-column label="绑定设备" align="center" prop="devices" width="400">
         <template slot-scope="scope">
-          <span>{{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, scope.row.encoderType) }}</span>
+          <div v-for="d in scope.row.devices" :key="d.id">{{ getDeviceLabel(d) }}</div>
         </template>
       </el-table-column>
-      <el-table-column label="编码器IP" align="center" prop="encoderIp" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -61,6 +60,8 @@
       <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
+          <el-button size="mini" type="text" icon="el-icon-circle-check" @click="handleBindDevice(scope.row)"
+                     v-hasPermi="['dors:room:update']">绑定设备</el-button>
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['dors:room:update']">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
@@ -72,9 +73,72 @@
     <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNo" :limit.sync="queryParams.pageSize"
                 @pagination="getList"/>
 
+    <!-- 对话框(步骤添加) -->
+    <el-dialog :title="title" :visible.sync="addOpen" width="500px" append-to-body>
+      <el-steps :active="addStep" finish-status="success" simple >
+        <el-step title="房间信息"></el-step>
+        <el-step title="绑定设备"></el-step>
+      </el-steps>
+      <el-form v-if="addStep === 0" ref="addFormStep1" :model="form" :rules="rules" label-width="80px" style="margin-top: 20px">
+        <el-form-item label="房间类型" prop="type">
+          <el-select v-model="form.type" placeholder="请选择类型">
+            <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ROOM_TYPE)"
+                      :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="房间名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入房间名称" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remarks">
+          <el-input v-model="form.remarks" placeholder="请输入备注" />
+        </el-form-item>
+      </el-form>
+      <el-form v-if="addStep === 1" ref="addFormStep2" :model="form" :rules="rules" label-width="80px" style="margin-top: 20px">
+        <el-form-item label="操控面板" prop="padId">
+          <el-select v-model="form.padId" placeholder="请选择操控面板">
+            <el-option v-for="pd in getPadList"
+                      :key="pd.id" :label="getDeviceLabel(pd)" :value="pd.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="编码器" prop="encoderId">
+          <el-select v-model="form.encoderId" placeholder="请选择编码器">
+            <el-option v-for="ed in getEncoderList"
+                      :key="ed.id" :label="getDeviceLabel(ed)" :value="ed.id" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="0 < addStep" @click="prevStep">上一步</el-button>
+        <el-button type="primary" @click="nextStep">{{addStepTitle}}</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+    
+    <!-- 对话框(绑定设备表单) -->
+    <el-dialog :title="title" :visible.sync="bindDeviceOpen" width="500px" append-to-body>
+      <el-form ref="bindDeviceForm" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="操控面板" prop="padId">
+          <el-select v-model="form.padId" placeholder="请选择操控面板">
+            <el-option v-for="pd in getPadList"
+                      :key="pd.id" :label="getDeviceLabel(pd)" :value="pd.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="编码器" prop="encoderId">
+          <el-select v-model="form.encoderId" placeholder="请选择操控面板">
+            <el-option v-for="ed in getEncoderList"
+                      :key="ed.id" :label="getDeviceLabel(ed)" :value="ed.id" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitBindDeviceForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
     <!-- 对话框(修改房间信息表单) -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="房间类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
             <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ROOM_TYPE)"
@@ -84,16 +148,7 @@
         <el-form-item label="房间名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入房间名称" />
         </el-form-item>
-        <el-form-item label="编码器类型" prop="encoderType">
-          <el-select v-model="form.encoderType" placeholder="请选择编码器类型">
-            <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
-                       :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="编码器IP" prop="encoderIp">
-          <el-input v-model="form.encoderIp" placeholder="请输入编码器IP地址" />
-        </el-form-item>
-        <el-form-item label="备注" rows="3" prop="remarks">
+        <el-form-item label="备注" prop="remarks">
           <el-input v-model="form.remarks" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
@@ -151,8 +206,8 @@ export default {
       rules: {
         type: [{ required: true, message: "房间类型不能为空", trigger: "change" }],
         name: [{ required: true, message: "房间名称不能为空", trigger: "blur" }],
-        encoderType: [{ required: true, message: "编码器类型不能为空", trigger: "change" }],
-        encoderIp: [{ required: true, message: "编码器IP地址不能为空", trigger: "blur" }],
+        padId: [{ required: true, message: "操控面板不能为空", trigger: "change" }],
+        encoderId: [{ required: true, message: "编码器不能为空", trigger: "change" }],
       }
     };
   },
@@ -232,7 +287,9 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.open = true;
+      this.addOpen = true;
+      this.addStep = 0; // 重置添加步骤状态
+      this.addStepTitle = '下一步';
       this.title = "添加房间";
     },
     /** 下一步 */
@@ -324,12 +381,6 @@ export default {
           });
           return;
         }
-        // 添加的提交
-        createRoom(this.form).then(response => {
-          this.msgSuccess("新增成功");
-          this.open = false;
-          this.getList();
-        });
       });
     },
     /** 删除按钮操作 */

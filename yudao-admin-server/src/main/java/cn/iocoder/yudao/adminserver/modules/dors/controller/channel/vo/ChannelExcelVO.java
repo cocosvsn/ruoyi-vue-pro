@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamDirectionType;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamProtocol;
 import lombok.*;
 import java.util.*;
 import io.swagger.annotations.*;
@@ -7,6 +9,8 @@ import io.swagger.annotations.*;
 import com.alibaba.excel.annotation.ExcelProperty;
 import cn.iocoder.yudao.framework.excel.core.annotations.DictFormat;
 import cn.iocoder.yudao.framework.excel.core.convert.DictConvert;
+
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -20,6 +24,9 @@ public class ChannelExcelVO {
     @ExcelProperty("主键（自增）")
     private Integer id;
 
+    @ExcelProperty("所属房间")
+    private Integer room;
+
     @ExcelProperty("所属设备")
     private Integer device;
 
@@ -30,8 +37,23 @@ public class ChannelExcelVO {
     @DictFormat("dors_channel_type") // TODO 代码优化：建议设置到对应的 XXXDictTypeConstants 枚举类中
     private String type;
 
+    @ExcelProperty("流协议（SRT/RTSP）")
+    private StreamProtocol streamProtocol;
+
+    @ExcelProperty("流方向类型（编码器输出流/网络输入流)")
+    private StreamDirectionType streamType;
+
     @ExcelProperty("频道名称")
     private String name;
+
+    @ExcelProperty("通道图标")
+    private String icon;
+
+    @ExcelProperty("流地址")
+    private String url;
+
+    @ExcelProperty("排序")
+    private Integer sort;
 
     @ExcelProperty("频道JSON数据信息")
     private String jsonInfo;
