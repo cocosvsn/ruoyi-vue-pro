@@ -18,191 +18,22 @@
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
                    v-hasPermi="['dors:room:create']">新增</el-button>
       </el-col>
-      <!-- <el-col :span="1.5">
+      <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
                    v-hasPermi="['dors:room:export']">导出</el-button>
-      </el-col> -->
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <!-- 列表 -->
     <el-table v-loading="loading" :data="list">
-      <el-table-column type="expand" width="30">
-        <template slot-scope="scopeRoom">
-          <el-row v-for="(encoderDevice, encoderDeviceIndex) in scopeRoom.row.encoderDevices" :key="encoderDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="2">
-                {{ '编码器 ' + (encoderDeviceIndex + 1) }}
-              </el-col>
-            </el-row>
-            <el-row :gutter="5">
-              <el-col :span="2" :offset="1">
-                编码器类型: 
-              </el-col>
-              <el-col :span="2">
-                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, encoderDevice.manufacturer) }}
-              </el-col>
-              <el-col :span="2">
-                编码器IP:
-              </el-col>
-              <el-col :span="2">
-                {{ encoderDevice.ip }}
-              </el-col>
-            </el-row>
-            <el-row v-for="(encoderChannel, encoderChannelIndex) in encoderDevice.channels" :key="encoderChannel.id" justify="flex" :gutter="5">
-              <el-col :span="2" :offset="1">
-                {{ '通道 ' + (encoderChannelIndex + 1) }}
-              </el-col>
-              <el-col :span="2">
-                通道名称: 
-              </el-col>
-              <el-col :span="3">
-                {{ encoderChannel.name }}
-              </el-col>
-              <el-col :span="2">
-                矩阵端口: 
-              </el-col>
-              <el-col :span="2">
-                &nbsp;{{ encoderChannel.matrixPort }}&nbsp;
-              </el-col>
-              <el-col :span="1">
-                串口: 
-              </el-col>
-              <el-col :span="2">
-                &nbsp;{{ encoderChannel.serialPort }}&nbsp;
-              </el-col>
-              <el-col :span="1">
-                排序: 
-              </el-col>
-              <el-col :span="1">
-                &nbsp;{{ encoderChannel.sort }}&nbsp;
-              </el-col>
-              <el-col :span="2">
-                通道URL: 
-              </el-col>
-              <el-col :span="8">
-                {{ encoderChannel.url }}
-              </el-col>
-            </el-row>
-          </el-row>
-          <el-row v-for="(decoderDevice, decoderDeviceIndex) in scopeRoom.row.decoderDevices" :key="decoderDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="2">
-                {{ '解码器 ' + (decoderDeviceIndex + 1) }}
-              </el-col>
-            </el-row>
-            <el-row :gutter="5">
-              <el-col :span="2" :offset="1">
-                解码器类型: 
-              </el-col>
-              <el-col :span="2">
-                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, decoderDevice.manufacturer) }}
-              </el-col>
-              <el-col :span="2">
-                解码器IP:
-              </el-col>
-              <el-col :span="2">
-                {{ decoderDevice.ip }}
-              </el-col>
-            </el-row>
-            <el-row v-for="(decoderChannel, decoderChannelIndex) in decoderDevice.channels" :key="decoderChannel.id" justify="flex" :gutter="5">
-              <el-col :span="2" :offset="1">
-                {{ '通道 ' + (decoderChannelIndex + 1) }}
-              </el-col>
-              <el-col :span="2">
-                拉流地址: 
-              </el-col>
-              <el-col :span="8">
-                {{ decoderChannel.url }}
-              </el-col>
-            </el-row>
-          </el-row>
-          <el-row v-for="(ipcDevice, ipcDeviceIndex) in scopeRoom.row.ipcDevices" :key="ipcDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="2">
-                {{ 'IPC ' + (ipcDeviceIndex + 1) }}
-              </el-col>
-            </el-row>
-            <el-row :gutter="5">
-              <el-col :span="2" :offset="1">
-                IPC类型: 
-              </el-col>
-              <el-col :span="2">
-                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, ipcDevice.manufacturer) }}
-              </el-col>
-              <el-col :span="2">
-                IPC IP:
-              </el-col>
-              <el-col :span="2">
-                {{ ipcDevice.ip }}
-              </el-col>
-            </el-row>
-            <el-row v-for="(ipcChannel, ipcChannelIndex) in ipcDevice.channels" :key="ipcChannel.id" justify="flex" :gutter="5">
-              <el-col :span="2" :offset="1">
-                {{ '通道 ' + (ipcChannelIndex + 1) }}
-              </el-col>
-              <el-col :span="2">
-                通道名称: 
-              </el-col>
-              <el-col :span="3">
-                {{ ipcChannel.name }}
-              </el-col>
-              <el-col :span="2">
-                矩阵端口: 
-              </el-col>
-              <el-col :span="2">
-                &nbsp;{{ ipcChannel.matrixPort }}&nbsp;
-              </el-col>
-              <el-col :span="1">
-                串口: 
-              </el-col>
-              <el-col :span="2">
-                &nbsp;{{ ipcChannel.serialPort }}&nbsp;
-              </el-col>
-              <el-col :span="1">
-                排序: 
-              </el-col>
-              <el-col :span="1">
-                &nbsp;{{ ipcChannel.sort }}&nbsp;
-              </el-col>
-              <el-col :span="2">
-                通道URL: 
-              </el-col>
-              <el-col :span="8">
-                {{ ipcChannel.url }}
-              </el-col>
-            </el-row>
-          </el-row>
-          <el-row v-for="(tvDevice, tvDeviceIndex) in scopeRoom.row.tvDevices" :key="tvDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="2">
-                {{ '大屏 ' + (tvDeviceIndex + 1) }}
-              </el-col>
-            </el-row>
-            <el-row :gutter="5">
-              <el-col :span="2" :offset="1">
-                大屏名称: 
-              </el-col>
-              <el-col :span="3">
-                {{ tvDevice.name }}
-              </el-col>
-              <el-col :span="2">
-                矩阵端口: 
-              </el-col>
-              <el-col :span="3">
-                {{ tvDevice.ip }}
-              </el-col>
-            </el-row>
-          </el-row>
-        </template>
-      </el-table-column>
       <el-table-column label="房间名称" align="center" prop="name" />
-      <!-- <el-table-column label="编码器类型" align="center" prop="encoderType">
+      <el-table-column label="编码器类型" align="center" prop="encoderType">
         <template slot-scope="scope">
           <span>{{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, scope.row.encoderType) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="编码器IP" align="center" prop="encoderIp" /> -->
+      <el-table-column label="编码器IP" align="center" prop="encoderIp" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -1204,21 +1035,5 @@ export default {
 }
 .el-input-group--append .el-input__inner, .el-input-group--prepend .el-input__inner {
   padding: 0 10px;
-}
-.operating-table-device-name {
-  font-size: 16px;
-}
-.operating-table-expand {
-  font-size: 12px;
-  margin-left: 20px;
-}
-.operating-table-expand label {
-  width: 90px;
-  color: #99a9bf;
-}
-.operating-table-expand .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 50%;
 }
 </style>

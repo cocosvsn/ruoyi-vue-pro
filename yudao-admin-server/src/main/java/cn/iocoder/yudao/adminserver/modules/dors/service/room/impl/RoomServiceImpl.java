@@ -321,7 +321,7 @@ public class RoomServiceImpl implements RoomService {
             if (null == decoderDeviceDO.getId()
                     || 0 >= decoderDeviceDO.getId()) { // 新增设备保存
                 decoderDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
-                decoderDeviceDO.setType(DeviceType.ENCODER);
+                decoderDeviceDO.setType(DeviceType.DECODER);
                 this.deviceMapper.insert(decoderDeviceDO);
 
                 // 保存关联的通道信息
@@ -355,7 +355,7 @@ public class RoomServiceImpl implements RoomService {
             if (null == ipcDeviceDO.getId()
                     || 0 >= ipcDeviceDO.getId()) { // 新增设备保存
                 ipcDeviceDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
-                ipcDeviceDO.setType(DeviceType.ENCODER);
+                ipcDeviceDO.setType(DeviceType.IPC);
                 this.deviceMapper.insert(ipcDeviceDO);
 
                 // 保存关联的通道信息

@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo;
 
-import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceCreateReqVO;
 import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.DeviceRespVO;
 import lombok.*;
 import java.util.*;
