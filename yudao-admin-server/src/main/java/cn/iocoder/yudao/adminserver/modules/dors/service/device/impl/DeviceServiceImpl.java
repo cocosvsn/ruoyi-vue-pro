@@ -147,7 +147,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
             DeviceDO deviceDO = deviceMapper.selectOne("device_mac", deviceDiscovery.getFrom());
             if (null == deviceDO) { // 新增
                 deviceDO = new DeviceDO();
-                deviceDO.setDeviceMac(deviceDiscovery.getFrom())
+                deviceDO.setMac(deviceDiscovery.getFrom())
                         .setType(deviceDiscovery.getDeviceType())
                         .setAppVersion(deviceDiscovery.getAppVersion())
                         .setSdkVersion(deviceDiscovery.getSdkVersion())

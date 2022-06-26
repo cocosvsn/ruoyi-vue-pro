@@ -17,6 +17,9 @@ public class RoomRespVO extends RoomBaseVO {
     @ApiModelProperty(value = "录制状态")
     private Boolean record;
 
+    @ApiModelProperty(value = "操控面板")
+    private DeviceRespVO pad;
+
     @ApiModelProperty(value = "编码器")
     private List<DeviceRespVO> encoderDevices;
 

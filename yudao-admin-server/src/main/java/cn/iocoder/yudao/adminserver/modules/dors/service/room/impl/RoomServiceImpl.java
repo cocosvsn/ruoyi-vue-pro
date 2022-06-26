@@ -17,6 +17,7 @@ import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.operationVideo.Operat
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.videoFile.VideoFileMapper;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamDirectionType;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.mysql.config.InfConfigMapper;
 import cn.iocoder.yudao.framework.file.config.FileProperties;
@@ -90,6 +91,12 @@ public class RoomServiceImpl implements RoomService {
         RoomDO roomDO = RoomConvert.INSTANCE.convert(createReqVO);
         roomMapper.insert(roomDO);
 
+        // 保存操控面板设备
+        DeviceDO padDeviceDO = DeviceConvert.INSTANCE.convert(createReqVO.getPad());
+        padDeviceDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
+        padDeviceDO.setType(DeviceType.PAD);
+        this.deviceMapper.insert(padDeviceDO);
+
         // 保存编码器设备
         for (DeviceCreateReqVO encoderReqVO: createReqVO.getEncoderDevices()) {
             DeviceDO encoderDeviceDO = DeviceConvert.INSTANCE.convert(encoderReqVO);
@@ -102,6 +109,7 @@ public class RoomServiceImpl implements RoomService {
                 ChannelDO encoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
                 encoderChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
                 encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                encoderChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                 this.channelMapper.insert(encoderChannelDO);
             }
         }
@@ -118,6 +126,7 @@ public class RoomServiceImpl implements RoomService {
                 ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
                 decoderChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
                 decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                decoderChannelDO.setStreamType(StreamDirectionType.NETWORK_INPUT);
                 this.channelMapper.insert(decoderChannelDO);
             }
         }
@@ -134,6 +143,7 @@ public class RoomServiceImpl implements RoomService {
                 ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
                 ipcChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
                 ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                ipcChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                 this.channelMapper.insert(ipcChannelDO);
             }
         }
@@ -165,6 +175,10 @@ public class RoomServiceImpl implements RoomService {
                 new QueryWrapperX<DeviceDO>().eq("room", updateReqVO.getId()));
         List<ChannelDO> channelDOList = this.channelMapper.selectList(
                 new QueryWrapperX<ChannelDO>().eq("room", updateReqVO.getId()));
+
+        // 更新操控面板信息
+        DeviceDO padDeviceDO = DeviceConvert.INSTANCE.convert(updateReqVO.getPad());
+        this.deviceMapper.updateById(padDeviceDO);
 
         // 编码器设备
         List<DeviceDO> encoderDevices = new ArrayList<>();
@@ -479,6 +493,9 @@ public class RoomServiceImpl implements RoomService {
             }
             deviceDO.setChannels(deviceChannels);
             switch (deviceDO.getType()) {
+                case PAD:
+                    roomDO.setPad(deviceDO);
+                    break;
                 case ENCODER:
                     roomDO.getEncoderDevices().add(deviceDO);
                     // 将编码器通道加入到房间的通道列表中。
@@ -511,6 +528,31 @@ public class RoomServiceImpl implements RoomService {
         return this.roomMapper.selectList(new QueryWrapperX<RoomDO>()
                 .eq("type", RoomType.OPERATING_ROOM)
         );
+    }
+
+    /**
+     * 根据设备MAC地址查询房间及房间绑定的设备信息
+     *
+     * @param mac 设备MAC地址
+     * @return 房间及房间绑定的设备信息
+     */
+    public RoomDO getByMac(String mac) {
+        DeviceDO deviceDO = this.deviceMapper.selectOne("mac", mac);
+        RoomDO roomDO = this.roomMapper.selectById(deviceDO.getRoom());
+        return roomDO;
+    }
+
+    /**
+     * 根据房间编号查询输出通道列表
+     * @param roomId
+     * @return
+     */
+    public List<ChannelDO> getOutputChannelsByMac(Integer roomId) {
+        List<ChannelDO> list = this.channelMapper.selectList(
+                new QueryWrapperX<ChannelDO>().eq("room", roomId)
+                        .eq("stream_type", StreamDirectionType.ENCODE_OUTPUT)
+        );
+        return list;
     }
 
     /**

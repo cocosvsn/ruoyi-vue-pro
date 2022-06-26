@@ -11,6 +11,9 @@ import io.swagger.annotations.*;
 @ToString(callSuper = true)
 public class RoomCreateReqVO extends RoomBaseVO {
 
+    @ApiModelProperty(value = "操控面板")
+    private DeviceCreateReqVO pad;
+
     @ApiModelProperty(value = "编码器")
     private List<DeviceCreateReqVO> encoderDevices;
 

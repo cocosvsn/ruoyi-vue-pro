@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.room;
 
+import cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo.ChannelRespVO;
+import cn.iocoder.yudao.adminserver.modules.dors.convert.channel.ChannelConvert;
+import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -95,6 +98,22 @@ public class RoomController {
         // 导出 Excel
         List<RoomExcelVO> datas = RoomConvert.INSTANCE.convertList02(list);
         ExcelUtils.write(response, "房间.xls", "数据", RoomExcelVO.class, datas);
+    }
+
+    @GetMapping("/device")
+    @ApiOperation("操控面板登陆")
+    @ApiImplicitParam(name = "mac", value = "设备MAC地址", required = true, example = "00:00:00:00:00:00", dataTypeClass = String.class)
+    public CommonResult<RoomRespVO> getByDeviceMac(@RequestParam("mac") String mac) {
+        RoomDO roomDO = roomService.getByMac(mac);
+        return success(RoomConvert.INSTANCE.convert(roomDO));
+    }
+
+    @GetMapping("/channels")
+    @ApiOperation("操控面板登陆")
+    @ApiImplicitParam(name = "id", value = "房间编号", required = true, example = "0", dataTypeClass = Integer.class)
+    public CommonResult<List<ChannelRespVO>> getChannelsByRoom(@RequestParam("id") Integer id) {
+        List<ChannelDO> list = roomService.getOutputChannelsByMac(id);
+        return success(ChannelConvert.INSTANCE.convertList(list));
     }
 
     @GetMapping("/list-operating")

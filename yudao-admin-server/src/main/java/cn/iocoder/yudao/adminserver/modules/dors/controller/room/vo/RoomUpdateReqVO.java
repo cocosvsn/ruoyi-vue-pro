@@ -16,6 +16,9 @@ public class RoomUpdateReqVO extends RoomBaseVO {
     @NotNull(message = "主键（自增）不能为空")
     private Integer id;
 
+    @ApiModelProperty(value = "操控面板")
+    private DeviceUpdateReqVO pad;
+
     @ApiModelProperty(value = "编码器")
     private List<DeviceUpdateReqVO> encoderDevices;
 

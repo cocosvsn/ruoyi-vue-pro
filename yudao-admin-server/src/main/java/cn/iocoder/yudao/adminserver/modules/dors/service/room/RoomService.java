@@ -3,6 +3,7 @@ package cn.iocoder.yudao.adminserver.modules.dors.service.room;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.adminserver.modules.dors.controller.room.vo.*;
+import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.room.RoomDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 
@@ -72,6 +73,21 @@ public interface RoomService {
      * @return 房间列表
      */
     List<RoomDO> getOperatingRoomList();
+
+    /**
+     * 根据设备MAC地址查询房间及房间绑定的设备信息
+     *
+     * @param mac 设备MAC地址
+     * @return 房间及房间绑定的设备信息
+     */
+    RoomDO getByMac(String mac);
+
+    /**
+     * 根据房间编号查询输出通道列表
+     * @param roomId
+     * @return
+     */
+    List<ChannelDO> getOutputChannelsByMac(Integer roomId);
 
     /**
      * 启动指定房间视频通道列表录制

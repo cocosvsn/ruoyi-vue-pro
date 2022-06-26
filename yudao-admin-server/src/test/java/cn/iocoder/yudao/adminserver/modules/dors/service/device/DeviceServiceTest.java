@@ -106,7 +106,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
            o.setRoom(null);
            o.setType(null);
            o.setSerialNo(null);
-           o.setDeviceMac(null);
+           o.setMac(null);
            o.setAppVersion(null);
            o.setSdkVersion(null);
            o.setSysVersion(null);
@@ -123,7 +123,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
        // 测试 serialNo 不匹配
        Mapper.insert(ObjectUtils.clone(db, o -> o.setSerialNo(null)));
        // 测试 deviceMac 不匹配
-       Mapper.insert(ObjectUtils.clone(db, o -> o.setDeviceMac(null)));
+       Mapper.insert(ObjectUtils.clone(db, o -> o.setMac(null)));
        // 测试 appVersion 不匹配
        Mapper.insert(ObjectUtils.clone(db, o -> o.setAppVersion(null)));
        // 测试 sdkVersion 不匹配
@@ -143,7 +143,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
        reqVO.setRoom(null);
        reqVO.setType(null);
        reqVO.setSerialNo(null);
-       reqVO.setDeviceMac(null);
+       reqVO.setMac(null);
        reqVO.setAppVersion(null);
        reqVO.setSdkVersion(null);
        reqVO.setSysVersion(null);
@@ -169,7 +169,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
            o.setRoom(null);
            o.setType(null);
            o.setSerialNo(null);
-           o.setDeviceMac(null);
+           o.setMac(null);
            o.setAppVersion(null);
            o.setSdkVersion(null);
            o.setSysVersion(null);
@@ -186,7 +186,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
        // 测试 serialNo 不匹配
        Mapper.insert(ObjectUtils.clone(db, o -> o.setSerialNo(null)));
        // 测试 deviceMac 不匹配
-       Mapper.insert(ObjectUtils.clone(db, o -> o.setDeviceMac(null)));
+       Mapper.insert(ObjectUtils.clone(db, o -> o.setMac(null)));
        // 测试 appVersion 不匹配
        Mapper.insert(ObjectUtils.clone(db, o -> o.setAppVersion(null)));
        // 测试 sdkVersion 不匹配
@@ -206,7 +206,7 @@ public class DeviceServiceTest extends BaseDbUnitTest {
        reqVO.setRoom(null);
        reqVO.setType(null);
        reqVO.setSerialNo(null);
-       reqVO.setDeviceMac(null);
+       reqVO.setMac(null);
        reqVO.setAppVersion(null);
        reqVO.setSdkVersion(null);
        reqVO.setSysVersion(null);

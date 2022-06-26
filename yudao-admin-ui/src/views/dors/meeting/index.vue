@@ -29,6 +29,17 @@
     <el-table v-loading="loading" :data="list">
       <el-table-column type="expand" width="30">
         <template slot-scope="scopeRoom">
+          <el-row :gutter="5">
+            <el-col :span="2">
+              {{ '操控面板 :' }}
+            </el-col>
+            <el-col :span="5">
+              {{ 'MAC: ' + scopeRoom.row.pad.mac }}
+            </el-col>
+            <!-- <el-col :span="4">
+              {{ '登陆密码: ' + (scopeRoom.row.pad.loginPass || "") }}
+            </el-col> -->
+          </el-row>
           <el-row v-for="(encoderDevice, encoderDeviceIndex) in scopeRoom.row.encoderDevices" :key="encoderDevice.id">
             <el-row :gutter="5">
               <el-col :span="2">
@@ -245,6 +256,113 @@
         <el-form-item label="示教室名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入房间名称" />
         </el-form-item>
+        <el-form-item label="操控面板" :required="true">
+          <el-row :gutter="5">
+            <!-- <el-col :span="3">
+              <el-form-item prop="pad.name">
+                <el-input v-model="pad.name" placeholder="操控面板名称" size="mini"/>
+              </el-form-item>
+            </el-col> -->
+            <el-col :span="6">
+              <el-form-item prop="pad.mac" :required="true" :rules="{
+                  required: true, message: '操控面板MAC地址不能为空', trigger: 'blur'
+                }"
+              >
+                <el-input v-model="form.pad.mac" placeholder="操控面板MAC地址" size="mini"/>
+              </el-form-item>
+            </el-col>
+            <!-- <el-col :span="5">
+              <el-form-item prop="pad.loginPass">
+                <el-input v-model="form.pad.loginPass" placeholder="操控面板登陆密码" size="mini"/>
+              </el-form-item>
+            </el-col> -->
+          </el-row>
+        </el-form-item>
+        <el-form-item label="全景摄像机">
+          <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('全景摄像机')">增加全景摄像机</el-button>
+          <el-row v-for="(ipcDevice, ipcDeviceIndex) in form.ipcDevices" :key="ipcDevice.id">
+            <el-row :gutter="5">
+              <el-col :span="3">
+                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'">
+                  <el-input :value="'全景摄像机 ' + (ipcDeviceIndex + 1)" readonly size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '全景摄像机名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="ipcDevice.name" placeholder="全景摄像机名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.ip'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '全景摄像机IP不能为空', trigger: 'blur'
+                  }"
+                >
+                  <el-input v-model="ipcDevice.ip" :placeholder="'请输入全景摄像机 '+(ipcDeviceIndex + 1)+' IP'" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="8">
+                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('全景摄像机', ipcDevice)" >删除全景摄像机</el-button>
+                <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(ipcDevice)" >添加全景摄像机通道</el-button>
+              </el-col>
+            </el-row>
+            <el-row v-for="(ipcChannel, ipcChannelIndex) in ipcDevice.channels" :key="ipcChannel.id">
+              <el-row :gutter="5">
+                <el-col :span="2" :offset="1">
+                  {{'通道 ' + (ipcChannelIndex + 1)}}
+                </el-col>
+                <!-- <el-col :span="7">
+                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.name'"
+                    :show-message="false"
+                    :rules="{
+                      required: true, message: '通道名称不能为空', trigger: 'change'
+                    }"
+                  >
+                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].name" placeholder="通道名称" clearable size="mini"/>
+                  </el-form-item>
+                </el-col> -->
+                <el-col :span="14">
+                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.url'"
+                    :show-message="false"
+                    :rules="{
+                      required: true, message: '通道URL不能为空', trigger: 'blur'
+                    }"
+                  >
+                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].url" placeholder="通道URL" clearable size="mini">
+                      <!-- <template slot="prepend">rtsp://</template> -->
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row :gutter="5">
+                <el-col :span="4" :offset="3">
+                  <el-form-item :prop="'ipcDevices.'+ipcChannelIndex+'.channels.'+ipcChannelIndex+'.sort'">
+                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].sort" placeholder="排序" clearable size="mini"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="4">
+                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.matrixPort'">
+                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].matrixPort" placeholder="矩阵端口" clearable size="mini"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="3">
+                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.serialPort'">
+                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].serialPort" placeholder="串口" clearable size="mini"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                  <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(ipcDevice, ipcChannel)" >删除</el-button>
+                </el-col>
+              </el-row>
+            </el-row>
+          </el-row>
+        </el-form-item>
         <el-form-item label="编码通道">
           <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('ENCODER')">增加编码器</el-button>
           <el-row v-for="(encoderDevice, encoderDeviceIndex) in form.encoderDevices" :key="encoderDevice.id">
@@ -417,91 +535,6 @@
             </el-row>
           </el-row>
         </el-form-item>
-        <el-form-item label="IPC">
-          <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('IPC')">增加IPC</el-button>
-          <el-row v-for="(ipcDevice, ipcDeviceIndex) in form.ipcDevices" :key="ipcDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="3">
-                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'">
-                  <el-input :value="'IPC ' + (ipcDeviceIndex + 1)" readonly size="mini"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="4">
-                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: 'IPC名称不能为空', trigger: 'change'
-                  }"
-                >
-                  <el-input v-model="ipcDevice.name" placeholder="IPC名称" size="mini"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.ip'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: 'IPC IP不能为空', trigger: 'blur'
-                  }"
-                >
-                  <el-input v-model="ipcDevice.ip" :placeholder="'请输入IPC '+(ipcDeviceIndex + 1)+' IP'" size="mini"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('IPC', ipcDevice)" >删除IPC</el-button>
-                <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(ipcDevice)" >添加IPC通道</el-button>
-              </el-col>
-            </el-row>
-            <el-row v-for="(ipcChannel, ipcChannelIndex) in ipcDevice.channels" :key="ipcChannel.id">
-              <el-row :gutter="5">
-                <el-col :span="2" :offset="1">
-                  {{'通道 ' + (ipcChannelIndex + 1)}}
-                </el-col>
-                <el-col :span="7">
-                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.name'"
-                    :show-message="false"
-                    :rules="{
-                      required: true, message: '通道名称不能为空', trigger: 'change'
-                    }"
-                  >
-                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].name" placeholder="通道名称" clearable size="mini"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="14">
-                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.url'"
-                    :show-message="false"
-                    :rules="{
-                      required: true, message: '通道URL不能为空', trigger: 'blur'
-                    }"
-                  >
-                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].url" placeholder="通道URL" clearable size="mini">
-                      <!-- <template slot="prepend">rtsp://</template> -->
-                    </el-input>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row :gutter="5">
-                <el-col :span="4" :offset="3">
-                  <el-form-item :prop="'ipcDevices.'+ipcChannelIndex+'.channels.'+ipcChannelIndex+'.sort'">
-                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].sort" placeholder="排序" clearable size="mini"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="4">
-                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.matrixPort'">
-                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].matrixPort" placeholder="矩阵端口" clearable size="mini"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="3">
-                  <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.channels.'+ipcChannelIndex+'.serialPort'">
-                    <el-input v-model="ipcDevice.channels[ipcChannelIndex].serialPort" placeholder="串口" clearable size="mini"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="8">
-                  <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(ipcDevice, ipcChannel)" >删除</el-button>
-                </el-col>
-              </el-row>
-            </el-row>
-          </el-row>
-        </el-form-item>
         <el-form-item label="备注" prop="remarks">
           <el-input v-model="form.remarks" type="textarea" rows="3" placeholder="请输入备注" />
         </el-form-item>
@@ -569,6 +602,7 @@ export default {
       // 表单参数
       form: {
         type: ROOM_TYPE.MEETING_ROOM,
+        pad: {},            // 操控面板
         encoderDevices: [], // 编码器设备列表
         decoderDevices: [], // 解码器设备列表
         ipcDevices: [],     // IPC设备列表
@@ -642,6 +676,7 @@ export default {
         id: undefined,
         type: ROOM_TYPE.MEETING_ROOM,
         name: undefined,
+        pad: this.clone(this.defaultDevice),
         encoderDevices: [],
         decoderDevices: [tempDevice],
         ipcDevices: [],

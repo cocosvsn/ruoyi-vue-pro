@@ -5,6 +5,7 @@ package cn.iocoder.yudao.adminserver.modules.dors.enums;
  * @author bunco
  */
 public enum DeviceType {
+    PAD,            // 操控面板
     ENCODER,        // 编码器
     DECODER,        // 解码器
     IPC,            // IPC（网络摄像头）

@@ -24,11 +24,17 @@ public class DeviceCreateReqVO {
     @ApiModelProperty(value = "设备IP地址")
     private String ip;
 
+    @ApiModelProperty(value = "设备MAC地址")
+    private String mac;
+
     @ApiModelProperty(value = "设备通道数量")
     private Integer channelCount;
 
     @ApiModelProperty(value = "连接至矩阵的端口")
     private String matrixPort;
+
+    @ApiModelProperty(value = "设备登陆密码")
+    private String loginPass;
 
     @ApiModelProperty(value = "通道列表")
     private List<ChannelCreateReqVO> channels;

@@ -60,6 +60,12 @@ public class RoomDO extends BaseDO {
     private List<ChannelDO> channels;
 
     /**
+     * 操控面板
+     */
+    @TableField(exist = false)
+    private DeviceDO pad;
+
+    /**
      * 编码器设备列表
      */
     @TableField(exist = false)

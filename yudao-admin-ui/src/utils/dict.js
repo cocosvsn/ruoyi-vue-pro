@@ -44,6 +44,7 @@ export const ROOM_TYPE = {
 }
 
 export const DEVICE_TYPE = {
+  PAD: 'PAD',
   ENCODER: 'ENCODER',
   DECODER: 'DECODER',
   IPC: "IPC",

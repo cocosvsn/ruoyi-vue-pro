@@ -64,8 +64,11 @@ public class DeviceDO extends BaseDO {
     /**
      * 设备MAC地址
      */
-    @TableField(exist = false)
-    private String deviceMac;
+    private String mac;
+    /**
+     * 设备登陆密码
+     */
+    private String loginPass;
     /**
      * 应用程序版本
      */

@@ -29,6 +29,9 @@ public class DevicePageReqVO extends PageParam {
     @ApiModelProperty(value = "设备IP地址")
     private String ip;
 
+    @ApiModelProperty(value = "设备MAC地址")
+    private String mac;
+
     @ApiModelProperty(value = "设备通道数量")
     private Integer channelCount;
 
@@ -37,9 +40,6 @@ public class DevicePageReqVO extends PageParam {
 
     @ApiModelProperty(value = "设备序列号")
     private String serialNo;
-
-    @ApiModelProperty(value = "设备MAC地址")
-    private String deviceMac;
 
     @ApiModelProperty(value = "应用程序版本")
     private String appVersion;

@@ -59,8 +59,10 @@ CREATE TABLE IF NOT EXISTS `dors_device` (
   `manufacturer` VARCHAR(32) NULL COMMENT '设备生厂商',
   `name` VARCHAR(255) NULL COMMENT '设备名称',
   `ip` VARCHAR(64) NULL COMMENT '设备IP地址',
+  `mac` VARCHAR(64) NULL COMMENT '设备MAC地址',
   `channel_count` INT NULL COMMENT '通道数量',
   `matrix_port` VARCHAR(64) NULL COMMENT '连接至矩阵的端口',
+  `login_pass` VARCHAR(64) NULL COMMENT '设备登陆密码',
   `creator` VARCHAR(64) NULL COMMENT '创建者',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updater` VARCHAR(64) NULL COMMENT '更新者',
@@ -69,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `dors_device` (
   `remarks` VARCHAR(512) NULL COMMENT '备注',
   INDEX `fk_dors_device_dors_room1_idx` (`room` ASC) VISIBLE,
   PRIMARY KEY (`id`),
+  INDEX `mac_idx` (`mac` ASC) VISIBLE,
   CONSTRAINT `fk_dors_device_dors_room1`
     FOREIGN KEY (`room`)
     REFERENCES `dors_room` (`id`)

@@ -41,7 +41,7 @@ public class DeviceBaseVO {
     private String serialNo;
 
     @ApiModelProperty(value = "设备MAC地址")
-    private String deviceMac;
+    private String mac;
 
     @ApiModelProperty(value = "应用程序版本")
     private String appVersion;
