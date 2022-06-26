@@ -15,6 +15,7 @@ public interface DorsErrorCodeConstants {
 
     // ========== DEVICE 设备 模块 2001001000 ==========
     ErrorCode DEVICE_NOT_EXISTS = new ErrorCode(2001001000, "设备不存在");
+    ErrorCode DEVICE_ENCODER_ERROR = new ErrorCode(2001001001, "类型错误：未知类型");
 
     // ========== CHANNEL 频道 模块 2001002000 ==========
     ErrorCode CHANNEL_NOT_EXISTS = new ErrorCode(2001002000, "频道不存在");

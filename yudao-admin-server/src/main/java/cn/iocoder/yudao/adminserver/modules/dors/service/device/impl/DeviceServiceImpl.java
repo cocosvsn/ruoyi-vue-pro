@@ -4,16 +4,24 @@ import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelD
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.device.DeviceDiscovery;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.channel.ChannelMapper;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
+import cn.iocoder.yudao.adminserver.modules.dors.service.room.impl.RoomServiceImpl;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.mysql.config.InfConfigMapper;
 import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
 import cn.iocoder.yudao.framework.udpserver.core.service.MessageProcessor;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -30,6 +38,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.adminserver.modules.dors.convert.device.DeviceConvert;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.device.DeviceMapper;
 import cn.iocoder.yudao.adminserver.modules.dors.service.device.DeviceService;
+import org.springframework.web.client.RestTemplate;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConstants.*;
@@ -44,9 +53,12 @@ import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConst
 @Validated
 public class DeviceServiceImpl implements DeviceService, MessageProcessor {
     private static Set<String> discoveryDevice = new HashSet<>();
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Resource
     private DeviceMapper deviceMapper;
+    @Resource
+    private RestTemplate restTemplate;
     @Resource
     private ChannelMapper channelMapper;
     @Resource
@@ -203,5 +215,62 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
                 this.channelMapper.updateById(channelDO);
             }
         });
+    }
+
+    /**
+     * 获取灵派编码器配置
+     * @param ip
+     */
+    public String getConfigLinkPi(String ip) {
+        String configUrlLinkPiTemplate = "http://{0}/config/config.json";
+        String config = restTemplate.getForObject(
+                MessageFormat.format(configUrlLinkPiTemplate, ip), String.class);
+        logger.info("response: {}", config);
+        return config;
+    }
+
+    /**
+     * 灵派编码器配置
+     * @param ip
+     * @param config
+     */
+    public String configLinkPi(String ip, String config) {
+        String configUrlLinkPiTemplate = "http://{0}/RPC";
+        String result = restTemplate.postForObject(
+                MessageFormat.format(configUrlLinkPiTemplate, ip), config, String.class);
+        logger.info("response: {}", result);
+        return result;
+    }
+
+    /**
+     * 获取示见编码器配置
+     * @param ip
+     */
+    public String getConfigShxit(String ip) {
+        String configUrlShxitTemplate = "http://{0}/cgi-bin/fc.fcgi?Command=GetAllAccess";
+        String config = restTemplate.getForObject(
+                MessageFormat.format(configUrlShxitTemplate, ip), String.class);
+        logger.info("response: {}", config);
+        return config;
+    }
+
+    /**
+     * 示见编码器配置
+     * @param config
+     */
+    public String configShxit(String ip, String config) {
+        String configUrlShxitTemplate = "http://{0}/cgi-bin/fc.fcgi?Command=SetAllAccess";
+//        String result = restTemplate.postForObject(
+//                MessageFormat.format(configUrlShxitTemplate, ip), config, String.class);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        // 设置请求类型
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        // 封装参数和头信息
+        HttpEntity<JSONObject> httpEntity = new HttpEntity(config, httpHeaders);
+        String url = MessageFormat.format(configUrlShxitTemplate, ip);
+        ResponseEntity<String> mapResponseEntity = restTemplate.postForEntity(url, httpEntity, String.class);
+        String result = mapResponseEntity.getBody();
+        logger.info("response: {}", result);
+        return result;
     }
 }

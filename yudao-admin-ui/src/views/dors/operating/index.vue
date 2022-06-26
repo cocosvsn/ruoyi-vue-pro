@@ -32,7 +32,10 @@
           <el-row v-for="(encoderDevice, encoderDeviceIndex) in scopeRoom.row.encoderDevices" :key="encoderDevice.id">
             <el-row :gutter="5">
               <el-col :span="2">
-                {{ '编码器 ' + (encoderDeviceIndex + 1) }}
+                {{ '编码器 ' + (encoderDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ encoderDevice.name }}
               </el-col>
             </el-row>
             <el-row :gutter="5">
@@ -88,7 +91,10 @@
           <el-row v-for="(decoderDevice, decoderDeviceIndex) in scopeRoom.row.decoderDevices" :key="decoderDevice.id">
             <el-row :gutter="5">
               <el-col :span="2">
-                {{ '解码器 ' + (decoderDeviceIndex + 1) }}
+                {{ '解码器 ' + (decoderDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ decoderDevice.name }}
               </el-col>
             </el-row>
             <el-row :gutter="5">
@@ -120,7 +126,10 @@
           <el-row v-for="(ipcDevice, ipcDeviceIndex) in scopeRoom.row.ipcDevices" :key="ipcDevice.id">
             <el-row :gutter="5">
               <el-col :span="2">
-                {{ 'IPC ' + (ipcDeviceIndex + 1) }}
+                {{ 'IPC ' + (ipcDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ ipcDevice.name }}
               </el-col>
             </el-row>
             <el-row :gutter="5">
@@ -176,7 +185,7 @@
           <el-row v-for="(tvDevice, tvDeviceIndex) in scopeRoom.row.tvDevices" :key="tvDevice.id">
             <el-row :gutter="5">
               <el-col :span="2">
-                {{ '大屏 ' + (tvDeviceIndex + 1) }}
+                {{ '大屏 ' + (tvDeviceIndex + 1) + ' :' }}
               </el-col>
             </el-row>
             <el-row :gutter="5">
@@ -211,6 +220,8 @@
       <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
+          <!-- <el-button size="mini" type="text" icon="el-icon-setting" @click="handleBatchConfigDecoderDevice(scope.row)"
+                     v-hasPermi="['dors:device:update']">配置解码器</el-button> -->
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['dors:room:update']">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
@@ -223,7 +234,7 @@
                 @pagination="getList"/>
 
     <!-- 对话框(修改房间信息表单) -->
-    <el-dialog :title="title" :visible.sync="open" width="840px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="940px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <!-- <el-form-item label="房间类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
@@ -243,27 +254,37 @@
                   <el-input :value="'编码器 ' + (encoderDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="3">
+                <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '编码器名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="encoderDevice.name" placeholder="编码器名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.manufacturer'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '编码器类型不能为空', trigger: 'change'
                   }"
                 >
-                  <el-select v-model="encoderDevice.manufacturer" :placeholder="'请选择编码器 '+(encoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
+                  <el-select v-model="encoderDevice.manufacturer" :placeholder="'编码器 '+(encoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
                     <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
                               :key="dict.value" :label="dict.label" :value="dict.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="4">
                 <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.ip'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '编码器IP不能为空', trigger: 'blur'
                   }"
                 >
-                  <el-input v-model="encoderDevice.ip" :placeholder="'请输入编码器 '+(encoderDeviceIndex + 1)+' IP'" size="mini"/>
+                  <el-input v-model="encoderDevice.ip" :placeholder="'编码器 '+(encoderDeviceIndex + 1)+' IP'" size="mini"/>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
@@ -463,31 +484,41 @@
           <el-row v-for="(decoderDevice, decoderDeviceIndex) in form.decoderDevices" :key="decoderDevice.id">
             <el-row  :gutter="5">
               <el-col :span="3">
-                <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.name'">
+                <el-form-item>
                   <el-input :value="'解码器 ' + (decoderDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="3">
+                <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '解码器名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="decoderDevice.name" placeholder="解码器名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.manufacturer'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '解码器类型不能为空', trigger: 'change'
                   }"
                 >
-                  <el-select v-model="decoderDevice.manufacturer" :placeholder="'请选择解码器 '+(decoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
+                  <el-select v-model="decoderDevice.manufacturer" :placeholder="'解码器 '+(decoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
                     <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
                               :key="dict.value" :label="dict.label" :value="dict.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="4">
                 <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.ip'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '解码器IP不能为空', trigger: 'blur'
                   }"
                 >
-                  <el-input v-model="decoderDevice.ip" :placeholder="'请输入解码器 '+(decoderDeviceIndex + 1)+' IP'" size="mini"/>
+                  <el-input v-model="decoderDevice.ip" :placeholder="'解码器 '+(decoderDeviceIndex + 1)+' IP'" size="mini"/>
                 </el-form-item>
               </el-col>
               <el-col :span="4">
@@ -502,7 +533,7 @@
               </el-col>
               <el-col :span="5">
                 <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('DECODER', decoderDevice)" >删除解码器</el-button>
-                <el-button size="mini" type="text" icon="el-icon-setting" @click="handleConfigDecoderDevice(decoderDevice)" >配置</el-button>
+                <el-button size="mini" type="text" icon="el-icon-setting" @click="handleConfigDecoderDevice(decoderDevice)" v-hasPermi="['dors:device:update']">配置</el-button>
               </el-col>
             </el-row>
             <el-row v-for="(decoderChannel, decoderChannelIndex) in decoderDevice.channels" :key="decoderChannel.id" :gutter="5">
@@ -619,7 +650,17 @@
                   <el-input :value="'IPC ' + (ipcDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="4">
+                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: 'IPC名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="ipcDevice.name" placeholder="IPC名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <!-- <el-col :span="6">
                 <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.manufacturer'"
                   :show-message="false"
                   :rules="{
@@ -631,7 +672,7 @@
                               :key="dict.value" :label="dict.label" :value="dict.value" />
                   </el-select>
                 </el-form-item>
-              </el-col>
+              </el-col> -->
               <el-col :span="6">
                 <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.ip'"
                   :show-message="false"
@@ -1044,15 +1085,27 @@ export default {
       // IP地址校验正则表达式，支持IPv4和IPv6格式。
       let ipRegexp = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){6}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^::([\da-fA-F]{1,4}:){0,4}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:):([\da-fA-F]{1,4}:){0,3}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){2}:([\da-fA-F]{1,4}:){0,2}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){3}:([\da-fA-F]{1,4}:){0,1}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){4}:((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$|^:((:[\da-fA-F]{1,4}){1,6}|:)$|^[\da-fA-F]{1,4}:((:[\da-fA-F]{1,4}){1,5}|:)$|^([\da-fA-F]{1,4}:){2}((:[\da-fA-F]{1,4}){1,4}|:)$|^([\da-fA-F]{1,4}:){3}((:[\da-fA-F]{1,4}){1,3}|:)$|^([\da-fA-F]{1,4}:){4}((:[\da-fA-F]{1,4}){1,2}|:)$|^([\da-fA-F]{1,4}:){5}:([\da-fA-F]{1,4})?$|^([\da-fA-F]{1,4}:){6}:$/i;
       if(device && device.ip && ipRegexp.test(device.ip) && device.channelCount) {
-        try {
-          configDecoderDevice(device);
-        } catch(e) {
-          console.error("解码器配置错误：", e);
-          this.msgError("解码器【" + device.name + "】配置出错：" + e.message);
-        }
+        configDecoderDevice(device).then(rs => {
+          let result = JSON.parse(rs.data);
+          if(0 === rs.code && (result.result || "OK" == result.Result)) {
+            this.msgSuccess(device.name + " 配置成功");
+          } else {
+            this.msgError(device.name + " 配置失败！");
+          }
+        }).catch(error => {
+          console.error("解码器配置错误：", error);
+          this.msgError("解码器【" + device.name + "】配置出错：" + error.message);
+        });
       } else {
-        this.msgWarning("请先配置正确的解码器IP地址和至少一个通道");
+        this.msgWarning((device.name ? device.name : "")  + " 请先配置正确的解码器IP地址和至少一个通道");
       }
+    },
+    /** 一键配置解码器设备的拉流地址 */
+    handleBatchConfigDecoderDevice(row) {
+      console.log("handleBatchConfigDecoderDevice", row.decoderDevices)
+      row.decoderDevices.forEach(device => {
+        this.handleConfigDecoderDevice(device);
+      });
     },
     /** 根据设备类型添加设备 */
     handleAddDevice(deviceType) {

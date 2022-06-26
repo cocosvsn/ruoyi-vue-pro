@@ -18,22 +18,200 @@
         <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
                    v-hasPermi="['dors:room:create']">新增</el-button>
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button type="warning" plain icon="el-icon-download" size="mini" @click="handleExport"
                    v-hasPermi="['dors:room:export']">导出</el-button>
-      </el-col>
+      </el-col> -->
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <!-- 列表 -->
     <el-table v-loading="loading" :data="list">
+      <el-table-column type="expand" width="30">
+        <template slot-scope="scopeRoom">
+          <el-row v-for="(encoderDevice, encoderDeviceIndex) in scopeRoom.row.encoderDevices" :key="encoderDevice.id">
+            <el-row :gutter="5">
+              <el-col :span="2">
+                {{ '编码器 ' + (encoderDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ encoderDevice.name }}
+              </el-col>
+            </el-row>
+            <el-row :gutter="5">
+              <el-col :span="2" :offset="1">
+                编码器类型: 
+              </el-col>
+              <el-col :span="2">
+                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, encoderDevice.manufacturer) }}
+              </el-col>
+              <el-col :span="2">
+                编码器IP:
+              </el-col>
+              <el-col :span="2">
+                {{ encoderDevice.ip }}
+              </el-col>
+            </el-row>
+            <el-row v-for="(encoderChannel, encoderChannelIndex) in encoderDevice.channels" :key="encoderChannel.id" justify="flex" :gutter="5">
+              <el-col :span="2" :offset="1">
+                {{ '通道 ' + (encoderChannelIndex + 1) }}
+              </el-col>
+              <el-col :span="2">
+                通道名称: 
+              </el-col>
+              <el-col :span="3">
+                {{ encoderChannel.name }}
+              </el-col>
+              <el-col :span="2">
+                矩阵端口: 
+              </el-col>
+              <el-col :span="2">
+                &nbsp;{{ encoderChannel.matrixPort }}&nbsp;
+              </el-col>
+              <el-col :span="1">
+                串口: 
+              </el-col>
+              <el-col :span="2">
+                &nbsp;{{ encoderChannel.serialPort }}&nbsp;
+              </el-col>
+              <el-col :span="1">
+                排序: 
+              </el-col>
+              <el-col :span="1">
+                &nbsp;{{ encoderChannel.sort }}&nbsp;
+              </el-col>
+              <el-col :span="2">
+                通道URL: 
+              </el-col>
+              <el-col :span="8">
+                {{ encoderChannel.url }}
+              </el-col>
+            </el-row>
+          </el-row>
+          <el-row v-for="(decoderDevice, decoderDeviceIndex) in scopeRoom.row.decoderDevices" :key="decoderDevice.id">
+            <el-row :gutter="5">
+              <el-col :span="2">
+                {{ '解码器 ' + (decoderDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ decoderDevice.name }}
+              </el-col>
+            </el-row>
+            <el-row :gutter="5">
+              <el-col :span="2" :offset="1">
+                解码器类型: 
+              </el-col>
+              <el-col :span="2">
+                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, decoderDevice.manufacturer) }}
+              </el-col>
+              <el-col :span="2">
+                解码器IP:
+              </el-col>
+              <el-col :span="2">
+                {{ decoderDevice.ip }}
+              </el-col>
+            </el-row>
+            <el-row v-for="(decoderChannel, decoderChannelIndex) in decoderDevice.channels" :key="decoderChannel.id" justify="flex" :gutter="5">
+              <el-col :span="2" :offset="1">
+                {{ '通道 ' + (decoderChannelIndex + 1) }}
+              </el-col>
+              <el-col :span="2">
+                拉流地址: 
+              </el-col>
+              <el-col :span="8">
+                {{ decoderChannel.url }}
+              </el-col>
+            </el-row>
+          </el-row>
+          <el-row v-for="(ipcDevice, ipcDeviceIndex) in scopeRoom.row.ipcDevices" :key="ipcDevice.id">
+            <el-row :gutter="5">
+              <el-col :span="2">
+                {{ 'IPC ' + (ipcDeviceIndex + 1) + ' :' }}
+              </el-col>
+              <el-col :span="5">
+                {{ ipcDevice.name }}
+              </el-col>
+            </el-row>
+            <el-row :gutter="5">
+              <el-col :span="2" :offset="1">
+                IPC类型: 
+              </el-col>
+              <el-col :span="2">
+                {{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, ipcDevice.manufacturer) }}
+              </el-col>
+              <el-col :span="2">
+                IPC IP:
+              </el-col>
+              <el-col :span="2">
+                {{ ipcDevice.ip }}
+              </el-col>
+            </el-row>
+            <el-row v-for="(ipcChannel, ipcChannelIndex) in ipcDevice.channels" :key="ipcChannel.id" justify="flex" :gutter="5">
+              <el-col :span="2" :offset="1">
+                {{ '通道 ' + (ipcChannelIndex + 1) }}
+              </el-col>
+              <el-col :span="2">
+                通道名称: 
+              </el-col>
+              <el-col :span="3">
+                {{ ipcChannel.name }}
+              </el-col>
+              <el-col :span="2">
+                矩阵端口: 
+              </el-col>
+              <el-col :span="2">
+                &nbsp;{{ ipcChannel.matrixPort }}&nbsp;
+              </el-col>
+              <el-col :span="1">
+                串口: 
+              </el-col>
+              <el-col :span="2">
+                &nbsp;{{ ipcChannel.serialPort }}&nbsp;
+              </el-col>
+              <el-col :span="1">
+                排序: 
+              </el-col>
+              <el-col :span="1">
+                &nbsp;{{ ipcChannel.sort }}&nbsp;
+              </el-col>
+              <el-col :span="2">
+                通道URL: 
+              </el-col>
+              <el-col :span="8">
+                {{ ipcChannel.url }}
+              </el-col>
+            </el-row>
+          </el-row>
+          <el-row v-for="(tvDevice, tvDeviceIndex) in scopeRoom.row.tvDevices" :key="tvDevice.id">
+            <el-row :gutter="5">
+              <el-col :span="2">
+                {{ '大屏 ' + (tvDeviceIndex + 1) + ' :' }}
+              </el-col>
+            </el-row>
+            <el-row :gutter="5">
+              <el-col :span="2" :offset="1">
+                大屏名称: 
+              </el-col>
+              <el-col :span="3">
+                {{ tvDevice.name }}
+              </el-col>
+              <el-col :span="2">
+                矩阵端口: 
+              </el-col>
+              <el-col :span="3">
+                {{ tvDevice.ip }}
+              </el-col>
+            </el-row>
+          </el-row>
+        </template>
+      </el-table-column>
       <el-table-column label="房间名称" align="center" prop="name" />
-      <el-table-column label="编码器类型" align="center" prop="encoderType">
+      <!-- <el-table-column label="编码器类型" align="center" prop="encoderType">
         <template slot-scope="scope">
           <span>{{ getDictDataLabel(DICT_TYPE.DORS_ENCODER_TYPE, scope.row.encoderType) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="编码器IP" align="center" prop="encoderIp" />
+      <el-table-column label="编码器IP" align="center" prop="encoderIp" /> -->
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -42,6 +220,8 @@
       <el-table-column label="备注" align="center" prop="remarks" :show-overflow-tooltip="true" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
+          <!-- <el-button size="mini" type="text" icon="el-icon-setting" @click="handleBatchConfigDecoderDevice(scope.row)"
+                     v-hasPermi="['dors:device:update']">配置解码器</el-button> -->
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
                      v-hasPermi="['dors:room:update']">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)"
@@ -54,7 +234,7 @@
                 @pagination="getList"/>
 
     <!-- 对话框(修改房间信息表单) -->
-    <el-dialog :title="title" :visible.sync="open" width="840px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="940px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
         <!-- <el-form-item label="房间类型" prop="type">
           <el-select v-model="form.type" placeholder="请选择类型">
@@ -62,10 +242,10 @@
                        :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item> -->
-        <el-form-item label="手术室名称" prop="name">
+        <el-form-item label="示教室名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入房间名称" />
         </el-form-item>
-        <el-form-item label="编码通道" :required="true">
+        <el-form-item label="编码通道">
           <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('ENCODER')">增加编码器</el-button>
           <el-row v-for="(encoderDevice, encoderDeviceIndex) in form.encoderDevices" :key="encoderDevice.id">
             <el-row :gutter="5">
@@ -74,27 +254,37 @@
                   <el-input :value="'编码器 ' + (encoderDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="3">
+                <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '编码器名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="encoderDevice.name" placeholder="编码器名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.manufacturer'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '编码器类型不能为空', trigger: 'change'
                   }"
                 >
-                  <el-select v-model="encoderDevice.manufacturer" :placeholder="'请选择编码器 '+(encoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
+                  <el-select v-model="encoderDevice.manufacturer" :placeholder="'编码器 '+(encoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
                     <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
                               :key="dict.value" :label="dict.label" :value="dict.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="4">
                 <el-form-item :prop="'encoderDevices.'+encoderDeviceIndex+'.ip'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '编码器IP不能为空', trigger: 'blur'
                   }"
                 >
-                  <el-input v-model="encoderDevice.ip" :placeholder="'请输入编码器 '+(encoderDeviceIndex + 1)+' IP'" size="mini"/>
+                  <el-input v-model="encoderDevice.ip" :placeholder="'编码器 '+(encoderDeviceIndex + 1)+' IP'" size="mini"/>
                 </el-form-item>
               </el-col>
               <el-col :span="8">
@@ -152,173 +342,47 @@
               </el-row>
             </el-row>
           </el-row>
-          <!-- <el-table ref="encoderDeviceTable" v-if="0 < form.encoderDevices.length" 
-            :data="form.encoderDevices" stripe border size="mini"
-            :default-expand-all="true"
-            @expand-change="handleDeviceExpandChange"
-          >
-            <el-table-column type="expand" width="30">
-              <template slot-scope="scopeDevice">
-                <div  class="channel-table">
-                <el-table ref="encoderDeviceChannelTable" v-if="0 < scopeDevice.row.channels.length" 
-                  :data="scopeDevice.row.channels" :show-header="false" size="mini"
-                  :default-expand-all="true" border
-                  @expand-change="handleDeviceExpandChange"
-                >
-                  <el-table-column width="160">
-                    <template slot-scope="scopeChannel">
-                      <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+scopeChannel.$index+'.name'"
-                        :show-message="false"
-                        :rules="{
-                          required: true, message: '通道名称不能为空', trigger: 'blur'
-                        }"
-                      >
-                        <el-input v-model="scopeChannel.row.name" placeholder="通道名称" clearable size="mini"/>
-                      </el-form-item>
-                    </template>
-                  </el-table-column>
-                  <el-table-column width="320">
-                    <template slot-scope="scopeChannel">
-                      <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+scopeChannel.$index+'.url'"
-                        :show-message="false"
-                        :rules="{
-                          required: true, message: '通道URL不能为空', trigger: 'blur'
-                        }"
-                      >
-                        <el-input v-model="scopeChannel.row.url" placeholder="通道URL" clearable size="mini">
-                        </el-input>
-                      </el-form-item>
-                    </template>
-                  </el-table-column>
-                  <el-table-column width="120">
-                    <template slot-scope="scopeChannel">
-                      <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+scopeChannel.$index+'.matrixPort'">
-                        <el-input v-model="scopeChannel.row.matrixPort" placeholder="矩阵端口" clearable size="mini"/>
-                      </el-form-item>
-                    </template>
-                  </el-table-column>
-                  <el-table-column width="120">
-                    <template slot-scope="scopeChannel">
-                      <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+scopeChannel.$index+'.serialPort'">
-                        <el-input v-model="scopeChannel.row.serialPort" placeholder="串口" clearable size="mini"/>
-                      </el-form-item>
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="操作" align="center" class-name="small-padding fixed-width" fixed="right" width="80">
-                    <template slot-scope="scopeChannel">
-                      <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(scopeDevice.row, scopeChannel.row)" >删除</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-                </div>
-                <el-row v-for="(channel, i) in scopeDevice.row.channels" :key="channel.type" :gutter="10">
-                  <el-col :span="1" style="text-align: right;">
-                    {{ i + 1 }}
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+i+'.name'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道名称不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.name" placeholder="通道名称" clearable size="mini"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="10">
-                    <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+i+'.url'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道URL不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.url" placeholder="通道URL" clearable size="mini" >
-                      </el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-form-item :prop="'encoderDevices.'+scopeDevice.$index+'.channels.'+i+'.matrixPort'">
-                      <el-input v-model="channel.matrixPort" placeholder="矩阵端口" clearable size="mini" width="20"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(scopeDevice.row, channel)" >删除</el-button>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-            <el-table-column prop="name" label="编码器" width="100">
-              <template slot-scope="scope">
-                <el-form-item :prop="'encoderDevices.'+scope.$index+'.name'">
-                  <el-input :value="'编码器 '+(scope.$index+1)" readonly size="mini"/>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column prop="manufacturer" label="编码器类型" width="180">
-              <template slot-scope="scope">
-                <el-form-item :prop="'encoderDevices.'+scope.$index+'.manufacturer'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: '编码器类型不能为空', trigger: 'change'
-                  }"
-                >
-                  <el-select v-model="scope.row.manufacturer" :placeholder="'请选择编码器 '+(scope.$index + 1)+' 类型'" clearable size="mini" width="80%">
-                    <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
-                              :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column prop="ip" label="编码器IP">
-              <template slot-scope="scope">
-                <el-form-item :prop="'encoderDevices.'+scope.$index+'.ip'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: '编码器IP不能为空', trigger: 'blur'
-                  }"
-                >
-                  <el-input v-model="scope.row.ip" :placeholder="'编码器 '+(scope.$index + 1)+' IP'" size="mini"/>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="210">
-              <template slot-scope="scope">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('ENCODER', scope.row)" >删除编码器</el-button>
-                <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(scope.row)" >添加编码器通道</el-button>
-              </template>
-            </el-table-column>
-          </el-table> -->
         </el-form-item>
-        <el-form-item label="解码通道">
+        <el-form-item label="解码通道" :required="true">
           <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('DECODER')">增加解码器</el-button>
           <el-row v-for="(decoderDevice, decoderDeviceIndex) in form.decoderDevices" :key="decoderDevice.id">
             <el-row  :gutter="5">
               <el-col :span="3">
-                <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.name'">
+                <el-form-item>
                   <el-input :value="'解码器 ' + (decoderDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="3">
+                <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.name'"
+                  :show-message="false"
+                  :rules="{
+                    required: true, message: '解码器名称不能为空', trigger: 'change'
+                  }"
+                >
+                  <el-input v-model="decoderDevice.name" placeholder="解码器名称" size="mini"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
                 <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.manufacturer'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '解码器类型不能为空', trigger: 'change'
                   }"
                 >
-                  <el-select v-model="decoderDevice.manufacturer" :placeholder="'请选择解码器 '+(decoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
+                  <el-select v-model="decoderDevice.manufacturer" :placeholder="'解码器 '+(decoderDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
                     <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
                               :key="dict.value" :label="dict.label" :value="dict.value" />
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="4">
                 <el-form-item :prop="'decoderDevices.'+decoderDeviceIndex+'.ip'"
                   :show-message="false"
                   :rules="{
                     required: true, message: '解码器IP不能为空', trigger: 'blur'
                   }"
                 >
-                  <el-input v-model="decoderDevice.ip" :placeholder="'请输入解码器 '+(decoderDeviceIndex + 1)+' IP'" size="mini"/>
+                  <el-input v-model="decoderDevice.ip" :placeholder="'解码器 '+(decoderDeviceIndex + 1)+' IP'" size="mini"/>
                 </el-form-item>
               </el-col>
               <el-col :span="4">
@@ -333,7 +397,7 @@
               </el-col>
               <el-col :span="5">
                 <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('DECODER', decoderDevice)" >删除解码器</el-button>
-                <el-button size="mini" type="text" icon="el-icon-setting" @click="handleConfigDecoderDevice(decoderDevice)" >配置</el-button>
+                <el-button size="mini" type="text" icon="el-icon-setting" @click="handleConfigDecoderDevice(decoderDevice)" v-hasPermi="['dors:device:update']">配置</el-button>
               </el-col>
             </el-row>
             <el-row v-for="(decoderChannel, decoderChannelIndex) in decoderDevice.channels" :key="decoderChannel.id" :gutter="5">
@@ -352,94 +416,6 @@
               </el-col>
             </el-row>
           </el-row>
-          <!-- <el-table ref="decoderDeviceTable" v-if="0 < form.decoderDevices.length" 
-            :data="form.decoderDevices" stripe border size="mini"
-            :default-expand-all="true"
-            @expand-change="handleDeviceExpandChange"
-          >
-            <el-table-column type="expand">
-              <template slot-scope="scope">
-                <el-row v-for="(channel, i) in scope.row.channels" :key="channel.type" :gutter="10">
-                  <el-col :span="1" style="text-align: right;">
-                    {{ i + 1 }}
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item :prop="'decoderDevices.'+scope.$index+'.channels.'+i+'.name'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道名称不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.name" placeholder="通道名称" clearable size="mini"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="10">
-                    <el-form-item :prop="'decoderDevices.'+scope.$index+'.channels.'+i+'.url'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道URL不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.url" placeholder="通道URL" clearable size="mini" >
-                      </el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-form-item :prop="'decoderDevices.'+scope.$index+'.channels.'+i+'.matrixPort'">
-                      <el-input v-model="channel.matrixPort" placeholder="矩阵端口" clearable size="mini" width="20"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(scope.row, channel)" >删除</el-button>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-            <el-table-column prop="manufacturer" label="解码器类型" width="180">
-              <template slot-scope="scope">
-                <el-form-item :prop="'decoderDevices.'+scope.$index+'.manufacturer'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: '解码器类型不能为空', trigger: 'change'
-                  }"
-                >
-                  <el-select v-model="scope.row.manufacturer" :placeholder="'请选择解码器 '+(scope.$index + 1)+' 类型'" size="mini" width="80%">
-                    <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
-                              :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column prop="ip" label="解码器IP" width="160">
-              <template slot-scope="scope">
-                <el-form-item :prop="'decoderDevices.'+scope.$index+'.ip'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: '解码器IP不能为空', trigger: 'blur'
-                  }"
-                >
-                  <el-input v-model="scope.row.ip" :placeholder="'解码器 '+(scope.$index + 1)+' IP'" clearable size="mini"/>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column prop="channelCount" label="解码器通道数量" width="140">
-              <template slot-scope="scope">
-                <el-form-item :prop="'decoderDevices.'+scope.$index+'.channelCount'"
-                  :show-message="false"
-                  :rules="{required: true, message: '解码器通道数量不能为空', trigger: 'change'}"
-                >
-                  <el-input-number v-model="scope.row.channelCount" :min="0" :max="8" :placeholder="'解码器 '+(scope.$index + 1)+' 通道数量'" size="mini" ></el-input-number>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="210" fixed="right">
-              <template slot-scope="scope">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('DECODER', scope.row)" >删除解码器</el-button>
-                <el-button size="mini" type="text" icon="el-icon-setting" @click="handleConfigDevice(scope.row)" >配置解码器</el-button>
-                <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(scope.row)" >添加解码器通道</el-button>
-              </template>
-            </el-table-column>
-          </el-table> -->
         </el-form-item>
         <el-form-item label="IPC">
           <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('IPC')">增加IPC</el-button>
@@ -450,17 +426,14 @@
                   <el-input :value="'IPC ' + (ipcDeviceIndex + 1)" readonly size="mini"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.manufacturer'"
+              <el-col :span="4">
+                <el-form-item :prop="'ipcDevices.'+ipcDeviceIndex+'.name'"
                   :show-message="false"
                   :rules="{
-                    required: true, message: 'IPC类型不能为空', trigger: 'change'
+                    required: true, message: 'IPC名称不能为空', trigger: 'change'
                   }"
                 >
-                  <el-select v-model="ipcDevice.manufacturer" :placeholder="'请选择IPC '+(ipcDeviceIndex + 1)+' 类型'" style="width: 100%;" size="mini" >
-                    <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
-                              :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
+                  <el-input v-model="ipcDevice.name" placeholder="IPC名称" size="mini"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
@@ -528,116 +501,6 @@
               </el-row>
             </el-row>
           </el-row>
-          <!-- <el-table ref="ipcDeviceTable" v-if="0 < form.ipcDevices.length" 
-            :data="form.ipcDevices" stripe border size="mini"
-            :default-expand-all="true"
-            @expand-change="handleDeviceExpandChange"
-          >
-            <el-table-column type="expand">
-              <template slot-scope="scope">
-                <el-row v-for="(channel, i) in scope.row.channels" :key="channel.type" :gutter="10">
-                  <el-col :span="1" style="text-align: right;">
-                    {{ i + 1 }}
-                  </el-col>
-                  <el-col :span="6">
-                    <el-form-item :prop="'ipcDevices.'+scope.$index+'.channels.'+i+'.name'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道名称不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.name" placeholder="通道名称" clearable size="mini"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="10">
-                    <el-form-item :prop="'ipcDevices.'+scope.$index+'.channels.'+i+'.url'"
-                      :show-message="false"
-                      :rules="{
-                        required: true, message: '通道URL不能为空', trigger: 'blur'
-                      }"
-                    >
-                      <el-input v-model="channel.url" placeholder="通道URL" clearable size="mini" >
-                        <template slot="prepend">rtsp://</template>
-                      </el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="4">
-                    <el-form-item :prop="'ipcDevices.'+scope.$index+'.channels.'+i+'.matrixPort'">
-                      <el-input v-model="channel.matrixPort" placeholder="矩阵端口" clearable size="mini" width="20"/>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="3">
-                    <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDeviceChannel(scope.row, channel)" >删除</el-button>
-                  </el-col>
-                </el-row>
-              </template>
-            </el-table-column>
-            <el-table-column prop="manufacturer" label="IPC" width="180">
-              <template slot-scope="scope">
-                <el-form-item :prop="'ipcDevices.'+scope.$index+'.name'">
-                  <el-select v-model="scope.row.manufacturer" :placeholder="'请选择IPC '+(scope.$index + 1)+' 类型'" clearable size="mini" width="80%">
-                    <el-option v-for="dict in getDictDatas(DICT_TYPE.DORS_ENCODER_TYPE)"
-                              :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                  <el-input :value="'IPC ' + (scope.$index + 1)" readonly size="mini" width="20"/>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column prop="ip" label="IPC IP">
-              <template slot-scope="scope">
-                <el-form-item :prop="'ipcDevices.'+scope.$index+'.ip'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: 'IPC IP不能为空', trigger: 'blur'
-                  }"
-                >
-                  <el-input v-model="scope.row.ip" :placeholder="'IPC '+(scope.$index + 1)+' IP'" size="mini"/>
-                </el-form-item>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="210" fixed="right">
-              <template slot-scope="scope">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('IPC', scope.row)" >删除IPC</el-button>
-                <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(scope.row)" >添加IPC通道</el-button>
-              </template>
-            </el-table-column>
-          </el-table> -->
-        </el-form-item>
-        <el-form-item label="大屏">
-          <el-button type="text" plain icon="el-icon-plus" size="mini" @click="handleAddDevice('TV')">大屏</el-button>
-          <el-row v-for="(tvDevice, tvDeviceIndex) in form.tvDevices" :key="tvDevice.id">
-            <el-row :gutter="5">
-              <el-col :span="3">
-                <!-- <el-form-item :prop="'tvDevices.'+tvDeviceIndex+'.name'">
-                  <el-input :value="'大屏 ' + (tvDeviceIndex + 1)" readonly size="mini"/>
-                </el-form-item> -->
-                {{'大屏 ' + (tvDeviceIndex + 1)}}
-              </el-col>
-              <el-col :span="8">
-                <el-form-item :prop="'tvDevices.'+tvDeviceIndex+'.name'"
-                    :show-message="false"
-                    :rules="{
-                      required: true, message: '大屏名称不能为空', trigger: 'change'
-                    }"
-                  >
-                    <el-input v-model="tvDevice.name" placeholder="大屏名称" clearable size="mini"/>
-                  </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item :prop="'tvDevices.'+tvDeviceIndex+'.ip'"
-                  :show-message="false"
-                  :rules="{
-                    required: true, message: '大屏矩阵输出端口不能为空', trigger: 'blur'
-                  }"
-                >
-                  <el-input v-model="tvDevice.ip" :placeholder="'请输入大屏 '+(tvDeviceIndex + 1)+' 矩阵输出端口'" size="mini"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="5">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('TV', tvDevice)" >删除大屏</el-button>
-              </el-col>
-            </el-row>
-          </el-row>
         </el-form-item>
         <el-form-item label="备注" prop="remarks">
           <el-input v-model="form.remarks" type="textarea" rows="3" placeholder="请输入备注" />
@@ -699,13 +562,13 @@ export default {
       queryParams: {
         pageNo: 1,
         pageSize: 10,
-        type: ROOM_TYPE.OPERATING_ROOM,
+        type: ROOM_TYPE.MEETING_ROOM,
         name: null,
         remarks: null,
       },
       // 表单参数
       form: {
-        type: ROOM_TYPE.OPERATING_ROOM,
+        type: ROOM_TYPE.MEETING_ROOM,
         encoderDevices: [], // 编码器设备列表
         decoderDevices: [], // 解码器设备列表
         ipcDevices: [],     // IPC设备列表
@@ -715,7 +578,7 @@ export default {
       // 表单校验
       rules: {
         name: [{ required: true, message: "房间名称不能为空", trigger: "blur" }],
-        encoderDevices: [{required: true, message: "请至少添加一个编码器", trigger: "change"}],
+        decoderDevices: [{required: true, message: "请至少添加一个解码器", trigger: "change"}],
       }
     };
   },
@@ -777,10 +640,10 @@ export default {
       tempDevice.channels.push(tempChannel);
       this.form = {
         id: undefined,
-        type: ROOM_TYPE.OPERATING_ROOM,
+        type: ROOM_TYPE.MEETING_ROOM,
         name: undefined,
-        encoderDevices: [tempDevice],
-        decoderDevices: [],
+        encoderDevices: [],
+        decoderDevices: [tempDevice],
         ipcDevices: [],
         tvDevices: [],
         maxMeetingNum: 4,
@@ -875,15 +738,27 @@ export default {
       // IP地址校验正则表达式，支持IPv4和IPv6格式。
       let ipRegexp = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){6}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^::([\da-fA-F]{1,4}:){0,4}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:):([\da-fA-F]{1,4}:){0,3}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){2}:([\da-fA-F]{1,4}:){0,2}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){3}:([\da-fA-F]{1,4}:){0,1}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){4}:((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$|^:((:[\da-fA-F]{1,4}){1,6}|:)$|^[\da-fA-F]{1,4}:((:[\da-fA-F]{1,4}){1,5}|:)$|^([\da-fA-F]{1,4}:){2}((:[\da-fA-F]{1,4}){1,4}|:)$|^([\da-fA-F]{1,4}:){3}((:[\da-fA-F]{1,4}){1,3}|:)$|^([\da-fA-F]{1,4}:){4}((:[\da-fA-F]{1,4}){1,2}|:)$|^([\da-fA-F]{1,4}:){5}:([\da-fA-F]{1,4})?$|^([\da-fA-F]{1,4}:){6}:$/i;
       if(device && device.ip && ipRegexp.test(device.ip) && device.channelCount) {
-        try {
-          configDecoderDevice(device);
-        } catch(e) {
-          console.error("解码器配置错误：", e);
-          this.msgError("解码器【" + device.name + "】配置出错：" + e.message);
-        }
+        configDecoderDevice(device).then(rs => {
+          let result = JSON.parse(rs.data);
+          if(0 === rs.code && (result.result || "OK" == result.Result)) {
+            this.msgSuccess(device.name + " 配置成功");
+          } else {
+            this.msgError(device.name + " 配置失败！");
+          }
+        }).catch(error => {
+          console.error("解码器配置错误：", error);
+          this.msgError("解码器【" + device.name + "】配置出错：" + error.message);
+        });
       } else {
-        this.msgWarning("请先配置正确的解码器IP地址和至少一个通道");
+        this.msgWarning((device.name ? device.name : "")  + " 请先配置正确的解码器IP地址和至少一个通道");
       }
+    },
+    /** 一键配置解码器设备的拉流地址 */
+    handleBatchConfigDecoderDevice(row) {
+      console.log("handleBatchConfigDecoderDevice", row.decoderDevices)
+      row.decoderDevices.forEach(device => {
+        this.handleConfigDecoderDevice(device);
+      });
     },
     /** 根据设备类型添加设备 */
     handleAddDevice(deviceType) {
@@ -1035,5 +910,21 @@ export default {
 }
 .el-input-group--append .el-input__inner, .el-input-group--prepend .el-input__inner {
   padding: 0 10px;
+}
+.operating-table-device-name {
+  font-size: 16px;
+}
+.operating-table-expand {
+  font-size: 12px;
+  margin-left: 20px;
+}
+.operating-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.operating-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
 }
 </style>

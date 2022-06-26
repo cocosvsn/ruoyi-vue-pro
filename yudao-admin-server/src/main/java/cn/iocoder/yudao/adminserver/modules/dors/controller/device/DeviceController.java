@@ -1,5 +1,8 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.device;
 
+import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
+import cn.iocoder.yudao.adminserver.modules.dors.enums.EncoderType;
+import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.file.config.FileProperties;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -17,6 +20,9 @@ import java.io.IOException;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+
+import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConstants.DEVICE_ENCODER_ERROR;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.error;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
@@ -129,5 +135,36 @@ public class DeviceController {
         usableSpaceVo.setValue(usableSpace);
         list.add(usableSpaceVo);
         return success(list);
+    }
+
+    @GetMapping("/get-device-config")
+    @ApiOperation("获取编解码器配置")
+    @PreAuthorize("@ss.hasPermission('dors:device:query')")
+    public CommonResult<String> getDeviceConfig(@RequestParam("ip") String ip,
+                                                 @RequestParam("type") EncoderType encoderType) {
+        switch (encoderType) {
+            case LINKPI:
+                return success(this.deviceService.getConfigLinkPi(ip));
+            case SHXIT:
+                return success(this.deviceService.getConfigShxit(ip));
+            default:
+                return error(DEVICE_ENCODER_ERROR);
+        }
+    }
+
+    @PostMapping("/config-device")
+    @ApiOperation("配置编解码器")
+    @PreAuthorize("@ss.hasPermission('dors:device:update')")
+    public CommonResult<String> configDeviceConfig(@RequestParam("ip") String ip,
+                                                   @RequestParam("type") EncoderType encoderType,
+                                                   @RequestBody String config) {
+        switch (encoderType) {
+            case LINKPI:
+                return success(this.deviceService.configLinkPi(ip, config));
+            case SHXIT:
+                return success(this.deviceService.configShxit(ip, config));
+            default:
+                return error(DEVICE_ENCODER_ERROR);
+        }
     }
 }

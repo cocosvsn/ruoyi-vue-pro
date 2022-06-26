@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.service.device;
 
+import java.text.MessageFormat;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.*;
@@ -71,4 +72,29 @@ public interface DeviceService {
      * 重新扫描设备
      */
     void rediscover();
+
+    /**
+     * 获取灵派编码器配置
+     * @param ip
+     */
+    String getConfigLinkPi(String ip);
+
+    /**
+     * 灵派编码器配置
+     * @param ip
+     * @param config
+     */
+    String configLinkPi(String ip, String config);
+
+    /**
+     * 获取示见编码器配置
+     * @param ip
+     */
+    String getConfigShxit(String ip);
+
+    /**
+     * 示见编码器配置
+     * @param config
+     */
+    String configShxit(String ip, String config);
 }

@@ -71,10 +71,10 @@ export function exportDeviceExcel(query) {
 
 // 导出设备 Excel
 export function configDecoderDevice(device) {
-  if('LINKPI' === device.type) { // 灵派
-    configDecoderLinkPi(device);
-  } else if('SHXIT' === device.type) { // 示见
-    configDecoderShxit(device);
+  if('LINKPI' === device.manufacturer) { // 灵派
+    return configDecoderLinkPi(device);
+  } else if('SHXIT' === device.manufacturer) { // 示见
+    return configDecoderShxit(device);
   }
 }
 
@@ -87,7 +87,109 @@ export function configDecoderDevice(device) {
  * 4. 将灵派编码器网络通道的输入地址一一配置为解码器配置的通道URL。
  * 5. 将灵派编码器配置保存。
  */
-function configDecoderLinkPi(device) {}
+function configDecoderLinkPi(device) {
+  let query = {'ip': device.ip, 'type': device.manufacturer}
+  let configParams = {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "enc.update",
+    "params": []
+  }
+  return request({
+    url: '/dors/device/get-device-config',
+    method: 'get',
+    params: query
+  }).then(response => {
+    let linkpiConfig = JSON.parse(response.data);
+    let configDecoderChannelLength = device.channels.length;
+    let currChannelIndex = 0;
+    // 修改网络输入配置
+    linkpiConfig.forEach(function (n, i) {
+      if ("net" == n.type && currChannelIndex < configDecoderChannelLength) {
+        linkpiConfig[i].enable = true;
+        linkpiConfig[i].enable2 = true;
+        linkpiConfig[i].net.path = device.channels[currChannelIndex].url;
+        linkpiConfig[i].net.protocol = 'udp';
+        linkpiConfig[i].net.decodeV = true;
+        linkpiConfig[i].net.decodeA = true;
+        currChannelIndex ++;
+      } else if("net" == n.type) {
+        linkpiConfig[i].enable = false;
+        linkpiConfig[i].enable2 = false;
+        linkpiConfig[i].net.path = '';
+        linkpiConfig[i].net.protocol = 'tcp';
+        linkpiConfig[i].net.decodeV = false;
+        linkpiConfig[i].net.decodeA = false;
+      }
+    })
+    
+    configParams.params.push(JSON.stringify(linkpiConfig))
+    return request({
+      url: 'dors/device/config-device',
+      method: 'post',
+      params: query,
+      data: configParams
+    })
+  })
+}
 
 /** 示见编码器配置 */
-function configDecoderShxit(device) {}
+function configDecoderShxit(device) {
+  let query = {'ip': device.ip, 'type': device.manufacturer}
+  let configParams = [
+    {
+      "WindowIndex": 0,
+      "AccessSourceID": 32768,
+      "CachingTime": -1,
+      "BuildInSource": {
+        "Address": "rtsp://192.168.1.229:554/ch1_main"
+      }
+    },
+    {
+      "WindowIndex": 1,
+      "AccessSourceID": 98304,
+      "CachingTime": -1,
+      "BuildInSource": {
+        "Address": "rtsp://192.168.1.229:554/ch1_main"
+      }
+    },
+    {
+      "WindowIndex": 2,
+      "AccessSourceID": 163840,
+      "CachingTime": -1,
+      "BuildInSource": {
+        "Address": "rtsp://192.168.1.229:554/ch1_main"
+      }
+    },
+    {
+      "WindowIndex": 3,
+      "AccessSourceID": -1,
+      "CachingTime": -1,
+      "BuildInSource": {
+        "Address": "rtsp://192.168.1.229:554/ch1_main"
+      }
+    },
+    {
+      "WindowIndex": 4,
+      "AccessSourceID": -1,
+      "CachingTime": -1,
+      "BuildInSource": {
+        "Address": ""
+      }
+    }
+  ]
+
+  let channel_num = Math.min(4, device.channels.length);
+  // 示见解码器只配置4个通道
+  for(let i = 0; i < channel_num; i ++) {
+    configParams[i].AccessSourceID = -1;
+    configParams[i].BuildInSource.Address = device.channels[i].url;
+  }
+  console.log(configParams);
+  return request({
+    url: "dors/device/config-device",
+    method: 'post',
+    params: query,
+    data: configParams
+  });
+}
