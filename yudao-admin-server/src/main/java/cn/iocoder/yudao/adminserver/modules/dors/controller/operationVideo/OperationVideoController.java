@@ -1,5 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.operationVideo;
 
+import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
+import cn.iocoder.yudao.adminserver.modules.infra.service.config.InfConfigService;
 import cn.iocoder.yudao.framework.file.config.FileProperties;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -10,11 +12,14 @@ import io.swagger.annotations.*;
 
 import javax.validation.*;
 import javax.servlet.http.*;
+import java.text.MessageFormat;
 import java.util.*;
 import java.io.IOException;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+
+import static cn.iocoder.yudao.adminserver.modules.infra.enums.InfDictTypeConstants.SERVER_IP;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
@@ -35,6 +40,8 @@ public class OperationVideoController {
 
     @Resource
     private FileProperties fileProperties;
+    @Resource
+    private InfConfigService infConfigService;
     @Resource
     private OperationVideoService operationVideoService;
 
@@ -85,11 +92,11 @@ public class OperationVideoController {
     @PreAuthorize("@ss.hasPermission('dors:operation-video:query')")
     public CommonResult<PageResult<OperationVideoRespVO>> getOperationVideoPage(@Valid OperationVideoPageReqVO pageVO) {
         PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(pageVO);
-        String prefix = fileProperties.getUrlPrefix().endsWith("/")
-                ? fileProperties.getUrlPrefix()
-                : fileProperties.getUrlPrefix() + "/";
+        InfConfigDO infConfigDO = this.infConfigService.getConfigByKey(SERVER_IP);
         CommonResult result = success(OperationVideoConvert.INSTANCE.convertPage(pageResult));
-        result.setMsg(prefix); // 放入msg中，以便前端拼接出完整访问路径。
+        if (null != infConfigDO) {
+            result.setMsg(MessageFormat.format(fileProperties.getUrlPrefix(), infConfigDO.getValue())); // 放入msg中，以便前端拼接出完整访问路径。
+        }
         return result;
     }
 

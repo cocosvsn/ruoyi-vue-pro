@@ -257,6 +257,7 @@
                 </div>
             </div>
         </foreach> -->
+        <!--
         <div class="col-md-1 item" >
           <div class="title">1号手术室全景相机</div>
           <div class="icon"><img src="images/101.png" /></div>
@@ -337,6 +338,7 @@
             </div>
           </div>
         </div>
+        -->
     </div>
 
     <div class="row control">
@@ -405,13 +407,15 @@
     try {
       // 获取当前房间信息
       currentRoom = JSON.parse(AOV.getCurrentRoom());
+      let cajksodfowqe = AOV.getChannels();
+      console.log(cajksodfowqe)
       currentRoomChannels = JSON.parse(AOV.getChannels());
       console.log("current room 【"+currentRoom.name+"】record: "+currentRoom.record+",channels: " + currentRoomChannels.length);
       // 获取通道信息
       let cameraEle = $(".camera");
       currentRoomChannels.forEach((element, i) => {
-        if(0 === i && element.isCamera) {
-          currentChannelSerialPort = JSON.parse(element.cameraSerialPort);
+        if(0 === i && element.serialPort) {
+          currentChannelSerialPort = JSON.parse(element.serialPort);
         }
         cameraEle.append(
             '<div class="col-md-1 item'+(i===0?' active':'')+'" onclick="selectItem(this, '+element.channelId+', '+i+')" >' +
@@ -430,7 +434,7 @@
       // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
       changeVideoViewpostion();
       // 默认播放第1个通道的视频
-      previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
+      previewChannel(currentRoomChannels[0].url);
       if(null != currentChannelSerialPort) {
         // 当前通道为摄像机通道。打开串口，准备控制摄像机
         AOV.openSerialPort(currentChannelSerialPort.device, currentChannelSerialPort.baudRate);
@@ -542,12 +546,12 @@
     });
     
     // 预览通道视频
-    let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
+    let previewChannelUrl = currentRoomChannels[channelIndex].url;//'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
     previewChannel(previewChannelUrl);
     currentChannel = channelId;
     currentChannelIndex = channelIndex;
-    if (currentRoomChannels[channelIndex].isCamera) { // 判断当前通道是否绑定了摄像机。绑定了摄像机，则调用打开绑定摄像机串口设备，用于云台控制。
-      currentChannelSerialPort = JSON.parse(currentRoomChannels[channelIndex].cameraSerialPort);
+    if (currentRoomChannels[channelIndex].serialPort) { // 判断当前通道是否绑定了摄像机。绑定了摄像机，则调用打开绑定摄像机串口设备，用于云台控制。
+      currentChannelSerialPort = JSON.parse(currentRoomChannels[channelIndex].serialPort);
       // 打开串口
       AOV.openSerialPort(currentChannelSerialPort.device, currentChannelSerialPort.baudRate);
     } else {

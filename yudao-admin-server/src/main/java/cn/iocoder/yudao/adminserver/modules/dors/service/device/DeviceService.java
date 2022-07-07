@@ -1,6 +1,5 @@
 package cn.iocoder.yudao.adminserver.modules.dors.service.device;
 
-import java.text.MessageFormat;
 import java.util.*;
 import javax.validation.*;
 import cn.iocoder.yudao.adminserver.modules.dors.controller.device.vo.*;

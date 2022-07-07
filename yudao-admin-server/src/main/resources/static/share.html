@@ -525,7 +525,9 @@
     $('.menu .item:nth-child(4)').addClass("active");
     try {
       // 获取当前房间信息
-      currentRoom = JSON.parse(AOV.getCurrentRoom());
+      let aaaa = AOV.getCurrentRoom();
+      console.log(aaaa);
+      currentRoom = JSON.parse(aaaa);
       // 加载自动应答状态
       autoAnswerDialingState = AOV.getAutoAnswerDialing();
       // 修正当前页面通道预览窗口位置
@@ -637,7 +639,7 @@
     }
 
     // 3. 初始化分屏信息
-    dealLinkPi(AOV.getCurrentRoomEncoderConfig());
+    // dealLinkPi(AOV.getCurrentRoomEncoderConfig());
   }
   // 保存定时更新画面截图的定时器句柄
   let srcVPreviewInterval = [null, null, null, null];

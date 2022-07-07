@@ -53,7 +53,6 @@ import static cn.iocoder.yudao.adminserver.modules.dors.enums.DorsErrorCodeConst
 @Validated
 public class DeviceServiceImpl implements DeviceService, MessageProcessor {
     private static Set<String> discoveryDevice = new HashSet<>();
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Resource
     private DeviceMapper deviceMapper;
@@ -225,7 +224,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         String configUrlLinkPiTemplate = "http://{0}/config/config.json";
         String config = restTemplate.getForObject(
                 MessageFormat.format(configUrlLinkPiTemplate, ip), String.class);
-        logger.info("response: {}", config);
+        log.info("response: {}", config);
         return config;
     }
 
@@ -238,7 +237,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         String configUrlLinkPiTemplate = "http://{0}/RPC";
         String result = restTemplate.postForObject(
                 MessageFormat.format(configUrlLinkPiTemplate, ip), config, String.class);
-        logger.info("response: {}", result);
+        log.info("response: {}", result);
         return result;
     }
 
@@ -250,7 +249,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         String configUrlShxitTemplate = "http://{0}/cgi-bin/fc.fcgi?Command=GetAllAccess";
         String config = restTemplate.getForObject(
                 MessageFormat.format(configUrlShxitTemplate, ip), String.class);
-        logger.info("response: {}", config);
+        log.info("response: {}", config);
         return config;
     }
 
@@ -270,7 +269,7 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         String url = MessageFormat.format(configUrlShxitTemplate, ip);
         ResponseEntity<String> mapResponseEntity = restTemplate.postForEntity(url, httpEntity, String.class);
         String result = mapResponseEntity.getBody();
-        logger.info("response: {}", result);
+        log.info("response: {}", result);
         return result;
     }
 }

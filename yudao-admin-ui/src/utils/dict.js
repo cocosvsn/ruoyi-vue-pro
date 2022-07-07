@@ -51,6 +51,8 @@ export const DEVICE_TYPE = {
   TV: "TV",
 }
 
+export const SERVER_IP_CONFIG_KEY = 'aov.server.ip'
+
 /**
  * 获取 dictType 对应的数据字典数组
  *

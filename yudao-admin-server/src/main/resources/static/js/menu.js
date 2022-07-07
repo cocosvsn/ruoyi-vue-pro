@@ -1,4 +1,4 @@
-let params = "?id=" + GetQueryString('id') + "&ip=" + GetQueryString('ip') + "&port=" + GetQueryString('port') + "&protocol=" + GetQueryString('protocol') + "&category_id=" + GetQueryString('category_id');
+let params = ""; //"?id=" + GetQueryString('id') + "&ip=" + GetQueryString('ip') + "&port=" + GetQueryString('port') + "&protocol=" + GetQueryString('protocol') + "&category_id=" + GetQueryString('category_id');
     
 var beforUrl = ""
 let isRecord = false;

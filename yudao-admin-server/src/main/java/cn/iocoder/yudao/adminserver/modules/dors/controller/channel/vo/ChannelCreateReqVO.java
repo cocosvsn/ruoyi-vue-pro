@@ -1,9 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.channel.vo;
 
 import lombok.*;
-import java.util.*;
 import io.swagger.annotations.*;
-import javax.validation.constraints.*;
 
 @ApiModel("频道创建 Request VO")
 @Data

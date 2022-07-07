@@ -467,13 +467,13 @@ $(document).ready(function() {
     currentRoom = JSON.parse(AOV.getCurrentRoom());
     currentRoomChannels = JSON.parse(AOV.getChannels());
     // 获取当前连接中的会议室
-    refreshMeetingRoom();
+    // refreshMeetingRoom();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
 
     // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
     changeVideoViewpostion();
     // 默认播放mix通道的视频
-    previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub17');
+    // previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub17');
   } catch (e) { console.error(e); }
 
   // 切换Mix通道视频布局
@@ -694,37 +694,38 @@ function closeScreenView() {
 
 // 当手术室有新的连接或有连接断开时调用该接口刷新会议室列表。
 function refreshMeetingRoom() {
-  // 获取当前已连接的会议室列表，更新下拉列表。
-  connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
-  // 获取当前房间连线中编码器配置
-  linkpiConfig = JSON.parse(AOV.getCurrentRoomConnectedEncoderConfig());
-  // $('.selectpicker').each((i, e) => {
-  //   $(e).empty();
-  //   connectedMeetingRoom.forEach((ele, index) => {
-  //     $(e).append('<option value="'+index+'">'+ele.name+'</option>');
-  //   });
-  //   // bootstrap-select 必须调用一次刷新才会更新选中状态
-  //   $(e).selectpicker('refresh');
+  console.log("refreshMeetingRoom()");
+  // // 获取当前已连接的会议室列表，更新下拉列表。
+  // connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
+  // // 获取当前房间连线中编码器配置
+  // linkpiConfig = JSON.parse(AOV.getCurrentRoomConnectedEncoderConfig());
+  // // $('.selectpicker').each((i, e) => {
+  // //   $(e).empty();
+  // //   connectedMeetingRoom.forEach((ele, index) => {
+  // //     $(e).append('<option value="'+index+'">'+ele.name+'</option>');
+  // //   });
+  // //   // bootstrap-select 必须调用一次刷新才会更新选中状态
+  // //   $(e).selectpicker('refresh');
+  // // });
+  // let tmpSelectPicker = $(".video-content select");
+  // let netIndex = 0;
+  // tmpSelectPicker.empty();
+  // tmpSelectPicker.append(
+  //   '<option value="-1">空</option>'
+  // );
+  // linkpiConfig.forEach((e, i) => {
+  //   if('net' === e.type) {
+  //     if(netIndex >= connectedMeetingRoom.length) {
+  //       return;
+  //     }
+  //     tmpSelectPicker.append(
+  //       '<option value="'+e.id+'">'+connectedMeetingRoom[netIndex].name+'</option>'
+  //     );
+  //     netIndex ++;
+  //   }
   // });
-  let tmpSelectPicker = $(".video-content select");
-  let netIndex = 0;
-  tmpSelectPicker.empty();
-  tmpSelectPicker.append(
-    '<option value="-1">空</option>'
-  );
-  linkpiConfig.forEach((e, i) => {
-    if('net' === e.type) {
-      if(netIndex >= connectedMeetingRoom.length) {
-        return;
-      }
-      tmpSelectPicker.append(
-        '<option value="'+e.id+'">'+connectedMeetingRoom[netIndex].name+'</option>'
-      );
-      netIndex ++;
-    }
-  });
-  tmpSelectPicker.selectpicker('refresh');
-  dealLinkPi();
+  // tmpSelectPicker.selectpicker('refresh');
+  // dealLinkPi();
 }
 function dealLinkPi() {
   for (let i = 0; i < linkpiConfig.length; i++) {

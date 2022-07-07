@@ -896,8 +896,10 @@
 
 <script>
 import { createRoom, updateRoom, bindDevice, deleteRoom, getRoom, getRoomPage, exportRoomExcel } from "@/api/dors/room";
-import { getDictDataLabel, DICT_TYPE, ROOM_TYPE, DEVICE_TYPE } from '@/utils/dict';
+import { getDictDataLabel, DICT_TYPE, ROOM_TYPE, DEVICE_TYPE, SERVER_IP_CONFIG_KEY } from '@/utils/dict';
+import { getConfigKey } from "@/api/infra/config";
 import { configDecoderDevice } from "@/api/dors/device";
+
 
 export default {
   name: "",
@@ -917,6 +919,8 @@ export default {
       deviceList: [],
       // 弹出层标题
       title: "",
+      // 服务器IP
+      serverIp: undefined,
       // 是否显示添加弹出层
       addOpen: false,
       addStep: 0,
@@ -974,7 +978,7 @@ export default {
     watchDecoderDeviceIp() { // 解码器IP发生变更
       this.form.decoderDevices.forEach(device => {
         device.channels.forEach((channel, channelIndex) => {
-          channel.url = this.getDecoderChannelUrl('rtsp://', undefined, device.ip, channelIndex);
+          channel.url = this.getDecoderChannelUrl('rtsp://', this.serverIp, device.ip, channelIndex);
         });
       });
     },
@@ -1006,6 +1010,9 @@ export default {
         this.list = response.data.list;
         this.total = response.data.total;
         this.loading = false;
+      });
+      getConfigKey(SERVER_IP_CONFIG_KEY).then(response => {
+        this.serverIp = response.data;
       });
     },
     /** 取消按钮 */
@@ -1119,21 +1126,32 @@ export default {
       console.log('handleConfigDecoderDevice', device);
       // IP地址校验正则表达式，支持IPv4和IPv6格式。
       let ipRegexp = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){6}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^::([\da-fA-F]{1,4}:){0,4}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:):([\da-fA-F]{1,4}:){0,3}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){2}:([\da-fA-F]{1,4}:){0,2}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){3}:([\da-fA-F]{1,4}:){0,1}((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){4}:((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$|^:((:[\da-fA-F]{1,4}){1,6}|:)$|^[\da-fA-F]{1,4}:((:[\da-fA-F]{1,4}){1,5}|:)$|^([\da-fA-F]{1,4}:){2}((:[\da-fA-F]{1,4}){1,4}|:)$|^([\da-fA-F]{1,4}:){3}((:[\da-fA-F]{1,4}){1,3}|:)$|^([\da-fA-F]{1,4}:){4}((:[\da-fA-F]{1,4}){1,2}|:)$|^([\da-fA-F]{1,4}:){5}:([\da-fA-F]{1,4})?$|^([\da-fA-F]{1,4}:){6}:$/i;
-      if(device && device.ip && ipRegexp.test(device.ip) && device.channelCount) {
-        configDecoderDevice(device).then(rs => {
-          let result = JSON.parse(rs.data);
-          if(0 === rs.code && (result.result || "OK" == result.Result)) {
-            this.msgSuccess(device.name + " 配置成功");
-          } else {
-            this.msgError(device.name + " 配置失败！");
-          }
-        }).catch(error => {
-          console.error("解码器配置错误：", error);
-          this.msgError("解码器【" + device.name + "】配置出错：" + error.message);
-        });
-      } else {
-        this.msgWarning((device.name ? device.name : "")  + " 请先配置正确的解码器IP地址和至少一个通道");
+      if(!device || !device.ip || !ipRegexp.test(device.ip)) {
+        this.msgWarning((device.name ? device.name : "")  + " 请先配置正确的解码器IP地址!");
+        return;
       }
+
+      if(!device.channelCount) {
+        this.msgWarning((device.name ? device.name : "")  + " 解码器至少一个通道!");
+        return;
+      }
+
+      if(!this.serverIp) {
+        this.msgWarning("请使用【示教管理】【系统配置】中配置服务器IP地址!");
+        return;
+      }
+      
+      configDecoderDevice(device).then(rs => {
+        let result = JSON.parse(rs.data);
+        if(0 === rs.code && (result.result || "OK" == result.Result)) {
+          this.msgSuccess(device.name + " 配置成功");
+        } else {
+          this.msgError(device.name + " 配置失败！");
+        }
+      }).catch(error => {
+        console.error("解码器配置错误：", error);
+        this.msgError("解码器【" + device.name + "】配置出错：" + error.message);
+      });
     },
     /** 一键配置解码器设备的拉流地址 */
     handleBatchConfigDecoderDevice(row) {
@@ -1193,7 +1211,9 @@ export default {
     handleAddDeviceChannel(item) {
       // console.log("handleAddDeviceChannel", item);
       if(8 > item.channels.length) { // 限制每个设备最多增加4个通道
-        item.channels.push(this.clone(this.defaultChannel));
+        let tempChannel = this.clone(this.defaultChannel);
+        tempChannel.name = "通道 " + (item.channels.length + 1)
+        item.channels.push(tempChannel);
       } else {
         this.msgError("每个设备最多添加8个通道！");
       }
@@ -1226,7 +1246,7 @@ export default {
           let tempChannel = {
             id: undefined, 
             name: '通道 ' + (i + 1), 
-            url: this.getDecoderChannelUrl("rtsp://", undefined, device.ip, i),
+            url: this.getDecoderChannelUrl("rtsp://", this.serverIp, device.ip, i),
             sort: undefined
           };
           tempChannels.push(tempChannel);

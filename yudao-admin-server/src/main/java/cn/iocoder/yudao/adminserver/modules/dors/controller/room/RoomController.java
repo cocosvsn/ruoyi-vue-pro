@@ -112,7 +112,7 @@ public class RoomController {
     @ApiOperation("操控面板登陆")
     @ApiImplicitParam(name = "id", value = "房间编号", required = true, example = "0", dataTypeClass = Integer.class)
     public CommonResult<List<ChannelRespVO>> getChannelsByRoom(@RequestParam("id") Integer id) {
-        List<ChannelDO> list = roomService.getOutputChannelsByMac(id);
+        List<ChannelDO> list = roomService.getOutputChannelsByRoom(id);
         return success(ChannelConvert.INSTANCE.convertList(list));
     }
 

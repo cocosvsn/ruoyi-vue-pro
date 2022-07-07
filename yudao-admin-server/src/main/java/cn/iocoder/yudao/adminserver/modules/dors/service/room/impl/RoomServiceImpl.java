@@ -122,8 +122,8 @@ public class RoomServiceImpl implements RoomService {
             this.deviceMapper.insert(decoderDeviceDO);
 
             // 保存关联的通道信息
-            for (ChannelCreateReqVO encoderChannelReqVO: decoderReqVO.getChannels()) {
-                ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
+            for (ChannelCreateReqVO decoderChannelReqVO: decoderReqVO.getChannels()) {
+                ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(decoderChannelReqVO);
                 decoderChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
                 decoderChannelDO.setDevice(decoderDeviceDO.getId());
                 decoderChannelDO.setStreamType(StreamDirectionType.NETWORK_INPUT);
@@ -139,8 +139,8 @@ public class RoomServiceImpl implements RoomService {
             this.deviceMapper.insert(ipcDeviceDO);
 
             // 保存关联的通道信息
-            for (ChannelCreateReqVO encoderChannelReqVO: ipcReqVO.getChannels()) {
-                ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelReqVO);
+            for (ChannelCreateReqVO ipcChannelReqVO: ipcReqVO.getChannels()) {
+                ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(ipcChannelReqVO);
                 ipcChannelDO.setRoom(roomDO.getId()); // 保存之前设置关联关系
                 ipcChannelDO.setDevice(ipcDeviceDO.getId());
                 ipcChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
@@ -309,6 +309,7 @@ public class RoomServiceImpl implements RoomService {
                     ChannelDO encoderChannelDO = ChannelConvert.INSTANCE.convert(encoderChannelUpdateReqVO);
                     encoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                     encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                    encoderChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                     this.channelMapper.insert(encoderChannelDO);
                 }
             } else { // 更新设备保存
@@ -321,6 +322,7 @@ public class RoomServiceImpl implements RoomService {
                         // 新增通道保存
                         encoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                         encoderChannelDO.setDevice(encoderDeviceDO.getId());
+                        encoderChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                         this.channelMapper.insert(encoderChannelDO);
                     } else { // 更新通道保存
                         this.channelMapper.updateById(encoderChannelDO);
@@ -343,6 +345,7 @@ public class RoomServiceImpl implements RoomService {
                     ChannelDO decoderChannelDO = ChannelConvert.INSTANCE.convert(decoderChannelUpdateReqVO);
                     decoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                     decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                    decoderChannelDO.setStreamType(StreamDirectionType.NETWORK_INPUT);
                     this.channelMapper.insert(decoderChannelDO);
                 }
             } else { // 更新设备保存
@@ -355,6 +358,7 @@ public class RoomServiceImpl implements RoomService {
                         // 新增通道保存
                         decoderChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                         decoderChannelDO.setDevice(decoderDeviceDO.getId());
+                        decoderChannelDO.setStreamType(StreamDirectionType.NETWORK_INPUT);
                         this.channelMapper.insert(decoderChannelDO);
                     } else { // 更新通道保存
                         this.channelMapper.updateById(decoderChannelDO);
@@ -377,6 +381,7 @@ public class RoomServiceImpl implements RoomService {
                     ChannelDO ipcChannelDO = ChannelConvert.INSTANCE.convert(ipcChannelUpdateReqVO);
                     ipcChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                     ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                    ipcChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                     this.channelMapper.insert(ipcChannelDO);
                 }
             } else { // 更新设备保存
@@ -389,6 +394,7 @@ public class RoomServiceImpl implements RoomService {
                         // 新增通道保存
                         ipcChannelDO.setRoom(updateReqVO.getId()); // 保存之前设置关联关系
                         ipcChannelDO.setDevice(ipcDeviceDO.getId());
+                        ipcChannelDO.setStreamType(StreamDirectionType.ENCODE_OUTPUT);
                         this.channelMapper.insert(ipcChannelDO);
                     } else { // 更新通道保存
                         this.channelMapper.updateById(ipcChannelDO);
@@ -539,6 +545,8 @@ public class RoomServiceImpl implements RoomService {
     public RoomDO getByMac(String mac) {
         DeviceDO deviceDO = this.deviceMapper.selectOne("mac", mac);
         RoomDO roomDO = this.roomMapper.selectById(deviceDO.getRoom());
+        // 补充房间的设备与通道信息
+        completeDeviceAndChannel(roomDO);
         return roomDO;
     }
 
@@ -547,10 +555,11 @@ public class RoomServiceImpl implements RoomService {
      * @param roomId
      * @return
      */
-    public List<ChannelDO> getOutputChannelsByMac(Integer roomId) {
+    public List<ChannelDO> getOutputChannelsByRoom(Integer roomId) {
         List<ChannelDO> list = this.channelMapper.selectList(
                 new QueryWrapperX<ChannelDO>().eq("room", roomId)
                         .eq("stream_type", StreamDirectionType.ENCODE_OUTPUT)
+                        .orderByAsc("sort")
         );
         return list;
     }
@@ -571,12 +580,17 @@ public class RoomServiceImpl implements RoomService {
 
         List<ChannelDO> channelDOList = this.channelMapper.selectBatchIds(channelIds);
 
+        // 从系统配置获取默认录像视频上线状态
         InfConfigDO infConfigDO = this.infConfigMapper.selectByKey(DEFAULT_OPERATION_VIDEO_ONLINE_STATUS);
+        boolean defaultOnlineStatus = false;
+        if (null != infConfigDO) {
+            defaultOnlineStatus = Boolean.valueOf(infConfigDO.getValue());
+        }
 
         OperationVideoDO operationVideoDO = OperationVideoDO.builder()
                 .room(roomDO.getId())
                 .title("未命名")
-                .onlineStatus(Boolean.valueOf(infConfigDO.getValue()))
+                .onlineStatus(defaultOnlineStatus)
                 .build();
         int ret = this.operationVideoMapper.insert(operationVideoDO);
         logger.info("Save OperationVideoDO: {}, result: {}", operationVideoDO, ret);
@@ -674,7 +688,11 @@ public class RoomServiceImpl implements RoomService {
             operationVideoDO.setTotalSize(totalSize);
             // 根据配置项目，设置录制视频的默认上线状态。
             InfConfigDO infConfigDO = this.infConfigMapper.selectByKey(DEFAULT_OPERATION_VIDEO_ONLINE_STATUS);
-            operationVideoDO.setOnlineStatus("1".equals(infConfigDO.getValue()) ? true : false);
+            boolean defaultOnlineStatus = false;
+            if (null != infConfigDO) {
+                defaultOnlineStatus = Boolean.valueOf(infConfigDO.getValue());
+            }
+            operationVideoDO.setOnlineStatus(defaultOnlineStatus);
             this.operationVideoMapper.updateById(operationVideoDO);
 
             // 更新房间录制状态至数据库。

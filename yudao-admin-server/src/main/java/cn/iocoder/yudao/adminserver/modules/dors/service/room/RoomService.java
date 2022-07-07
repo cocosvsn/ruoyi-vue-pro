@@ -87,7 +87,7 @@ public interface RoomService {
      * @param roomId
      * @return
      */
-    List<ChannelDO> getOutputChannelsByMac(Integer roomId);
+    List<ChannelDO> getOutputChannelsByRoom(Integer roomId);
 
     /**
      * 启动指定房间视频通道列表录制

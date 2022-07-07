@@ -18,4 +18,6 @@ public interface InfDictTypeConstants {
 
     // 手术视频默认上下线状态
     String DEFAULT_OPERATION_VIDEO_ONLINE_STATUS = "operation.video.online.status";
+    // 服务器IP地址，用于配置服务器拉流与录制手术视频的播放地址。
+    String SERVER_IP = "aov.server.ip";
 }

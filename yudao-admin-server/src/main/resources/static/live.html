@@ -765,12 +765,12 @@ $(document).ready(function() {
     $('.table-title').text('【'+connectedOperatingRoom.name+'】 - 手术室连线中');
     
     // 获取当前房间连线中的手术室编码器配置信息
-    currentRoomConnectedEncoderConfig = AOV.getCurrentRoomConnectedEncoderConfig();
-    linkpiConfig = JSON.parse(currentRoomConnectedEncoderConfig);
-    // 绑定通道列表
-    refreshOperatingChannels();
-    // 绑定分屏信息
-    dealLinkPi();
+    // currentRoomConnectedEncoderConfig = AOV.getCurrentRoomConnectedEncoderConfig();
+    // linkpiConfig = JSON.parse(currentRoomConnectedEncoderConfig);
+    // // 绑定通道列表
+    // refreshOperatingChannels();
+    // // 绑定分屏信息
+    // dealLinkPi();
   } catch (e) { console.error(e); }
 
   // $("#meetingRoleName").text(1 === meetingRole ? "结束会议": "退出观看");

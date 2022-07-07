@@ -37,7 +37,7 @@ public class DeviceDO extends BaseDO {
      */
     private DeviceType type;
     /**
-     * 设备生厂商
+     * 设备生产商
      */
     private String manufacturer;
     /**

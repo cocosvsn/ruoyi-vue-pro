@@ -120,6 +120,7 @@
         <div class="icon"><img src="images/10{$i+1}.png" /></div>
       </div>
 </foreach> -->
+<!--
       <div class="col-md-1 item">
         <div class="title">1号手术室全景相机</div>
         <div class="icon"><img src="images/101.png" /></div>
@@ -152,6 +153,7 @@
         <div class="title">1号手术室工作站</div>
         <div class="icon"><img src="images/108.png" /></div>
       </div>
+-->
     </div>
   
     <div class="row control">
@@ -220,7 +222,7 @@
         // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
         changeVideoViewpostion();
         // 默认播放第1个通道的视频
-        previewChannel('rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
+        previewChannel(currentRoomChannels[0].url);//'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub0');
         AOV.openSerialPort('/dev/ttyS3', 9600);
       } catch (e) { console.error(e); }
     })
@@ -238,7 +240,7 @@
       });
 
       // 预览通道视频
-      let previewChannelUrl = 'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
+      let previewChannelUrl = currentRoomChannels[channelIndex].url;//'rtsp://' + currentRoom.encoder.lastOnlineIp+'/sub'+channelId;
       previewChannel(previewChannelUrl);
       currentChannelIndex = channelIndex;
     }
