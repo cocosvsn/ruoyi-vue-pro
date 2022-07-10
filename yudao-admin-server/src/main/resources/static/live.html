@@ -714,7 +714,7 @@ let shxitConfigParams = [
 
 let shxitLayout = {1: "Mode1", 2: "Mode3_1", 3: "Mode3_1", 4: "Mode4"};
 // 通道数量与分屏数量映射关系。
-let screenCountLayoutCount = [1, 1, 3, 3, 4];
+let screenCountLayoutCount = [1, 1, 3, 3, 4, 4, 4, 4];
 
 //灵派编码器内容处理
 function dealLinkPi() {
@@ -841,7 +841,7 @@ $(document).ready(function() {
         // 示见解码器，禁用副屏输出。
         $('.single-one select').attr("disabled", "disabled");
       }
-      // 灵派解码器获取配置信息
+      // 解码器获取配置信息
       if (null != currentRoomDecoder) {
         try {
           AOV.getDeviceConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer);

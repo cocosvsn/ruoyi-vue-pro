@@ -475,6 +475,12 @@ $(document).ready(function() {
         currentRoomDecoderChannelSize += device.channelCount;
       });
     }
+    // 解码器获取配置信息
+    if (null != currentRoomDecoder) {
+      try {
+        AOV.getDeviceConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer);
+      } catch(e) { console.error(e); }
+    }
     // 获取当前连接中的会议室
     refreshMeetingRoom();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
