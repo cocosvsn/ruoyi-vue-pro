@@ -331,6 +331,9 @@ public class OperateLogAspect {
     }
 
     private static boolean isIgnoreArgs(Object object) {
+        if (null == object) { // 参数为空，忽略。
+            return true;
+        }
         Class<?> clazz = object.getClass();
         // 处理数组的情况
         if (clazz.isArray()) {

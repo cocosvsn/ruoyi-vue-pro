@@ -22,10 +22,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -59,6 +56,8 @@ public class WebSocketServerEndpoint {
     private static ConcurrentHashMap<Integer, Map<String, List<String>>> streamList = new ConcurrentHashMap<>();
     // 用于记录手术室被占用的拉流通道数量。
     private static ConcurrentHashMap<Integer, Integer> roomUsedInputChannelSize = new ConcurrentHashMap<>();
+    // 用于记录拉转推映射关系。
+    private static ConcurrentHashMap<Integer, String> channelStreamMapping = new ConcurrentHashMap<>();
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private RoomService roomService = SpringCtxUtils.getBean(RoomService.class);
@@ -88,7 +87,7 @@ public class WebSocketServerEndpoint {
     @OnOpen
     public void onOpen(Session session, @PathParam("roomId") Integer roomId) throws IOException {
         log.info("[onOpen][房间编号({}) 接入]", roomId);
-        RoomDO room = this.roomService.get(roomId);
+        RoomDO room = this.roomService.getRoom(roomId);
         if (null == room) {
             log.warn("The room not found by room id: {}, will close the session.", roomId);
             session.close();
@@ -135,8 +134,13 @@ public class WebSocketServerEndpoint {
                 case answer:                 // 接听
                     // 启动推拉流
                     startPushStream(messageInfo);
+                    // 应答时，需要根据映射关系调整流地址，便于客户端修改各窗口拉流。
+                    List<Map<String, String>> channels = (List<Map<String, String>>) messageInfo.getData();
+                    for (Map<String, String> kv: channels) {
+                        kv.put("url", channelStreamMapping.get(kv.get("id")));
+                    }
                     // 转发消息至目标
-                    sendMessage(clientMap.get(messageInfo.getTo().getId()), message);
+                    sendMessage(clientMap.get(messageInfo.getTo().getId()), objectMapper.writeValueAsString(messageInfo));
                     break;
                 case ring_off:               // 挂断
                     // 停止推拉流
@@ -260,6 +264,8 @@ public class WebSocketServerEndpoint {
             String id = this.easyDarwinService.startPushStream(fromRoomOutputChannels.get(i).getUrl(),
                     StringUtils.substringAfter(toRoomInputChannels.get(i).getUrl(), serverIpConfig.getValue()));
             pullStreamList.add(id);
+            // 保存拉转推映射关系。
+            channelStreamMapping.put(fromRoomOutputChannels.get(i).getId(), toRoomInputChannels.get(i).getUrl());
         }
         // 获取当前房间已使用的输入通道数量，每当有一个示教室连线成功后，将增加示教室输出通道数量的占用数。
         Integer operatingRoomUsedChannelSize = roomUsedInputChannelSize.get(fromId);
@@ -273,6 +279,9 @@ public class WebSocketServerEndpoint {
                     StringUtils.substringAfter(fromRoomInputChannels.get(operatingRoomUsedChannelSize + i).getUrl(),
                             serverIpConfig.getValue()));
             pushStreamList.add(id);
+            // 保存拉转推映射关系。
+            channelStreamMapping.put(toRoomOutputChannels.get(i).getId(),
+                    fromRoomInputChannels.get(operatingRoomUsedChannelSize + i).getUrl());
         }
         operatingRoomUsedChannelSize += operatingRoomChannelSize;
         meetingRoomPullStreams.put(MessageFormat.format(KEY_FORMAT_PULL, toId), pullStreamList);
@@ -303,8 +312,10 @@ public class WebSocketServerEndpoint {
             List<String> meetingRoomPushStreamList = meetingRoomStreams.get(pushStreamListKey);
             // 停止示教室拉流
             meetingRoomStreams.get(pullStreamListKey).forEach(id -> easyDarwinService.stopPushStream(id));
+            meetingRoomStreams.get(pullStreamListKey).clear(); // 清空。
             // 停止示教室推流
             meetingRoomPushStreamList.forEach(id -> easyDarwinService.stopPushStream(id));
+            meetingRoomPushStreamList.clear(); // 清空。
             // 恢复手术室可用通道数量
             roomUsedInputChannelSize.put(operatingRoomId,
                     roomUsedInputChannelSize.get(operatingRoomId) - meetingRoomPushStreamList.size());

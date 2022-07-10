@@ -45,6 +45,13 @@ public interface RoomService {
     RoomDO get(Integer id);
 
     /**
+     * 获取房间信息
+     * @param id 房间编号
+     * @return
+     */
+    RoomDO getRoom(Integer id);
+
+    /**
      * 获得房间列表
      *
      * @param ids 编号

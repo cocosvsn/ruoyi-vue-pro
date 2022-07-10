@@ -437,10 +437,19 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomDO get(Integer id) {
-        RoomDO roomDO =  roomMapper.selectById(id);
+        RoomDO roomDO = roomMapper.selectById(id);
         // 补充房间的设备与通道信息
         completeDeviceAndChannel(roomDO);
         return roomDO;
+    }
+
+    /**
+     * 获取房间信息
+     * @param id 房间编号
+     * @return
+     */
+    public RoomDO getRoom(Integer id) {
+        return roomMapper.selectById(id);
     }
 
     @Override
@@ -471,7 +480,7 @@ public class RoomServiceImpl implements RoomService {
         List<DeviceDO> deviceDOList = this.deviceMapper.selectList(
                 new QueryWrapperX<DeviceDO>().eq("room", roomDO.getId()));
         List<ChannelDO> channelDOList = this.channelMapper.selectList(
-                new QueryWrapperX<ChannelDO>().eq("room", roomDO.getId()));
+                new QueryWrapperX<ChannelDO>().eq("room", roomDO.getId()).orderByAsc("sort"));
 
         if (null == roomDO.getChannels()) {
             roomDO.setChannels(new ArrayList<>());
@@ -508,6 +517,7 @@ public class RoomServiceImpl implements RoomService {
                     roomDO.getChannels().addAll(deviceDO.getChannels());
                     break;
                 case DECODER:
+                    deviceChannels.stream().sorted(Comparator.comparing(ChannelDO::getChannelId));
                     roomDO.getDecoderDevices().add(deviceDO);
                     break;
                 case IPC:

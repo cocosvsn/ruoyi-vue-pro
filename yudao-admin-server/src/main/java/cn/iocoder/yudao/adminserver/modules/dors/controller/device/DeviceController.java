@@ -155,7 +155,7 @@ public class DeviceController {
     @PostMapping("/config-device")
     @ApiOperation("配置编解码器")
     @PreAuthorize("@ss.hasPermission('dors:device:update')")
-    public CommonResult<String> configDeviceConfig(@RequestParam("ip") String ip,
+    public CommonResult<String> configDevice(@RequestParam("ip") String ip,
                                                    @RequestParam("type") EncoderType encoderType,
                                                    @RequestBody String config) {
         switch (encoderType) {
@@ -163,6 +163,51 @@ public class DeviceController {
                 return success(this.deviceService.configLinkPi(ip, config));
             case SHXIT:
                 return success(this.deviceService.configShxit(ip, config));
+            default:
+                return error(DEVICE_ENCODER_ERROR);
+        }
+    }
+
+    @GetMapping("/get-device-config2")
+    @ApiOperation("获取编解码器配置")
+    public CommonResult<String> getDeviceConfig2(@RequestParam("ip") String ip,
+                                                @RequestParam("type") EncoderType encoderType) {
+        switch (encoderType) {
+            case LINKPI:
+                return success(this.deviceService.getConfigLinkPi(ip));
+            case SHXIT:
+                return success(this.deviceService.getConfigShxit(ip));
+            default:
+                return error(DEVICE_ENCODER_ERROR);
+        }
+    }
+
+    @PostMapping("/config-device2")
+    @ApiOperation("配置编解码器")
+    public CommonResult<String> configDevice2(@RequestParam("ip") String ip,
+                                             @RequestParam("type") EncoderType encoderType,
+                                             @RequestBody String config) {
+        switch (encoderType) {
+            case LINKPI:
+                return success(this.deviceService.configLinkPi(ip, config));
+            case SHXIT:
+                return success(this.deviceService.configShxit(ip, config));
+            default:
+                return error(DEVICE_ENCODER_ERROR);
+        }
+    }
+
+    @PostMapping("/config-device-layout")
+    @ApiOperation("配置编解码器画面布局")
+    public CommonResult<String> configDeviceLayout(@RequestParam("ip") String ip,
+                                                   @RequestParam("type") EncoderType encoderType,
+                                                   @RequestParam("layout") String layout,
+                                                   @RequestParam(value = "layoutParams", required = false) String layoutParams) {
+        switch (encoderType) {
+            case LINKPI:
+                return success(this.deviceService.configLinkPi(ip, layout));
+            case SHXIT:
+                return success(this.deviceService.configShxitLayout(ip, layout, layoutParams));
             default:
                 return error(DEVICE_ENCODER_ERROR);
         }

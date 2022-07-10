@@ -272,4 +272,16 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         log.info("response: {}", result);
         return result;
     }
+
+    /**
+     * 示见编码器画面布局配置
+     * @param layout 画面布局
+     * @param layoutParams 画面布局参数
+     */
+    public String configShxitLayout(String ip, String layout, String layoutParams) {
+        String configUrlShxitTemplate = "http://{1}//cgi-bin/fc.fcgi?Command=SetVideoout&AspectRatioMode=Original&VideoDecodeMode=LiveOnlyIP&VideoDecodeCaching=100&WindowSplitMode={2}";
+        String result = this.restTemplate.getForObject(configUrlShxitTemplate, String.class, ip, layout);
+        log.info("response: {}", result);
+        return result;
+    }
 }

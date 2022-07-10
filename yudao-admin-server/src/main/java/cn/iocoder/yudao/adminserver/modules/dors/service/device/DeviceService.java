@@ -96,4 +96,11 @@ public interface DeviceService {
      * @param config
      */
     String configShxit(String ip, String config);
+
+    /**
+     * 示见编码器画面布局配置
+     * @param layout 画面布局
+     * @param layoutParams 画面布局参数
+     */
+    String configShxitLayout(String ip, String layout, String layoutParams);
 }

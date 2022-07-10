@@ -100,4 +100,5 @@ function getRealPath(){
     return pathName;
 }
 
-
+let DECODER_SHXIT = "SHXIT";
+let DECODER_LINKPI = "LINKPI";

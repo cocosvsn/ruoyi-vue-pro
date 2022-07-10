@@ -624,13 +624,25 @@ export default {
       return this.form.decoderDevices.map(d => {
         return d.ip;
       }).join();
-    }
+    },
+    watchIpcDeviceName() { // 计算IPC通道名称
+      return this.form.ipcDevices.map(d => {
+        return d.name;
+      }).join();
+    },
   },
   watch: {
     watchDecoderDeviceIp() { // 解码器IP发生变更
       this.form.decoderDevices.forEach(device => {
         device.channels.forEach((channel, channelIndex) => {
           channel.url = this.getDecoderChannelUrl('rtsp://', this.serverIp, device.ip, channelIndex);
+        });
+      });
+    },
+    watchIpcDeviceName() { // IPC设备名称发生变更
+      this.form.ipcDevices.forEach(device => {
+        device.channels.forEach((channel, channelIndex) => {
+          channel.name = device.name; // + " " + (channelIndex + 1);
         });
       });
     },
