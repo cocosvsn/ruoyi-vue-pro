@@ -5,6 +5,7 @@ import cn.iocoder.yudao.adminserver.modules.dors.enums.MessageType;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 聊天消息结构
@@ -48,6 +49,15 @@ public class MessageInfo<T> {
      */
     public static MessageInfo buildOnlineOperatingRoomsMessage(List<RoomDO> data) {
         return buildMessage(MessageType.online_operating_rooms, null, null, data);
+    }
+
+    /**
+     * 通道与流地址映射关系消息。
+     * @param data 通道与流地址映射关系列表。
+     * @return
+     */
+    public static MessageInfo buildNotifyChannelUrlMappingMessage(RoomDO to, Map<Integer, String> data) {
+        return buildMessage(MessageType.notify_channel_url_mapping, null, to, data);
     }
 
     /**

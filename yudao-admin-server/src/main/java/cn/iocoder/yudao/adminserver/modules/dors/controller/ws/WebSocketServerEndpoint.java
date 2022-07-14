@@ -139,6 +139,9 @@ public class WebSocketServerEndpoint {
                     for (Map<String, String> kv: channels) {
                         kv.put("url", channelStreamMapping.get(kv.get("id")));
                     }
+                    // 将通道与流地址映射关系通知到手术室。
+                    sendMessage(session, MessageInfo.buildNotifyChannelUrlMappingMessage(
+                            messageInfo.getFrom(), channelStreamMapping));
                     // 转发消息至目标
                     sendMessage(clientMap.get(messageInfo.getTo().getId()), objectMapper.writeValueAsString(messageInfo));
                     break;

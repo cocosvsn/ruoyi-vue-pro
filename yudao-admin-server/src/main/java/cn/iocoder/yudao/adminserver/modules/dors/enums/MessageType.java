@@ -56,5 +56,9 @@ public enum MessageType {
     /**
      * 切换并打开串口
      */
-    change_serial_port;
+    change_serial_port,
+    /**
+     * 通知客户端，通道与流地址映射关系，用于连线时客户端修改拉流地址。
+     */
+    notify_channel_url_mapping;
 }
