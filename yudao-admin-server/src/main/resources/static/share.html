@@ -561,6 +561,14 @@
         AOV.commitEncoderConfig(currentRoomEncoder.ip, currentRoomEncoder.manufacturer, JSON.stringify(rpcParams));
       } catch(e) { console.error(e); }
     }
+    // 示见解码器修改窗口布局。
+    if (null != currentRoomEncoder && DECODER_SHXIT === currentRoomEncoder.manufacturer) {
+      let screenLayoutName = shxitLayout[screenCount];
+      try {
+        // 提交分屏设置至示见编码器
+        AOV.commitShxitDeviceScreenLayout(currentRoomEncoder.ip, currentRoomEncoder.manufacturer, screenLayoutName, "");
+      } catch (e) { console.error(e); }
+    }
   }
   $(document).ready(function() {
     // 标识当前菜单为激活状态
@@ -754,6 +762,16 @@
               }
             });
           }
+          if (null != currentRoomEncoder && DECODER_SHXIT === currentRoomEncoder.manufacturer) {
+            // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+            if (i < currentRoomChannels.length) {
+              let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+              _this_select.val(_selected_id);
+            }
+            // _this_select.attr("disabled", "disabled");
+            _this_select.selectpicker('refresh');
+            _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
+          }
         });
         break;
       case 3:
@@ -777,6 +795,16 @@
               }
             });
           }
+          if (null != currentRoomEncoder && DECODER_SHXIT === currentRoomEncoder.manufacturer) {
+            // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+            if (i < currentRoomChannels.length) {
+              let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+              _this_select.val(_selected_id);
+            }
+            // _this_select.attr("disabled", "disabled");
+            _this_select.selectpicker('refresh');
+            _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
+          }
         });
         break
       case 4:
@@ -799,6 +827,16 @@
                 voiceSpan.addClass('active');
               }
             });
+          }
+          if (null != currentRoomEncoder && DECODER_SHXIT === currentRoomEncoder.manufacturer) {
+            // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+            if (i < currentRoomChannels.length) {
+              let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+              _this_select.val(_selected_id);
+            }
+            // _this_select.attr("disabled", "disabled");
+            _this_select.selectpicker('refresh');
+            _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
           }
         });
         break;
@@ -852,7 +890,6 @@
             let linkpiChannelId = urlLinkpiChannelIdMapping[currentRoomChannels[j].id];
             console.log(linkpiChannelId);
             linkpiConfig[i].srcV[j] = linkpiChannelId;//视频通道参数
-            linkpiConfig[i].srcA[j] = linkpiChannelId;//音频通道参数
           }
           break;
         }
@@ -864,9 +901,22 @@
       previewChannel('rtsp://'+currentRoomEncoder.ip+'/sub17');
     }
     if(DECODER_SHXIT === deviceType) {
-      shxitConfigParams = JSON.parse(config.data).AllAccess;
+      shxitConfigParams = config.AllAccess;
+      // 初始化时需要设置为本地预览，因为可能正在使用远程流。
+      let previewChannelSize = Math.min(screenCount, currentRoomChannels.length);
+      for (let j = 0; j < previewChannelSize; j++) {
+        shxitConfigParams[j].BuildInSource.Address = currentRoomChannels[j].url;
+      }
+
+      try {
+        // 提交拉流配置至示见编解码器
+        AOV.commitShxitDeviceConfig(currentRoomEncoder.ip, currentRoomEncoder.manufacturer, JSON.stringify(shxitConfigParams));
+      } catch(e) { console.error(e); }
+
       changeScreen(screenCount);
       commitSreenSet();
+      // 调整预览窗口。
+      previewChannel('rtsp://' + currentRoomEncoder.ip + '/ch5_sub');
     }
   }
 </script>
