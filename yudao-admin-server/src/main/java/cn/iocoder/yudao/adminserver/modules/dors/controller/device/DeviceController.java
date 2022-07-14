@@ -182,6 +182,13 @@ public class DeviceController {
         }
     }
 
+    @GetMapping("/get-shxit-config")
+    @ApiOperation("获取示见编解码器配置")
+    public CommonResult<String> getShxitConfig(@RequestParam("ip") String ip,
+                                                 @RequestParam("command") String command) {
+        return success(this.deviceService.getConfigShxit(ip, command));
+    }
+
     @PostMapping("/config-device2")
     @ApiOperation("配置编解码器")
     public CommonResult<String> configDevice2(@RequestParam("ip") String ip,

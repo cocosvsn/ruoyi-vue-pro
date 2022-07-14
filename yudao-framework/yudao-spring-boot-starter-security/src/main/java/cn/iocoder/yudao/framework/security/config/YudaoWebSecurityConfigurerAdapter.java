@@ -176,6 +176,7 @@ public class YudaoWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdap
                 ,"/dors/version/latest"
                 ,"/dors/operation-video/room"
                 ,"/dors/device/get-device-config2"
+                ,"/dors/device/get-shxit-config"
                 ,"/dors/device/config-device2"
                 ,"/dors/device/config-device-layout"
         };

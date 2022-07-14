@@ -3,8 +3,6 @@ package cn.iocoder.yudao.adminserver.modules.dors.service.device.impl;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.device.DeviceDiscovery;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.mysql.channel.ChannelMapper;
-import cn.iocoder.yudao.adminserver.modules.dors.enums.DeviceType;
-import cn.iocoder.yudao.adminserver.modules.dors.service.room.impl.RoomServiceImpl;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.mysql.config.InfConfigMapper;
 import cn.iocoder.yudao.framework.mybatis.core.query.QueryWrapperX;
@@ -16,8 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -249,6 +245,18 @@ public class DeviceServiceImpl implements DeviceService, MessageProcessor {
         String configUrlShxitTemplate = "http://{0}/cgi-bin/fc.fcgi?Command=GetAllAccess";
         String config = restTemplate.getForObject(
                 MessageFormat.format(configUrlShxitTemplate, ip), String.class);
+        log.info("response: {}", config);
+        return config;
+    }
+
+    /**
+     * 获取示见编码器配置
+     * @param ip
+     */
+    public String getConfigShxit(String ip, String command) {
+        String configUrlShxitTemplate = "http://{0}/cgi-bin/fc.fcgi?Command={1}";
+        String config = restTemplate.getForObject(
+                MessageFormat.format(configUrlShxitTemplate, ip), String.class, command);
         log.info("response: {}", config);
         return config;
     }

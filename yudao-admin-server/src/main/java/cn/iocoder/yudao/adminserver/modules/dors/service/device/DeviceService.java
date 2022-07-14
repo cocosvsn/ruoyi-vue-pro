@@ -92,6 +92,12 @@ public interface DeviceService {
     String getConfigShxit(String ip);
 
     /**
+     * 获取示见编码器配置
+     * @param ip
+     */
+    String getConfigShxit(String ip, String command);
+
+    /**
      * 示见编码器配置
      * @param config
      */
