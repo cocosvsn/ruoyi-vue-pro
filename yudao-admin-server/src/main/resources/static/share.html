@@ -404,7 +404,7 @@
    * 灵派画面布局参数
    * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
    */
-   let linkpiLayout = [
+  let linkpiLayout = [
     [{ a: 1, x: 0, y: 0, w: 1, h: 1, index: 1 }],
     [
       { a: 1, x: 0, y: 0, w: 1 / 2, h: 1 / 2, index: 1 },
@@ -433,6 +433,7 @@
       { a: 1, x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 2 }
     ]
   ];
+  let shxitLayout = { 1: "Mode1", 2: "Mode3_1", 3: "Mode3_1", 4: "Mode4" };
   let srcV = [-1, -1, -1, -1];
   let srcA = [-1, -1, -1, -1];
   
@@ -902,22 +903,29 @@
     }
     if(DECODER_SHXIT === deviceType) {
       shxitConfigParams = config.AllAccess;
-      // 初始化时需要设置为本地预览，因为可能正在使用远程流。
-      let previewChannelSize = Math.min(screenCount, currentRoomChannels.length);
-      for (let j = 0; j < previewChannelSize; j++) {
-        shxitConfigParams[j].BuildInSource.Address = currentRoomChannels[j].url;
-      }
-
       try {
-        // 提交拉流配置至示见编解码器
-        AOV.commitShxitDeviceConfig(currentRoomEncoder.ip, currentRoomEncoder.manufacturer, JSON.stringify(shxitConfigParams));
+        // 获取示见本地通道信息，HDMI输出流切换为本地流。
+        AOV.getShxitAllChannels(currentRoomEncoder.ip, "GetAllURLs");
       } catch(e) { console.error(e); }
-
-      changeScreen(screenCount);
-      commitSreenSet();
-      // 调整预览窗口。
-      previewChannel('rtsp://' + currentRoomEncoder.ip + '/ch5_sub');
     }
+  }
+  function onShxitChannelsLoaded(data) {
+    console.log(data.AllURLs);
+    // 初始化时需要设置为本地预览，因为可能正在使用远程流。
+    let previewChannelSize = Math.min(data.AllURLs.length, currentRoomChannels.length);
+    for (let j = 0; j < previewChannelSize; j++) {
+      shxitConfigParams[j].AccessSourceID = data.AllURLs[j].ID;
+    }
+
+    try {
+      // 提交拉流配置至示见编解码器
+      AOV.commitShxitDeviceConfig(currentRoomEncoder.ip, currentRoomEncoder.manufacturer, JSON.stringify(shxitConfigParams));
+    } catch (e) { console.error(e); }
+
+    changeScreen(screenCount);
+    commitSreenSet();
+    // 调整预览窗口。
+    previewChannel('rtsp://' + currentRoomEncoder.ip + '/ch5_sub');
   }
 </script>
 </html>
