@@ -430,32 +430,44 @@ let linkpiLayout = [
     { a: 1, x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 2 }
   ]
 ];
+let shxitLayout = { 1: "Mode1", 2: "Mode3_1", 3: "Mode3_1", 4: "Mode4" };
 // 提交分屏数据
 function commitSreenSet() {
-  let currentLinkpiLayout = null;
-  // 遍历并匹配当前设置的布局参数
-  linkpiLayout.forEach((e, i) => {
-    if(e.length === screenCount) {
-      currentLinkpiLayout = linkpiLayout[i];
-    }
-  });
-  let newinfo;
-  linkpiConfig.forEach(function (n, i) {
-    if (n.type == "mix") {
-      newinfo = n;
-      newinfo.srcV = srcV.slice(0, screenCount);
-      newinfo.srcA = srcA.slice(0, screenCount);
-      srcA = newinfo.srcA; // TODO comment 
-      newinfo.layout = currentLinkpiLayout;
-      linkpiConfig[i] = newinfo;
-    }
-  })
-  
-  try {
-    let modifiedConfig = JSON.stringify(linkpiConfig);
-    // 提交分屏设置至编码器
-    AOV.commitEncoderConfig(modifiedConfig);
-  } catch(e) { console.error(e); }
+  // 灵派解码器修改窗口布局。
+  if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
+    let currentLinkpiLayout = null;
+    // 遍历并匹配当前设置的布局参数
+    linkpiLayout.forEach((e, i) => {
+      if(e.length === screenCount) {
+        currentLinkpiLayout = linkpiLayout[i];
+      }
+    });
+    let newinfo;
+    linkpiConfig.forEach(function (n, i) {
+      if (n.type == "mix") {
+        newinfo = n;
+        newinfo.srcV = srcV.slice(0, screenCount);
+        newinfo.srcA = srcA.slice(0, screenCount);
+        srcA = newinfo.srcA; // TODO comment 
+        newinfo.layout = currentLinkpiLayout;
+        linkpiConfig[i] = newinfo;
+      }
+    })
+    
+    try {
+      let modifiedConfig = JSON.stringify(linkpiConfig);
+      // 提交分屏设置至编码器
+      AOV.commitEncoderConfig(modifiedConfig);
+    } catch(e) { console.error(e); }
+  }
+  // 示见解码器修改窗口布局。
+  if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
+    let screenLayoutName = shxitLayout[screenCount];
+    try {
+      // 提交分屏设置至示见编码器
+      AOV.commitShxitDeviceScreenLayout(currentRoomDecoder.ip, currentRoomDecoder.manufacturer, screenLayoutName, "");
+    } catch (e) { console.error(e); }
+  }
 }
 let connectedMeetingRoom = null;
 let currentRoom = null;
@@ -828,6 +840,7 @@ function previewChannel(url) {
 
 // 解码器配置加载完成
 function onDeviceConfigLoaded(deviceType, config) {
+  console.log(deviceType, config);
   if(DECODER_LINKPI === deviceType) {
     linkpiConfig = config;
     // console.log(currentRoomConnectedEncoderConfig);
@@ -850,13 +863,28 @@ function onDeviceConfigLoaded(deviceType, config) {
     dealLinkPi();
     commitSreenSet();
     // 调整预览窗口。
-    // previewChannel('rtsp://'+currentRoomEncoder.ip+'/sub17');
+    // previewChannel('rtsp://'+currentRoomDecoder.ip+'/sub17');
   }
   if(DECODER_SHXIT === deviceType) {
-    shxitConfigParams = JSON.parse(config.data).AllAccess;
+    shxitConfigParams = config.AllAccess;
+
+    // 初始化时需要设置为本地预览，因为可能正在使用远程流。
+    let previewChannelSize = Math.min(data.AllURLs.length, currentRoomChannels.length);
+    for (let j = 0; j < previewChannelSize; j++) {
+      shxitConfigParams[j].AccessSourceID = -1;
+    }
+
+    try {
+      // 提交拉流配置至示见编解码器
+      AOV.commitShxitDeviceConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer, JSON.stringify(shxitConfigParams));
+    } catch (e) { console.error(e); }
+
     changeScreen(screenCount);
     commitSreenSet();
   }
+}
+function notifyMapping(data) {
+  console.log(data);
 }
 </script>
 </html>
