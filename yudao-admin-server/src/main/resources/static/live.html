@@ -1354,6 +1354,8 @@ function stopPushStream(btn) {
 }
 // 解码器配置加载完成
 function onDeviceConfigLoaded(deviceType, config) {
+  console.log(deviceType);
+  console.log(config);
   if(DECODER_LINKPI === deviceType) {
     linkpiConfig = config;
     // console.log(currentRoomConnectedEncoderConfig);
@@ -1361,7 +1363,7 @@ function onDeviceConfigLoaded(deviceType, config) {
     dealLinkPi();
   }
   if(DECODER_SHXIT === deviceType) {
-    shxitConfigParams = JSON.parse(config.data).AllAccess;
+    shxitConfigParams = config.AllAccess;
     changeScreen(screenCount);
     commitSreenSet();
   }

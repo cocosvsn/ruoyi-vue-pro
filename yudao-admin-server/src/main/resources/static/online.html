@@ -397,6 +397,10 @@ let linkpiMix = null;
 let screenCount = 0;
 let srcV = [];
 let srcA = [];
+let previewWindowX = null;
+let previewWindowY = null;
+let previewWindowWidth = null;
+let previewWindowHeight = null;
 /**
  * 灵派画面布局参数
  * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
@@ -455,9 +459,9 @@ function commitSreenSet() {
     })
     
     try {
-      let modifiedConfig = JSON.stringify(linkpiConfig);
+      let rpcParams = {jsonrpc:"2.0", method:"enc.update", params:[JSON.stringify(linkpiConfig)],id:1};
       // 提交分屏设置至编码器
-      AOV.commitEncoderConfig(modifiedConfig);
+      AOV.commitEncoderConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer, JSON.stringify(rpcParams));
     } catch(e) { console.error(e); }
   }
   // 示见解码器修改窗口布局。
@@ -471,7 +475,7 @@ function commitSreenSet() {
 }
 let connectedMeetingRoom = null;
 let currentRoom = null;
-let currentRoomChannels = null;
+let currentRoomChannels = [];
 let canStopRecord = false; // 录像状态
 let currentRoomDecoder = null;
 let currentRoomDecoderChannelSize = 0;
@@ -489,43 +493,20 @@ let screenCountLayoutCount = [1, 1, 3, 3, 4, 4, 4, 4];
 $(document).ready(function() {
   try {
     // 获取当前房间信息
-    let aklsdfjo = AOV.getCurrentRoom();
-    console.log(aklsdfjo);
-    currentRoom = JSON.parse(aklsdfjo);
-    if(0 < currentRoom.decoderDevices.length) {
-      currentRoomDecoder = currentRoom.decoderDevices[0];
-      currentRoom.decoderDevices.forEach(device => {
+    currentRoom = JSON.parse(AOV.getCurrentRoom());
+    let currentRoomDecoders = JSON.parse(AOV.getCurrentRoomDecoders());
+    if(0 < currentRoomDecoders.length) {
+      currentRoomDecoder = currentRoomDecoders[0];
+      currentRoomDecoders.forEach(device => {
         currentRoomDecoderChannelSize += device.channelCount;
       });
     }
-    // 解码器获取配置信息
-    if (null != currentRoomDecoder) {
-      try {
-        AOV.getDeviceConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer);
-      } catch(e) { console.error(e); }
-    }
-    // 获取当前连接中的会议室
-    refreshMeetingRoom();
+    
+    changeVideoViewpostion();
     $('.table-title').text('示教室连线中 - ' + currentRoom.name);
 
-    // 校正播放窗口的位置, 需要在通道信息绑定之后执行，否则位置获取会不正确。
-    changeVideoViewpostion();
-    // 默认播放mix通道的视频
-    if (null != currentRoomDecoder) {
-      let previewVideoUrl = null;
-      if (DECODER_SHXIT === currentRoomDecoder.manufacturer) {
-        // 示见编码器预览URL
-        previewVideoUrl = "rtsp://" + currentRoomDecoder.ip + "/ch5_main"
-      }
-      if (DECODER_LINKPI === currentRoomDecoder.manufacturer) {
-        // 灵派编码器预览URL
-        previewVideoUrl = "rtsp://" + currentRoomDecoder.ip + "/sub17"
-      }
-      previewChannel(previewVideoUrl);
-    } else { // 没有编码器，停止预览。
-      try {
-        AOV.hiddenPreview();
-      } catch(e) { console.error(e); }
+    if (AOV.getCurrentRoomChannelUrlMapping()) {
+      notifyMapping();
     }
   } catch (e) { console.error(e); }
 
@@ -563,33 +544,51 @@ $(document).ready(function() {
     let _i = 0;
     let _this_select = $(this);
     let boxElement = $(this).parents('.box');//.index(this);
+    let _selected_id = _this_select.val();
     // $(this).siblings().each(function(i, element) {
     //   console.log(element, element === _this_select);
     // });
     let boxElements = boxElement.parent().children();
     _i = boxElements.index(boxElement);
-    // console.log("screen count: " + boxElements.length);
-    // console.log(_i)
-    srcV[_i] = parseInt(_this_select.val());
-    console.log(srcV);
-    commitSreenSet();
+    console.log("screen count: " + boxElements.length);
+    console.log(_i)
+    if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
+      console.log(linkpiChannelIdUrlMapping[_selected_id]);
+      if(_i < srcV.length) { // 数组元素大于索引值，则修改
+        srcV[_i] = linkpiChannelIdUrlMapping[_selected_id] + "";
+      } else { // 数组元素个数小于等于索引值，追加。
+        srcV.push(linkpiChannelIdUrlMapping[_selected_id] + "");
+      }
+      console.log(srcV);
+      commitSreenSet();
+    }
   });
-  $(".box .input-group-addon").click(function() {
+  $(".box .input-group-addon").click(function(event) {
+    event.stopPropagation(); // 阻止事件冒泡，避免传递到空白区域，造成重复点击而显示弹窗。
     // console.log("音频按钮被点击");
     let _this_voice_span = $(this);
     let _this_select = _this_voice_span.parent().find('select');
     let _current_channel = _this_select.val();
+    let boxElement = _this_voice_span.parents('.box');
+    let boxElements = boxElement.parent().children();
+
     if ("" === _current_channel || -1 === _current_channel) {
       // invalid channel
       return;
     }
-    let srcAIndex = srcA.indexOf(_current_channel);
-    if(-1 === srcAIndex) {
-      $(this).addClass("active");
-      srcA.push(_current_channel);
+    // 获取当前修改的源位于窗口的位置
+    let srcAIndex = boxElements.index(boxElement);
+    if(_this_voice_span.hasClass("active")) {
+      _this_voice_span.removeClass("active")
+      srcA[srcAIndex] = "";
     } else {
-      $(this).removeClass("active");
-      delete srcA[srcAIndex];
+      _this_voice_span.addClass("active")
+      if(srcAIndex < srcA.length) {
+        srcA[srcAIndex] = linkpiChannelIdUrlMapping[_current_channel] + "";
+      } else {
+        srcA.push(linkpiChannelIdUrlMapping[_current_channel] + "")
+      }
+      
     }
     commitSreenSet();
   });
@@ -633,92 +632,106 @@ function changeScreen(count) {
       threeElement.attr('hidden', 'hidden');
       fourElement.attr('hidden', 'hidden');
       oneElement.find('select').each((i, e) => {
-        // console.log(i, e);
-        $(e).val(srcV[i]);
-        // bootstrap-select 必须调用一次刷新才会更新选中状态
-        $(e).selectpicker('refresh');
-        let parentBox = $(e).parents('.box');
-        // 设置音频激活状态
-        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
-        srcA.forEach((v, j) => {
-          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
-            voiceSpan.addClass('active');
-          // } else {
-          //   voiceSpan.removeClass('active');
+        let _this_select = $(e);
+        if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
+          // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+          if(i < Object.keys(urlChannelIdMapping).length) {
+            console.log(shxitConfigParams[i].BuildInSource.Address);
+            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            console.log(_selected_id);
+            _this_select.val(_selected_id);
+            // let boxElement = _this_select.parents('.box');//.index(this);
+            // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+            // dealEvent(boxElement, _selected_id);
           }
-        });
-        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-        //   clearInterval(srcVPreviewInterval[i]);
-        //   srcVPreviewInterval[i] = null;
-        // }
-        // 预览通道截图
-        // setPreview(parentBox, srcV[i]);
-        // previewChannel(parentBox, i);
+          // _this_select.attr("disabled", "disabled");
+          _this_select.selectpicker('refresh');
+          _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
+        }
+        // 灵派编码器，绑定布局
+        if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
+          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          _this_select.val(_selected_id);
+          // bootstrap-select 必须调用一次刷新才会更新选中状态
+          _this_select.selectpicker('refresh');
+          // 设置音频激活状态
+          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          srcA.forEach((v, j) => {
+            if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+              voiceSpan.addClass('active');
+            }
+          });
+        }
       });
-      // 清空其它定时器
-      // srcVPreviewInterval.forEach((e, i) => {
-      //   if (0 < i && null !== e) {
-      //     clearInterval(e);
-      //     srcVPreviewInterval[i] = null;
-      //   }
-      // });
       break;
     case 3:
       oneElement.attr('hidden', 'hidden');
       threeElement.removeAttr('hidden');
       fourElement.attr('hidden', 'hidden');
       threeElement.find('select').each((i, e) => {
-        // console.log(i, e);
-        $(e).val(srcV[i]);
-        // bootstrap-select 必须调用一次刷新才会更新选中状态
-        $(e).selectpicker('refresh');
-        let parentBox = $(e).parents('.box');
-        // 设置音频激活状态
-        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
-        srcA.forEach((v, j) => {
-          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
-            voiceSpan.addClass('active');
-          // } else {
-          //   voiceSpan.removeClass('active');
+        let _this_select = $(e);
+        if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
+          // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+          if(i < Object.keys(urlChannelIdMapping).length) {
+            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            _this_select.val(_selected_id);
+            // let boxElement = _this_select.parents('.box');//.index(this);
+            // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+            // dealEvent(boxElement, _selected_id);
           }
-        });
-        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-        //   clearInterval(srcVPreviewInterval[i]);
-        //   srcVPreviewInterval[i] = null;
-        // }
-        // setPreview(parentBox, srcV[i]);
-        // previewChannel(parentBox, i);
+          // _this_select.attr("disabled", "disabled");
+          _this_select.selectpicker('refresh');
+          _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
+        }
+        // 灵派编码器，绑定布局
+        if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
+          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          _this_select.val(_selected_id);
+          // bootstrap-select 必须调用一次刷新才会更新选中状态
+          _this_select.selectpicker('refresh');
+          // 设置音频激活状态
+          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          srcA.forEach((v, j) => {
+            if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+              voiceSpan.addClass('active');
+            }
+          });
+        }
       });
-      // if (null !== srcVPreviewInterval[3]) { // 清空第四画面定时器
-      //   clearInterval(srcVPreviewInterval[3]);
-      //   srcVPreviewInterval[3] = null;
-      // }
       break
     case 4:
       oneElement.attr('hidden', 'hidden');
       threeElement.attr('hidden', 'hidden');
       fourElement.removeAttr('hidden');
       fourElement.find('select').each((i, e) => {
-        // console.log(i, e, srcV[i]);
-        $(e).val(srcV[i]);
-        // bootstrap-select 必须调用一次刷新才会更新选中状态
-        $(e).selectpicker('refresh');
-        // 设置音频激活状态
-        let voiceSpan = $(e).parents('.input-group-btn').siblings('.input-group-addon');
-        srcA.forEach((v, j) => {
-          if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
-            voiceSpan.addClass('active');
-          // } else {
-          //   voiceSpan.removeClass('active');
+        let _this_select = $(e);
+        if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
+          // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
+          if(i < Object.keys(urlChannelIdMapping).length) {
+            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            _this_select.val(_selected_id);
+            // let boxElement = _this_select.parents('.box');//.index(this);
+            // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
+            // dealEvent(boxElement, _selected_id);
           }
-        });
-        // let parentBox = $(e).parents('.box');
-        // if (null !== srcVPreviewInterval[i]) { // 清除原定时器
-        //   clearInterval(srcVPreviewInterval[i]);
-        //   srcVPreviewInterval[i] = null;
-        // }
-        // setPreview(parentBox, srcV[i]);
-        // previewChannel(parentBox, i);
+          // _this_select.attr("disabled", "disabled");
+          _this_select.selectpicker('refresh');
+          _this_select.parents('.input-group-btn').siblings('.input-group-addon').hide();
+        }
+        // 灵派编码器，绑定布局
+        if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
+          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          _this_select.val(_selected_id);
+          // bootstrap-select 必须调用一次刷新才会更新选中状态
+          _this_select.selectpicker('refresh');
+          // 设置音频激活状态
+          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          srcA.forEach((v, j) => {
+            if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
+              voiceSpan.addClass('active');
+            }
+          });
+        }
       });
       break;
     default: break;
@@ -747,9 +760,15 @@ function closeScreenView() {
 
 // 当手术室有新的连接或有连接断开时调用该接口刷新会议室列表。
 function refreshMeetingRoom() {
-  let ksaodfko = AOV.getConnectedMeetingRoom();
+  currentRoomChannels = [];
   // 获取当前已连接的会议室列表，更新下拉列表。
-  connectedMeetingRoom = JSON.parse(ksaodfko);
+  connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
+  let akosdfkoaskjdflksdf = AOV.getCurrentRoomChannelUrlMapping();
+  console.log(akosdfkoaskjdflksdf);
+  let connectedChannelUrlMapping = JSON.parse(akosdfkoaskjdflksdf);
+  Object.keys(connectedChannelUrlMapping).forEach(k => {
+    console.log(k + ": " + connectedChannelUrlMapping[k]);
+  });
   let tmpSelectPicker = $(".video-content select");
   let netIndex = 0;
   channelIdUrlMapping = {};
@@ -765,11 +784,12 @@ function refreshMeetingRoom() {
       if(netIndex >= currentRoomDecoderChannelSize) {
         return;
       }
+      currentRoomChannels.push(channel);
       tmpSelectPicker.append(
-        '<option value="'+channel.id+'">'+channel.id + " " + e.name + " - " + channel.name+'</option>'
+        '<option value="'+channel.id+'">'+e.name + " - " + channel.name+'</option>'
       );
-      channelIdUrlMapping[channel.id + ""] = channel.url;
-      urlChannelIdMapping[channel.url] = channel.id + "";
+      channelIdUrlMapping[channel.id + ""] = connectedChannelUrlMapping[channel.id + ""];
+      urlChannelIdMapping[connectedChannelUrlMapping[channel.id + ""]] = channel.id + "";
       // let linkpiChannelId = channel.url.substring(channel.url.length - 1);
       // linkpiChannelIdUrlMapping[linkpiChannelId + ""] = channel.id + "";
       // urlLinkpiChannelIdMapping[channel.id + ""] = linkpiChannelId + "";
@@ -795,6 +815,8 @@ function refreshMeetingRoom() {
 }
 function dealLinkPi() {
   for (let i = 0; i < linkpiConfig.length; i++) {
+    // 不知道咋回事，有毒，修复hls文件名格式为：-%06d.ts
+    linkpiConfig[i].hls.hls_filename = "-%06d.ts";
     if('mix' === linkpiConfig[i].type) {
       linkpiMix = linkpiConfig[i];
       break;
@@ -846,16 +868,31 @@ function onDeviceConfigLoaded(deviceType, config) {
     // console.log(currentRoomConnectedEncoderConfig);
     // linkpiConfig = JSON.parse(currentRoomConnectedEncoderConfig);
     // 初始化时需要设置为本地预览，因为可能正在使用远程流。
-    let previewChannelSize = Math.min(screenCount, Object.keys(channelIdUrlMapping).length);
+    let previewChannelSize = Math.min(screenCount, currentRoomChannels.length);
+    screenCount = screenCountLayoutCount[previewChannelSize];
     console.log(previewChannelSize);
     for (let i = 0; i < linkpiConfig.length; i++) {
+      if('net' === linkpiConfig[i].type) {
+        linkpiChannelIdUrlMapping[urlChannelIdMapping[linkpiConfig[i].net.path]] = linkpiConfig[i].id;
+        urlLinkpiChannelIdMapping[linkpiConfig[i].id + ""] = urlChannelIdMapping[linkpiConfig[i].net.path];
+        console.log(linkpiConfig[i].id + " " + urlChannelIdMapping[linkpiConfig[i].net.path] + " " + linkpiConfig[i].net.path);
+      }
       if('mix' === linkpiConfig[i].type) {
         for(let j = 0; j < previewChannelSize; j ++) {
-          let linkpiChannelId = urlLinkpiChannelIdMapping[currentRoomChannels[j].id];
+          console.log(currentRoomChannels[j].id);
+          let linkpiChannelId = linkpiChannelIdUrlMapping[currentRoomChannels[j].id];
           console.log(linkpiChannelId);
           linkpiConfig[i].srcV[j] = linkpiChannelId;//视频通道参数
           linkpiConfig[i].srcA[j] = linkpiChannelId;//音频通道参数
         }
+        
+        let currentLinkpiLayout = null;
+        linkpiLayout.forEach((e, i) => {
+          if(e.length === screenCount) {
+            currentLinkpiLayout = linkpiLayout[i];
+          }
+        });
+        linkpiConfig[i].layout = currentLinkpiLayout;
         break;
       }
     }
@@ -863,14 +900,14 @@ function onDeviceConfigLoaded(deviceType, config) {
     dealLinkPi();
     commitSreenSet();
     // 调整预览窗口。
-    // previewChannel('rtsp://'+currentRoomDecoder.ip+'/sub17');
+    previewChannel('rtsp://'+currentRoomDecoder.ip+'/sub17');
   }
   if(DECODER_SHXIT === deviceType) {
     shxitConfigParams = config.AllAccess;
 
     // 初始化时需要设置为本地预览，因为可能正在使用远程流。
-    let previewChannelSize = Math.min(data.AllURLs.length, currentRoomChannels.length);
-    for (let j = 0; j < previewChannelSize; j++) {
+    // let previewChannelSize = Math.min(config.AllAccess.length, currentRoomChannels.length);
+    for (let j = 0; j < config.AllAccess.length; j++) {
       shxitConfigParams[j].AccessSourceID = -1;
     }
 
@@ -885,6 +922,15 @@ function onDeviceConfigLoaded(deviceType, config) {
 }
 function notifyMapping(data) {
   console.log(data);
+  // 获取当前连接中的会议室
+  refreshMeetingRoom();
+
+  // 解码器获取配置信息
+  if (null != currentRoomDecoder) {
+    try {
+      AOV.getDeviceConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer);
+    } catch(e) { console.error(e); }
+  }
 }
 </script>
 </html>

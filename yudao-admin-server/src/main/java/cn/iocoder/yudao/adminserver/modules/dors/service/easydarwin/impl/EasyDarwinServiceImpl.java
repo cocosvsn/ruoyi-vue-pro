@@ -31,7 +31,7 @@ public class EasyDarwinServiceImpl implements EasyDarwinService {
      * @return 返回拉流的ID
      */
     public String startPushStream(String sourceStream, String destPath) {
-        String url = darwinApiUrl + "start?url={1}&transType=TCP&customPath={2}";
+        String url = darwinApiUrl + "start?url={1}&transType=UDP&customPath={2}";
 //        Map<String, String> params = new HashMap<>();
 //        params.put("url", sourceStream);
 //        params.put("customPath", destPath);

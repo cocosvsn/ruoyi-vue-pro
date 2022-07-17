@@ -581,9 +581,14 @@
       currentRoom = JSON.parse(aaaa);
       // 加载自动应答状态
       autoAnswerDialingState = AOV.getAutoAnswerDialing();
-      if(0 < currentRoom.decoderDevices.length) {
-        currentRoomEncoder = currentRoom.encoderDevices[0];
-        currentRoomEncoderChannelSize = currentRoom.channels.length;
+      let currentRoomEncodersStr = AOV.getCurrentRoomEncoders();
+      console.log(currentRoomEncodersStr);
+      let currentRoomEncoders = JSON.parse(currentRoomEncodersStr);
+      if(0 < currentRoomEncoders.length) {
+        currentRoomEncoder = currentRoomEncoders[0];
+        currentRoomEncoders.forEach(device => {
+          currentRoomEncoderChannelSize += device.channelCount;
+        });
       }
       // 解码器获取配置信息
       if (null != currentRoomEncoder) {

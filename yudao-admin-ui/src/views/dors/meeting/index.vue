@@ -308,7 +308,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('全景摄像机', ipcDevice)" >删除全景摄像机</el-button>
+                <el-button size="mini" type="text" icon="el-icon-delete" @click="handleRemoveDevice('IPC', ipcDevice)" >删除全景摄像机</el-button>
                 <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAddDeviceChannel(ipcDevice)" >添加全景摄像机通道</el-button>
               </el-col>
             </el-row>
@@ -855,6 +855,7 @@ export default {
     },
     /** 删除指定类型设备 */
     handleRemoveDevice(deviceType, item) {
+      console.log(deviceType, item);
       let deviceList = undefined;
       if(DEVICE_TYPE.ENCODER == deviceType) {
         deviceList = this.form.encoderDevices;

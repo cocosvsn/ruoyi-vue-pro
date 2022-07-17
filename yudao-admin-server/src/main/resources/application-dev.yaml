@@ -178,7 +178,7 @@ yudao:
         url: ${RECORD_API_URL:http://192.168.1.248:7011/api/record/}
     darwin:
       api:
-        url: ${EASY_DARWIN_API_URL:http://192.168.1.5:10008/api/v1/stream/}
+        url: ${EASY_DARWIN_API_URL:http://192.168.1.192:10008/api/v1/stream/}
   udp:
     server:
       enable: false
