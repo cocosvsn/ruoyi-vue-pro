@@ -20,10 +20,10 @@
       <!-- <el-form-item label="手术简介" prop="operationInfo">
         <el-input v-model="queryParams.operationInfo" placeholder="请输入手术简介" clearable size="small" @keyup.enter.native="handleQuery"/>
       </el-form-item> -->
-      <!-- <el-form-item label="创建时间">
+      <el-form-item label="创建时间">
         <el-date-picker v-model="dateRangeCreateTime" size="small" style="width: 240px" value-format="yyyy-MM-dd"
                         type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
