@@ -978,6 +978,9 @@ export default {
         return d.name;
       }).join();
     },
+    watchPadMac() { // 计算 PAD mac地址
+      return this.form.pad.mac;
+    }
   },
   watch: {
     watchDecoderDeviceIp() { // 解码器IP发生变更
@@ -994,6 +997,9 @@ export default {
         });
       });
     },
+    watchPadMac() { // PAD mac地址发生变更
+      this.form.pad.mac = this.form.pad.mac ? this.form.pad.mac.toUpperCase() : this.form.pad.mac;
+    }
   },
   created() {
     this.getList();
