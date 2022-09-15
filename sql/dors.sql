@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS `dors_video_file` (
   `operation_video` INT NULL COMMENT '关联手术',
   `title` VARCHAR(255) NULL COMMENT '标题',
   `content_type` VARCHAR(128) NULL COMMENT '文件类型',
-  `file_size` INT NULL COMMENT '文件大小',
+  `file_size` BIGINT NULL COMMENT '文件大小',
   `relative_path` VARCHAR(256) NULL COMMENT '相对路径',
   `task_id` VARCHAR(128) NULL COMMENT '录制任务编号',
   `creator` VARCHAR(64) NULL COMMENT '创建者',

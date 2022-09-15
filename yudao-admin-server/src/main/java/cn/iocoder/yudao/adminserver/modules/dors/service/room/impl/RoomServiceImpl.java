@@ -26,6 +26,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -681,7 +682,7 @@ public class RoomServiceImpl implements RoomService {
                 jsonObject.put("task_id", vf.getTaskId());
                 Result result = request("stop", jsonObject);
                 logger.info("stop record room id: {}, room title: {}, task id: {}, video file id: {}, result: {}",
-                        id, roomDO.getName(), vf.getTaskId(), vf.getId(), result.isSuccess());
+                        id, roomDO.getName(), vf.getTaskId(), vf.getId(), result);
 
                 // 停止录制后，获取实际录制的视频文件大小。
                 // Tip： 当前由于偷懒没有判断停止录制的状态，因此可能有Bug存在。
@@ -716,17 +717,22 @@ public class RoomServiceImpl implements RoomService {
 
     @SneakyThrows
     private Result request(String method, JSONObject json) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        // 设置请求类型
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        // 封装参数和头信息
-        HttpEntity<JSONObject> httpEntity = new HttpEntity(json, httpHeaders);
-        String url = dorsRecordApiUrl + method;
-        logger.info("request url: {}, {}", url, json.toJSONString());
-        ResponseEntity<String> mapResponseEntity = restTemplate.postForEntity(url, httpEntity, String.class);
-        String result = mapResponseEntity.getBody();
-        logger.info("response: {}", result);
-        return new ObjectMapper().readValue(result, Result.class);
+        try {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            // 设置请求类型
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            // 封装参数和头信息
+            HttpEntity<JSONObject> httpEntity = new HttpEntity(json, httpHeaders);
+            String url = dorsRecordApiUrl + method;
+            logger.info("request url: {}, {}", url, json.toJSONString());
+            ResponseEntity<String> mapResponseEntity = restTemplate.postForEntity(url, httpEntity, String.class);
+            String result = mapResponseEntity.getBody();
+            logger.info("response: {}", result);
+            return new ObjectMapper().readValue(result, Result.class);
+        } catch (Exception e) {
+            logger.error("停止录制出错：", e);
+            return null;
+        }
     }
 
     @Data

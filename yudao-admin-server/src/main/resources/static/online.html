@@ -392,20 +392,20 @@
   </div>
 </body>
 <script type="text/javascript">
-let linkpiConfig = null;
-let linkpiMix = null;
-let screenCount = 0;
-let srcV = [];
-let srcA = [];
-let previewWindowX = null;
-let previewWindowY = null;
-let previewWindowWidth = null;
-let previewWindowHeight = null;
+var linkpiConfig = null;
+var linkpiMix = null;
+var screenCount = 0;
+var srcV = [];
+var srcA = [];
+var previewWindowX = null;
+var previewWindowY = null;
+var previewWindowWidth = null;
+var previewWindowHeight = null;
 /**
  * 灵派画面布局参数
  * 0-单画面 1-四分格 2-九宫格 3-1+2 4-画中画
  */
-let linkpiLayout = [
+var linkpiLayout = [
   [{ a: 1, x: 0, y: 0, w: 1, h: 1, index: 1 }],
   [
     { a: 1, x: 0, y: 0, w: 1 / 2, h: 1 / 2, index: 1 },
@@ -434,19 +434,19 @@ let linkpiLayout = [
     { a: 1, x: 2 / 3, y: 2 / 3, w: 1 / 4, h: 1 / 4, index: 2 }
   ]
 ];
-let shxitLayout = { 1: "Mode1", 2: "Mode3_1", 3: "Mode3_1", 4: "Mode4" };
+var shxitLayout = { 1: "Mode1", 2: "Mode3_1", 3: "Mode3_1", 4: "Mode4" };
 // 提交分屏数据
 function commitSreenSet() {
   // 灵派解码器修改窗口布局。
   if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
-    let currentLinkpiLayout = null;
+    var currentLinkpiLayout = null;
     // 遍历并匹配当前设置的布局参数
     linkpiLayout.forEach((e, i) => {
       if(e.length === screenCount) {
         currentLinkpiLayout = linkpiLayout[i];
       }
     });
-    let newinfo;
+    var newinfo;
     linkpiConfig.forEach(function (n, i) {
       if (n.type == "mix") {
         newinfo = n;
@@ -459,46 +459,55 @@ function commitSreenSet() {
     })
     
     try {
-      let rpcParams = {jsonrpc:"2.0", method:"enc.update", params:[JSON.stringify(linkpiConfig)],id:1};
+      var rpcParams = {jsonrpc:"2.0", method:"enc.update", params:[JSON.stringify(linkpiConfig)],id:1};
       // 提交分屏设置至编码器
       AOV.commitEncoderConfig(currentRoomDecoder.ip, currentRoomDecoder.manufacturer, JSON.stringify(rpcParams));
     } catch(e) { console.error(e); }
   }
   // 示见解码器修改窗口布局。
   if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
-    let screenLayoutName = shxitLayout[screenCount];
+    var screenLayoutName = shxitLayout[screenCount];
     try {
       // 提交分屏设置至示见编码器
       AOV.commitShxitDeviceScreenLayout(currentRoomDecoder.ip, currentRoomDecoder.manufacturer, screenLayoutName, "");
     } catch (e) { console.error(e); }
   }
 }
-let connectedMeetingRoom = null;
-let currentRoom = null;
-let currentRoomChannels = [];
-let canStopRecord = false; // 录像状态
-let currentRoomDecoder = null;
-let currentRoomDecoderChannelSize = 0;
+var connectedMeetingRoom = null;
+var currentRoom = null;
+var currentRoomChannels = [];
+var canStopRecord = false; // 录像状态
+var currentRoomDecoder = null; // 解码器
+var currentRoomEncoder = null; // 编码器
+var currentRoomDecoderChannelSize = 0;
+var currentRoomEncoderChannelSize = 0;
 // 管理后台频道ID与流地址映射关系
-let channelIdUrlMapping = null;
+var channelIdUrlMapping = null;
 // 流地址与管理后台频道ID映射关系
-let urlChannelIdMapping = null;
+var urlChannelIdMapping = null;
 // 灵派频道ID与流地址映射关系
-let linkpiChannelIdUrlMapping = null;
+var linkpiChannelIdUrlMapping = null;
 // 流地址与灵派频道ID映射关系
-let urlLinkpiChannelIdMapping = null;
+var urlLinkpiChannelIdMapping = null;
 // 通道数量与分屏数量映射关系。
-let screenCountLayoutCount = [1, 1, 3, 3, 4, 4, 4, 4];
+var screenCountLayoutCount = [1, 1, 3, 3, 4, 4, 4, 4];
 
 $(document).ready(function() {
   try {
     // 获取当前房间信息
     currentRoom = JSON.parse(AOV.getCurrentRoom());
-    let currentRoomDecoders = JSON.parse(AOV.getCurrentRoomDecoders());
+    var currentRoomDecoders = JSON.parse(AOV.getCurrentRoomDecoders());
     if(0 < currentRoomDecoders.length) {
       currentRoomDecoder = currentRoomDecoders[0];
       currentRoomDecoders.forEach(device => {
         currentRoomDecoderChannelSize += device.channelCount;
+      });
+    }
+    var currentRoomEncoders = JSON.parse(AOV.getCurrentRoomEncoders());
+    if(0 < currentRoomEncoders.length) {
+      currentRoomEncoder = currentRoomEncoders[0];
+      currentRoomEncoders.forEach(device => {
+        currentRoomEncoderChannelSize += device.channelCount;
       });
     }
     
@@ -533,7 +542,7 @@ $(document).ready(function() {
   $('#record').click(function () {
     console.log("录像按钮被点击!");
     // 获取所有通道，连线中默认录制全部通道视频。
-    let checkedList = [];
+    var checkedList = [];
     currentRoomChannels.forEach((element, i) => {
       console.log(element.id);
       checkedList.push(element.id+'');
@@ -541,17 +550,21 @@ $(document).ready(function() {
     AOV.changeRecord(currentRoom.id, checkedList);
   });
   $(".video-content select").change(function() {
-    let _i = 0;
-    let _this_select = $(this);
-    let boxElement = $(this).parents('.box');//.index(this);
-    let _selected_id = _this_select.val();
+    var _i = 0;
+    var _this_select = $(this);
+    var boxElement = $(this).parents('.box');//.index(this);
+    var _selected_id = _this_select.val();
     // $(this).siblings().each(function(i, element) {
     //   console.log(element, element === _this_select);
     // });
-    let boxElements = boxElement.parent().children();
+    var boxElements = boxElement.parent().children();
     _i = boxElements.index(boxElement);
     console.log("screen count: " + boxElements.length);
-    console.log(_i)
+    console.log(_i);
+    console.log(_selected_id);
+    Object.keys(linkpiChannelIdUrlMapping).forEach(k => {
+      console.log(k + ": " + linkpiChannelIdUrlMapping[k]);
+    });
     if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
       console.log(linkpiChannelIdUrlMapping[_selected_id]);
       if(_i < srcV.length) { // 数组元素大于索引值，则修改
@@ -566,18 +579,18 @@ $(document).ready(function() {
   $(".box .input-group-addon").click(function(event) {
     event.stopPropagation(); // 阻止事件冒泡，避免传递到空白区域，造成重复点击而显示弹窗。
     // console.log("音频按钮被点击");
-    let _this_voice_span = $(this);
-    let _this_select = _this_voice_span.parent().find('select');
-    let _current_channel = _this_select.val();
-    let boxElement = _this_voice_span.parents('.box');
-    let boxElements = boxElement.parent().children();
+    var _this_voice_span = $(this);
+    var _this_select = _this_voice_span.parent().find('select');
+    var _current_channel = _this_select.val();
+    var boxElement = _this_voice_span.parents('.box');
+    var boxElements = boxElement.parent().children();
 
     if ("" === _current_channel || -1 === _current_channel) {
       // invalid channel
       return;
     }
     // 获取当前修改的源位于窗口的位置
-    let srcAIndex = boxElements.index(boxElement);
+    var srcAIndex = boxElements.index(boxElement);
     if(_this_voice_span.hasClass("active")) {
       _this_voice_span.removeClass("active")
       srcA[srcAIndex] = "";
@@ -592,10 +605,11 @@ $(document).ready(function() {
     }
     commitSreenSet();
   });
+  showRecord(currentRoom.record);
 });
 // 切换显示录像状态
 function showRecord(stat) {
-  let recordEle = $('#record');
+  var recordEle = $('#record');
   if(stat) {
     canStopRecord = true;
     recordEle.children('.btn-icon').attr('src', 'images/111.png');
@@ -607,7 +621,7 @@ function showRecord(stat) {
   }
 }
 // 保存定时更新画面截图的定时器句柄
-let srcVPreviewInterval = [null, null, null, null];
+var srcVPreviewInterval = [null, null, null, null];
 function previewChannel(box, i) {
   // 添加定时器
   srcVPreviewInterval[i] = setInterval(function () {
@@ -615,15 +629,15 @@ function previewChannel(box, i) {
   }, 50000);
 }
 function setPreview(box, channelId) {
-  // let previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
+  // var previewUrl = 'http://' + encoderIp + (encoderPort === 80 ? '' : ':' + encoderPort) + '/snap/snap' + channelId + '.jpg?rnd=' + Math.random();
   // // console.log(previewUrl);
   // box.css('background', 'url(' + previewUrl + ') no-repeat')
   //     .css('background-size', '100% 100%');
 }
 function changeScreen(count) {
-  let oneElement = $('.one');
-  let threeElement = $('.three');
-  let fourElement = $('.four');
+  var oneElement = $('.one');
+  var threeElement = $('.three');
+  var fourElement = $('.four');
   // console.log("changeScreen("+ count+");");
   // 预览地址规则：http://IP[:PORT]/snap/snap[通道号].jpg?rnd=随机值
   switch(count) {
@@ -632,15 +646,15 @@ function changeScreen(count) {
       threeElement.attr('hidden', 'hidden');
       fourElement.attr('hidden', 'hidden');
       oneElement.find('select').each((i, e) => {
-        let _this_select = $(e);
+        var _this_select = $(e);
         if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
           // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
           if(i < Object.keys(urlChannelIdMapping).length) {
             console.log(shxitConfigParams[i].BuildInSource.Address);
-            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            var _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
             console.log(_selected_id);
             _this_select.val(_selected_id);
-            // let boxElement = _this_select.parents('.box');//.index(this);
+            // var boxElement = _this_select.parents('.box');//.index(this);
             // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
             // dealEvent(boxElement, _selected_id);
           }
@@ -650,12 +664,12 @@ function changeScreen(count) {
         }
         // 灵派编码器，绑定布局
         if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
-          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          var _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
           _this_select.val(_selected_id);
           // bootstrap-select 必须调用一次刷新才会更新选中状态
           _this_select.selectpicker('refresh');
           // 设置音频激活状态
-          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          var voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
           srcA.forEach((v, j) => {
             if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
               voiceSpan.addClass('active');
@@ -669,13 +683,13 @@ function changeScreen(count) {
       threeElement.removeAttr('hidden');
       fourElement.attr('hidden', 'hidden');
       threeElement.find('select').each((i, e) => {
-        let _this_select = $(e);
+        var _this_select = $(e);
         if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
           // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
           if(i < Object.keys(urlChannelIdMapping).length) {
-            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            var _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
             _this_select.val(_selected_id);
-            // let boxElement = _this_select.parents('.box');//.index(this);
+            // var boxElement = _this_select.parents('.box');//.index(this);
             // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
             // dealEvent(boxElement, _selected_id);
           }
@@ -685,12 +699,12 @@ function changeScreen(count) {
         }
         // 灵派编码器，绑定布局
         if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
-          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          var _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
           _this_select.val(_selected_id);
           // bootstrap-select 必须调用一次刷新才会更新选中状态
           _this_select.selectpicker('refresh');
           // 设置音频激活状态
-          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          var voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
           srcA.forEach((v, j) => {
             if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
               voiceSpan.addClass('active');
@@ -704,13 +718,13 @@ function changeScreen(count) {
       threeElement.attr('hidden', 'hidden');
       fourElement.removeAttr('hidden');
       fourElement.find('select').each((i, e) => {
-        let _this_select = $(e);
+        var _this_select = $(e);
         if (null != currentRoomDecoder && DECODER_SHXIT === currentRoomDecoder.manufacturer) {
           // 示见编码器，仅允许修改窗口布局，不允许修改每个窗口的流。
           if(i < Object.keys(urlChannelIdMapping).length) {
-            let _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
+            var _selected_id = urlChannelIdMapping[shxitConfigParams[i].BuildInSource.Address];
             _this_select.val(_selected_id);
-            // let boxElement = _this_select.parents('.box');//.index(this);
+            // var boxElement = _this_select.parents('.box');//.index(this);
             // // 判断当前选中的通道，是否绑定摄像机，绑定了的话，则给父元素.box绑定点击事件，点击后弹出云台控制窗口。
             // dealEvent(boxElement, _selected_id);
           }
@@ -720,12 +734,12 @@ function changeScreen(count) {
         }
         // 灵派编码器，绑定布局
         if (null != currentRoomDecoder && DECODER_LINKPI === currentRoomDecoder.manufacturer) {
-          let _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
+          var _selected_id = urlLinkpiChannelIdMapping[srcV[i] + ""];
           _this_select.val(_selected_id);
           // bootstrap-select 必须调用一次刷新才会更新选中状态
           _this_select.selectpicker('refresh');
           // 设置音频激活状态
-          let voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
+          var voiceSpan = _this_select.parents('.input-group-btn').siblings('.input-group-addon');
           srcA.forEach((v, j) => {
             if (undefined !== srcV[i] && null !== srcV[i] && null !== v && "" !== v && v == srcV[i]) { // 当前视频通道对应的音频存在，则设置为激活状态
               voiceSpan.addClass('active');
@@ -763,14 +777,14 @@ function refreshMeetingRoom() {
   currentRoomChannels = [];
   // 获取当前已连接的会议室列表，更新下拉列表。
   connectedMeetingRoom = JSON.parse(AOV.getConnectedMeetingRoom());
-  let akosdfkoaskjdflksdf = AOV.getCurrentRoomChannelUrlMapping();
+  var akosdfkoaskjdflksdf = AOV.getCurrentRoomChannelUrlMapping();
   console.log(akosdfkoaskjdflksdf);
-  let connectedChannelUrlMapping = JSON.parse(akosdfkoaskjdflksdf);
+  var connectedChannelUrlMapping = JSON.parse(akosdfkoaskjdflksdf);
   Object.keys(connectedChannelUrlMapping).forEach(k => {
     console.log(k + ": " + connectedChannelUrlMapping[k]);
   });
-  let tmpSelectPicker = $(".video-content select");
-  let netIndex = 0;
+  var tmpSelectPicker = $(".video-content select");
+  var netIndex = 0;
   channelIdUrlMapping = {};
   urlChannelIdMapping = {};
   linkpiChannelIdUrlMapping = {};
@@ -790,11 +804,28 @@ function refreshMeetingRoom() {
       );
       channelIdUrlMapping[channel.id + ""] = connectedChannelUrlMapping[channel.id + ""];
       urlChannelIdMapping[connectedChannelUrlMapping[channel.id + ""]] = channel.id + "";
-      // let linkpiChannelId = channel.url.substring(channel.url.length - 1);
+      // var linkpiChannelId = channel.url.substring(channel.url.length - 1);
       // linkpiChannelIdUrlMapping[linkpiChannelId + ""] = channel.id + "";
       // urlLinkpiChannelIdMapping[channel.id + ""] = linkpiChannelId + "";
       netIndex ++;
     });
+  });
+  currentRoomEncoder.channels.forEach((field, i) => {
+    tmpSelectPicker.append(
+      '<option value="'+field.id+'">'+field.id + " " + field.name+'</option>'
+    );
+    // console.log(JSON.stringify(currentRoomEncoder));
+    // console.log(JSON.stringify(field));
+    currentRoomChannels.push(field);
+    channelIdUrlMapping[field.id + ""] = field.url;
+    urlChannelIdMapping[field.url] = field.id + "";
+    if('LINKPI' === currentRoomEncoder.manufacturer) { // 灵派编码器映射关系
+      var linkpiChannelId = field.url.substring(field.url.length - 1);
+      urlLinkpiChannelIdMapping[linkpiChannelId + ""] = field.id + "";
+      linkpiChannelIdUrlMapping[field.id + ""] = linkpiChannelId + "";
+    // } else if('' === currentRoomEncoder.manufacturer) {
+
+    }
   });
   Object.keys(channelIdUrlMapping).forEach(k => {
     console.log(k + ": " + channelIdUrlMapping[k]);
@@ -814,7 +845,7 @@ function refreshMeetingRoom() {
   screenCount = screenCountLayoutCount[Object.keys(channelIdUrlMapping).length];
 }
 function dealLinkPi() {
-  for (let i = 0; i < linkpiConfig.length; i++) {
+  for (var i = 0; i < linkpiConfig.length; i++) {
     // 不知道咋回事，有毒，修复hls文件名格式为：-%06d.ts
     linkpiConfig[i].hls.hls_filename = "-%06d.ts";
     if('mix' === linkpiConfig[i].type) {
@@ -823,18 +854,18 @@ function dealLinkPi() {
     }
   }
   //获取mix通道多画面布局信息
-  let layout = linkpiMix.layout;
+  var layout = linkpiMix.layout;
   srcV = linkpiMix.srcV;//视频通道参数
   console.log(srcV);
   srcA = linkpiMix.srcA;//音频通道参数
-  let index = getArrayIndex(linkpiLayout, layout);
+  var index = getArrayIndex(linkpiLayout, layout);
   console.log(index);
   screenCount = linkpiLayout[index].length;
   changeScreen(screenCount);
 }
 // 从对象数组中获取指定对象索引
 function getArrayIndex(arr, obj) {
-  let i = arr.length;
+  var i = arr.length;
   while (i--) {
     if (arr[i].length == obj.length) {
       return i;
@@ -844,8 +875,8 @@ function getArrayIndex(arr, obj) {
 }
 // 修正当前页面通道预览窗口位置, 注意需要在通道信息绑定之后执行，否则位置获取会不正确。
 function changeVideoViewpostion() {
-  let videoView = $("#videoView");
-  let videoViewOffset = videoView.offset();
+  var videoView = $("#videoView");
+  var videoViewOffset = videoView.offset();
   
   previewWindowX = videoViewOffset.left;
   previewWindowY = videoViewOffset.top;
@@ -868,25 +899,24 @@ function onDeviceConfigLoaded(deviceType, config) {
     // console.log(currentRoomConnectedEncoderConfig);
     // linkpiConfig = JSON.parse(currentRoomConnectedEncoderConfig);
     // 初始化时需要设置为本地预览，因为可能正在使用远程流。
-    let previewChannelSize = Math.min(screenCount, currentRoomChannels.length);
+    var previewChannelSize = Math.min(screenCount, currentRoomChannels.length);
     screenCount = screenCountLayoutCount[previewChannelSize];
     console.log(previewChannelSize);
-    for (let i = 0; i < linkpiConfig.length; i++) {
+    for (var i = 0; i < linkpiConfig.length; i++) {
       if('net' === linkpiConfig[i].type) {
         linkpiChannelIdUrlMapping[urlChannelIdMapping[linkpiConfig[i].net.path]] = linkpiConfig[i].id;
         urlLinkpiChannelIdMapping[linkpiConfig[i].id + ""] = urlChannelIdMapping[linkpiConfig[i].net.path];
         console.log(linkpiConfig[i].id + " " + urlChannelIdMapping[linkpiConfig[i].net.path] + " " + linkpiConfig[i].net.path);
       }
       if('mix' === linkpiConfig[i].type) {
-        for(let j = 0; j < previewChannelSize; j ++) {
+        for(var j = 0; j < previewChannelSize; j ++) {
           console.log(currentRoomChannels[j].id);
-          let linkpiChannelId = linkpiChannelIdUrlMapping[currentRoomChannels[j].id];
+          var linkpiChannelId = linkpiChannelIdUrlMapping[currentRoomChannels[j].id];
           console.log(linkpiChannelId);
           linkpiConfig[i].srcV[j] = linkpiChannelId;//视频通道参数
           linkpiConfig[i].srcA[j] = linkpiChannelId;//音频通道参数
         }
-        
-        let currentLinkpiLayout = null;
+        var currentLinkpiLayout = null;
         linkpiLayout.forEach((e, i) => {
           if(e.length === screenCount) {
             currentLinkpiLayout = linkpiLayout[i];
@@ -906,8 +936,8 @@ function onDeviceConfigLoaded(deviceType, config) {
     shxitConfigParams = config.AllAccess;
 
     // 初始化时需要设置为本地预览，因为可能正在使用远程流。
-    // let previewChannelSize = Math.min(config.AllAccess.length, currentRoomChannels.length);
-    for (let j = 0; j < config.AllAccess.length; j++) {
+    // var previewChannelSize = Math.min(config.AllAccess.length, currentRoomChannels.length);
+    for (var j = 0; j < config.AllAccess.length; j++) {
       shxitConfigParams[j].AccessSourceID = -1;
     }
 

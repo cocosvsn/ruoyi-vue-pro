@@ -5,7 +5,6 @@ import cn.iocoder.yudao.adminserver.modules.dors.controller.ws.message.MessageIn
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.channel.ChannelDO;
 import cn.iocoder.yudao.adminserver.modules.dors.dal.dataobject.room.RoomDO;
 import cn.iocoder.yudao.adminserver.modules.dors.enums.RoomType;
-import cn.iocoder.yudao.adminserver.modules.dors.enums.StreamDirectionType;
 import cn.iocoder.yudao.adminserver.modules.dors.service.easydarwin.EasyDarwinService;
 import cn.iocoder.yudao.adminserver.modules.dors.service.room.RoomService;
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
@@ -254,7 +253,7 @@ public class WebSocketServerEndpoint {
         List<String> pullStreamList = new ArrayList<>();
         // 示教室推流列表
         List<String> pushStreamList = new ArrayList<>();
-        Map<String, List<String>> meetingRoomPullStreams = new HashMap<>();
+
         /**
          * 最小匹配通道数量
          * 示教室拉手术室的流。
@@ -264,9 +263,9 @@ public class WebSocketServerEndpoint {
          */
         int meetingRoomChannelSize = Math.min(fromRoomOutputChannels.size(), toRoomInputChannels.size());
         for (int i = 0; i < meetingRoomChannelSize; i ++) {
-            String id = this.easyDarwinService.startPushStream(fromRoomOutputChannels.get(i).getUrl(),
-                    StringUtils.substringAfter(toRoomInputChannels.get(i).getUrl(), serverIpConfig.getValue()));
-            pullStreamList.add(id);
+            String path = StringUtils.substringAfter(toRoomInputChannels.get(i).getUrl(), serverIpConfig.getValue());
+            String id = this.easyDarwinService.startPushStream(fromRoomOutputChannels.get(i).getUrl(), path);
+            pullStreamList.add(path);
             // 保存拉转推映射关系。
             channelStreamMapping.put(fromRoomOutputChannels.get(i).getId(), toRoomInputChannels.get(i).getUrl());
         }
@@ -278,15 +277,19 @@ public class WebSocketServerEndpoint {
         int operatingRoomChannelSize = Math.min(toRoomOutputChannels.size(),
                 fromRoomInputChannels.size() - operatingRoomUsedChannelSize);
         for (int i = 0; i < operatingRoomChannelSize; i ++) {
-            String id = this.easyDarwinService.startPushStream(toRoomOutputChannels.get(i).getUrl(),
-                    StringUtils.substringAfter(fromRoomInputChannels.get(operatingRoomUsedChannelSize + i).getUrl(),
-                            serverIpConfig.getValue()));
-            pushStreamList.add(id);
+            String path = StringUtils.substringAfter(fromRoomInputChannels.get(operatingRoomUsedChannelSize + i).getUrl(),
+                    serverIpConfig.getValue());
+            String id = this.easyDarwinService.startPushStream(toRoomOutputChannels.get(i).getUrl(), path);
+            pushStreamList.add(path);
             // 保存拉转推映射关系。
             channelStreamMapping.put(toRoomOutputChannels.get(i).getId(),
                     fromRoomInputChannels.get(operatingRoomUsedChannelSize + i).getUrl());
         }
         operatingRoomUsedChannelSize += operatingRoomChannelSize;
+        Map<String, List<String>> meetingRoomPullStreams = streamList.get(fromId);
+        if (null == meetingRoomPullStreams) {
+            meetingRoomPullStreams = new HashMap<>();
+        }
         meetingRoomPullStreams.put(MessageFormat.format(KEY_FORMAT_PULL, toId), pullStreamList);
         meetingRoomPullStreams.put(MessageFormat.format(KEY_FORMAT_PUSH, toId), pushStreamList);
         roomUsedInputChannelSize.put(fromId, operatingRoomUsedChannelSize);
@@ -303,7 +306,7 @@ public class WebSocketServerEndpoint {
         if (RoomType.OPERATING_ROOM.equals(fromRoom.getType())) {
             // 停止全部推流。
             streamList.get(fromRoom.getId()).values().forEach(
-                    idList -> idList.forEach(id -> easyDarwinService.stopPushStream(id)));
+                    idList -> idList.forEach(path -> easyDarwinService.stopPushStreamByPath(path)));
             roomUsedInputChannelSize.put(fromRoom.getId(), 0);
         } else {
             // 停止某一个示教室推流。
@@ -314,14 +317,14 @@ public class WebSocketServerEndpoint {
             String pushStreamListKey = MessageFormat.format(KEY_FORMAT_PUSH, meetingRoomId);
             List<String> meetingRoomPushStreamList = meetingRoomStreams.get(pushStreamListKey);
             // 停止示教室拉流
-            meetingRoomStreams.get(pullStreamListKey).forEach(id -> easyDarwinService.stopPushStream(id));
+            meetingRoomStreams.get(pullStreamListKey).forEach(path -> easyDarwinService.stopPushStreamByPath(path));
             meetingRoomStreams.get(pullStreamListKey).clear(); // 清空。
             // 停止示教室推流
-            meetingRoomPushStreamList.forEach(id -> easyDarwinService.stopPushStream(id));
-            meetingRoomPushStreamList.clear(); // 清空。
+            meetingRoomPushStreamList.forEach(path -> easyDarwinService.stopPushStreamByPath(path));
             // 恢复手术室可用通道数量
             roomUsedInputChannelSize.put(operatingRoomId,
                     roomUsedInputChannelSize.get(operatingRoomId) - meetingRoomPushStreamList.size());
+            meetingRoomPushStreamList.clear(); // 清空。
         }
     }
 }

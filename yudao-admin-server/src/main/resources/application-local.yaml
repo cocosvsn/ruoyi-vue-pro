@@ -172,7 +172,7 @@ yudao:
   file:
 #    store-type: none
     store-type: local
-    url-prefix: ${FILE_URL_PREFIX:http://{0}:8080/userfiles}
+    url-prefix: ${FILE_URL_PREFIX:http://{0}:8080/userfiles/}
     local:
       directory: /opt/userfiles/
     base-path: http://127.0.0.1:${server.port}${yudao.web.api-prefix}/infra/file/get/
@@ -188,7 +188,7 @@ yudao:
         url: ${RECORD_API_URL:http://record:7011/api/record/}
     darwin:
       api:
-        url: ${EASY_DARWIN_API_URL:http://ed:10008/api/v1/stream/}
+        url: ${EASY_DARWIN_API_URL:http://ed:10008/api/v1/}
   udp:
     server:
       enable: true

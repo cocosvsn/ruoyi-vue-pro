@@ -16,4 +16,10 @@ public interface EasyDarwinService {
      * @return OK 表示成功，其它表示失败
      */
     String stopPushStream(String id);
+
+    /**
+     * 根据推流路径停止拉流
+     * @param path 推流路径
+     */
+    void stopPushStreamByPath(String path);
 }

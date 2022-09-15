@@ -22,7 +22,7 @@
   <!-- css-->
   <style type="text/css">
     .table-title {
-      margin: 130px 0;
+      margin: 80px 0;
       text-align: center;
       font-size: 28px;
       padding: 0 auto;
@@ -31,16 +31,16 @@
       margin: 0 0 20px 0;
     }
     .media {
-      height: 600px;
-      padding: 0 120px;
+      height: 400px;
+      padding: 0 80px;
       text-align: center;
       margin: 15px 0 0 0;
     }
     .media .left-arrow, .media .right-arrow,
     .media .left-arrow img, .media .right-arrow img {
       padding: 0;
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
     }
     .media .left-arrow img, .media .right-arrow img {
       margin-top: 111px;
@@ -48,7 +48,7 @@
     }
     .media .room-group {
       /* border: 1px solid red; */
-      margin: 0 60px;
+      margin: 0 30px;
       padding: 0;
       overflow-x: scroll;
       /* overflow: hidden; */
@@ -61,14 +61,17 @@
     .media .room-group .content {
       /* border: 1px solid blue; */
       width: 1920px;
-      width: <?php echo (count($list) * 362 - 50) ?>px;
+      /*width: <?php echo (count($list) * 362 - 50) ?>px;*/
     }
     .media .room-group .content .room-item {
-      width: 312px;
+      width: 210px;
       float: left;
     }
+    .media .room-group .content .room-item img {
+      width: 210px;
+    }
     .media .room-group .content .room-item:not(:last-child) {
-      margin-right: 50px;
+      margin-right: 30px;
     }
     .media .room-group .content .room-item .room-name {
       font-size: 24px;
@@ -80,8 +83,11 @@
       font-size: 22px;
       margin-top: 5px;
     }
+    .media .room-group .content .room-item .room-btn img {
+      width: 140px;
+    }
     #web {
-border: 1px solid red;
+      border: 1px solid red;
     }
   </style>
 </head>
@@ -196,20 +202,20 @@ border: 1px solid red;
   </div>
 </body>
   <script>
-    let onlineOperatingRooms = [];
+    var onlineOperatingRooms = [];
     
     $(document).ready(function() {
       try {
-        // let sss = AOV.getOnlineOperatingRoom();
+        // var sss = AOV.getOnlineOperatingRoom();
         onlineOperatingRooms = JSON.parse(AOV.getOnlineOperatingRoom());
       } catch(e) {
-        onlineOperatingRooms = [{name: '1号手术室'}];
+        onlineOperatingRooms = [{name: '1号手术室'},{name: '2号手术室'},{name: '3号手术室'},{name: '4号手术室'},{name: '5号手术室'}];
         console.error(e);
       }
       showOnlineOperatingRoom();
     });
     // 请求呼叫
-    let callState = false;
+    var callState = false;
     function callRoom(el, index) {
       console.log("callRoom: ", el);
       if (callState) { 
@@ -252,8 +258,8 @@ border: 1px solid red;
      * 新的手术室上线
      */
     function onlineOperatingRoom(room) {
-      let onlineRoomTmp = JSON.parse(room);
-      let isExists = false
+      var onlineRoomTmp = JSON.parse(room);
+      var isExists = false
       for(var i = 0; i < onlineOperatingRooms.length; i ++) {
         if(onlineRoomTmp.id == onlineOperatingRooms[i].id) {
           isExists = true;
@@ -280,9 +286,9 @@ border: 1px solid red;
      * 刷新在线手术室列表
      */
     function showOnlineOperatingRoom() {
-      let roomContent = $(".content");
-      let roomElements = "";
-      onlineOperatingRooms.forEach((e, i) => {
+      var roomContent = $(".content");
+      var roomElements = "";
+      onlineOperatingRooms.forEach(function(e, i) {
         roomElements += '<div class="room-item">' +
             '  <div class="room-name">'+e.name+'</div>' +
             '  <div class="room-icon">' +
