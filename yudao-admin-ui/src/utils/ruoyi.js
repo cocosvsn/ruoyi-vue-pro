@@ -208,3 +208,12 @@ export function handleTree(data, id, parentId, children, rootId) {
 	});
 	return treeData !== '' ? treeData : data;
 }
+
+/**
+ * 拼接baseURL使其获取完整的请求URL
+ * @param {*} url 
+ * @returns baseURL + url
+ */
+export function concatBaseUrl(url) {
+	return baseURL + url;
+}
