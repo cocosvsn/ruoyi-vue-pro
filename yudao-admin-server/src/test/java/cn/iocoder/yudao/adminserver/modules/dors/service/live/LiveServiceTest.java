@@ -118,7 +118,7 @@ public class LiveServiceTest extends BaseDbUnitTest {
        reqVO.setEndCreateTime(null);
 
        // 调用
-       PageResult<LiveDO> pageResult = liveService.getLivePage(reqVO);
+       PageResult<LiveDO> pageResult = liveService.getLivePage(reqVO, null);
        // 断言
        assertEquals(1, pageResult.getTotal());
        assertEquals(1, pageResult.getList().size());

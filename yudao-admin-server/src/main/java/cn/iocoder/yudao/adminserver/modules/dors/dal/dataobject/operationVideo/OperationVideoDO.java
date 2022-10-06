@@ -59,6 +59,10 @@ public class OperationVideoDO extends BaseDO {
      */
     private Boolean onlineStatus;
     /**
+     * 部门
+     */
+    private Integer deptId;
+    /**
      * 备注
      */
     private String remarks;

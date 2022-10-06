@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.adminserver.modules.dors.controller.live;
 
+import cn.iocoder.yudao.adminserver.modules.system.service.user.SysUserService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +35,8 @@ public class LiveController {
 
     @Resource
     private LiveService liveService;
+    @Resource
+    private SysUserService userService;
 
     @PostMapping("/create")
     @ApiOperation("创建直播")
@@ -81,7 +84,8 @@ public class LiveController {
     @ApiOperation("获得直播分页")
     @PreAuthorize("@ss.hasPermission('dors:live:query')")
     public CommonResult<PageResult<LiveRespVO>> getLivePage(@Valid LivePageReqVO pageVO) {
-        PageResult<LiveDO> pageResult = liveService.getLivePage(pageVO);
+        List<Long> deptIds = this.userService.getCurrentUserDataScropeDeptIds();
+        PageResult<LiveDO> pageResult = liveService.getLivePage(pageVO, deptIds);
         return success(LiveConvert.INSTANCE.convertPage(pageResult));
     }
 

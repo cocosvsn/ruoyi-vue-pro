@@ -84,10 +84,8 @@ public class LiveServiceImpl implements LiveService {
     }
 
     @Override
-    public PageResult<LiveDO> getLivePage(LivePageReqVO pageReqVO) {
-        SysUserDO userDO = this.userMapper.selectById(WebFrameworkUtils.getLoginUserId());
-        List<Object> deptIds = this.deptMapper.selectObjs(new QueryWrapper<SysDeptDO>().select("id").eq("parent_id", userDO.getDeptId()));
-        return liveMapper.selectPage(pageReqVO);
+    public PageResult<LiveDO> getLivePage(LivePageReqVO pageReqVO, List<Long> deptIds) {
+        return liveMapper.selectPage(pageReqVO, deptIds);
     }
 
     @Override

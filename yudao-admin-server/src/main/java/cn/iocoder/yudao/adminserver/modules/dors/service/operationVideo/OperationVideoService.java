@@ -55,9 +55,10 @@ public interface OperationVideoService {
      * 获得手术视频分页
      *
      * @param pageReqVO 分页查询
+     * @param deptIds 部门ID列表（过滤数据权限）
      * @return 手术视频分页
      */
-    PageResult<OperationVideoDO> getOperationVideoPage(OperationVideoPageReqVO pageReqVO);
+    PageResult<OperationVideoDO> getOperationVideoPage(OperationVideoPageReqVO pageReqVO, List<Long> deptIds);
 
     /**
      * 获得手术视频列表, 用于 Excel 导出

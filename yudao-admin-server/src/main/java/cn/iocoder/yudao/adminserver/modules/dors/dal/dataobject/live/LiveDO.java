@@ -41,6 +41,10 @@ public class LiveDO extends BaseDO {
      */
     private String url;
     /**
+     * 部门
+     */
+    private Integer deptId;
+    /**
      * 备注
      */
     private String remarks;

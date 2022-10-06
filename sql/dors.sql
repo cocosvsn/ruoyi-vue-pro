@@ -190,6 +190,9 @@ CREATE TABLE IF NOT EXISTS `dors_operation_video` (
   `doctor` VARCHAR(128) NULL COMMENT '医生',
   `patient` VARCHAR(128) NULL COMMENT '患者',
   `operation_info` VARCHAR(512) NULL COMMENT '手术简介',
+  `total_size` BIGINT(11) NULL DEFAULT 0 COMMENT '全部通道视频总大小',
+  `online_status` BIT(1) NULL COMMENT '上线状态',
+  `dept_id` INT NULL COMMENT '部门',
   `creator` VARCHAR(64) NULL COMMENT '创建者',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updater` VARCHAR(64) NULL COMMENT '更新者',
@@ -199,7 +202,7 @@ CREATE TABLE IF NOT EXISTS `dors_operation_video` (
   PRIMARY KEY (`id`),
   INDEX `dors_operation_video_room_idx` (`room` ASC) VISIBLE)
 ENGINE = InnoDB
-COMMENT = '手术视频';
+COMMENT = '手术视频'
 
 -- ----------------------------
 -- Records of dors_operation_video
@@ -248,6 +251,7 @@ CREATE TABLE IF NOT EXISTS `dors_live` (
   `icon` VARCHAR(100) NULL COMMENT '封面图',
   `addr` VARCHAR(64) NULL COMMENT '地址',
   `url` VARCHAR(255) NULL COMMENT '直播流地址',
+  `dept_id` INT NULL COMMENT '部门',
   `creator` VARCHAR(64) NULL COMMENT '创建者',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updater` VARCHAR(64) NULL COMMENT '更新者',

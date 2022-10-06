@@ -134,7 +134,7 @@ public class OperationVideoServiceTest extends BaseDbUnitTest {
        reqVO.setEndCreateTime(null);
 
        // 调用
-       PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(reqVO);
+       PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(reqVO, null);
        // 断言
        assertEquals(1, pageResult.getTotal());
        assertEquals(1, pageResult.getList().size());

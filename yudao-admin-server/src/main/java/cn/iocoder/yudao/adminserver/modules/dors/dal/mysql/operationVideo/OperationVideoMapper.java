@@ -17,7 +17,7 @@ import cn.iocoder.yudao.adminserver.modules.dors.controller.operationVideo.vo.*;
 @Mapper
 public interface OperationVideoMapper extends BaseMapperX<OperationVideoDO> {
 
-    default PageResult<OperationVideoDO> selectPage(OperationVideoPageReqVO reqVO) {
+    default PageResult<OperationVideoDO> selectPage(OperationVideoPageReqVO reqVO, List<Long> deptIds) {
         return selectPage(reqVO, new QueryWrapperX<OperationVideoDO>()
                 .eqIfPresent("room", reqVO.getRoom())
                 .eqIfPresent("title", reqVO.getTitle())
@@ -25,6 +25,7 @@ public interface OperationVideoMapper extends BaseMapperX<OperationVideoDO> {
                 .eqIfPresent("patient", reqVO.getPatient())
                 .eqIfPresent("operation_info", reqVO.getOperationInfo())
                 .eqIfPresent("online_status", reqVO.getOnlineStatus())
+                .inIfPresent("dept_id", deptIds)
                 .betweenIfPresent("create_time", reqVO.getBeginCreateTime(), reqVO.getEndCreateTime())
                 .orderByDesc("id")        );
     }

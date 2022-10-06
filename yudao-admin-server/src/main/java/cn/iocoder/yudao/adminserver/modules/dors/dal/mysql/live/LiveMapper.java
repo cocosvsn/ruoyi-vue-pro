@@ -19,9 +19,10 @@ import cn.iocoder.yudao.adminserver.modules.dors.controller.live.vo.*;
 @Mapper
 public interface LiveMapper extends BaseMapperX<LiveDO> {
 
-    default PageResult<LiveDO> selectPage(LivePageReqVO reqVO) {
+    default PageResult<LiveDO> selectPage(LivePageReqVO reqVO, List<Long> deptIds) {
         return selectPage(reqVO, new QueryWrapperX<LiveDO>()
                 .likeIfPresent("name", reqVO.getName())
+                .inIfPresent("dept_id", deptIds)
                 .betweenIfPresent("create_time", reqVO.getBeginCreateTime(), reqVO.getEndCreateTime())
                 .orderByDesc("id")        );
     }

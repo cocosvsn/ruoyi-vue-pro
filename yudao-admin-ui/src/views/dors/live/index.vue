@@ -36,6 +36,11 @@
           <img width="128px" height="128px" :src="baseUrl + scope.row.icon">
         </template>
       </el-table-column>
+      <el-table-column label="部门" align="center" prop="deptId">
+        <template slot-scope="scope">
+          <span>{{ getDeptName(scope.row.deptId) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="标题" align="center" prop="name" />
       <el-table-column label="地址" align="center" prop="addr" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -59,6 +64,12 @@
     <!-- 对话框(添加 / 修改) -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="部门" prop="deptId">
+          <el-select v-model="form.deptId" placeholder="请选择所属部门">
+            <el-option v-for="d in depts"
+                      :key="d.id" :label="d.name" :value="d.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="标题" prop="name">
           <el-input v-model="form.name" placeholder="请输入直播流标题" />
         </el-form-item>
@@ -94,6 +105,7 @@
 
 <script>
 import { createLive, updateLive, deleteLive, getLive, getLivePage, exportLiveExcel } from "@/api/dors/live";
+import { listSimpleDepts } from "@/api/system/dept";
 import { concatBaseUrl } from '@/utils/ruoyi'
 import { getToken } from "@/utils/auth";
 
@@ -131,6 +143,7 @@ export default {
         imageUrl: null,                                     // 预览图片地址
         data: {}                                            // 上传的额外数据，用于文件名
       },
+      depts: [],      // 部门
       // 表单参数
       form: {},
       // 表单校验
@@ -153,6 +166,9 @@ export default {
         this.list = response.data.list;
         this.total = response.data.total;
         this.loading = false;
+      });
+      listSimpleDepts().then(response => {
+        this.depts = response.data;
       });
     },
     /** 取消按钮 */
@@ -281,6 +297,14 @@ export default {
       this.upload.imageUrl = URL.createObjectURL(file.raw);
       this.form.icon = response.data;
     },
+    getDeptName(id) {
+      for (const item of this.depts) {
+        if (item.id === id) {
+          return item.name;
+        }
+      }
+      return '';
+    }
   }
 };
 </script>

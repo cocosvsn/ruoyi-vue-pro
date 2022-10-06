@@ -21,4 +21,7 @@ public class LiveBaseVO {
     @ApiModelProperty(value = "地址")
     private String addr;
 
+    @ApiModelProperty(value = "部门")
+    private Integer deptId;
+
 }

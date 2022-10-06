@@ -166,4 +166,9 @@ public interface SysUserService {
      */
     SysUserImportRespVO importUsers(List<SysUserImportExcelVO> importUsers, boolean isUpdateSupport);
 
+    /**
+     * 获取当前登陆用户数据范围部门ID列表
+     * @return
+     */
+    List<Long> getCurrentUserDataScropeDeptIds();
 }

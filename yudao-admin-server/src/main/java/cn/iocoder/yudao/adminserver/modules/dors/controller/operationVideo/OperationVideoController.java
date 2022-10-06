@@ -2,6 +2,7 @@ package cn.iocoder.yudao.adminserver.modules.dors.controller.operationVideo;
 
 import cn.iocoder.yudao.adminserver.modules.infra.dal.dataobject.config.InfConfigDO;
 import cn.iocoder.yudao.adminserver.modules.infra.service.config.InfConfigService;
+import cn.iocoder.yudao.adminserver.modules.system.service.user.SysUserService;
 import cn.iocoder.yudao.framework.file.config.FileProperties;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -40,6 +41,8 @@ public class OperationVideoController {
 
     @Resource
     private FileProperties fileProperties;
+    @Resource
+    private SysUserService userService;
     @Resource
     private InfConfigService infConfigService;
     @Resource
@@ -91,7 +94,8 @@ public class OperationVideoController {
     @ApiOperation("获得手术视频分页")
     @PreAuthorize("@ss.hasPermission('dors:operation-video:query')")
     public CommonResult<PageResult<OperationVideoRespVO>> getOperationVideoPage(@Valid OperationVideoPageReqVO pageVO) {
-        PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(pageVO);
+        List<Long> deptIds = this.userService.getCurrentUserDataScropeDeptIds();
+        PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(pageVO, deptIds);
         InfConfigDO infConfigDO = this.infConfigService.getConfigByKey(SERVER_IP);
         CommonResult result = success(OperationVideoConvert.INSTANCE.convertPage(pageResult));
         if (null != infConfigDO) {

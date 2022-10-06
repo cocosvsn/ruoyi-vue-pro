@@ -55,9 +55,10 @@ public interface LiveService {
      * 获得直播分页
      *
      * @param pageReqVO 分页查询
+     * @param deptIds 部门ID列表（过滤数据权限）
      * @return 直播分页
      */
-    PageResult<LiveDO> getLivePage(LivePageReqVO pageReqVO);
+    PageResult<LiveDO> getLivePage(LivePageReqVO pageReqVO, List<Long> deptIds);
 
     /**
      * 获得直播列表, 用于 Excel 导出

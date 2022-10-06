@@ -46,7 +46,12 @@
     <!-- 列表 -->
     <el-table v-loading="loading" :data="list">
       <!-- <el-table-column label="主键（自增）" align="center" prop="id" /> -->
-      <el-table-column label="所属手术室" align="center" prop="room" >
+      <el-table-column label="部门" align="center" prop="deptId">
+        <template slot-scope="scope">
+          <span>{{ getDeptName(scope.row.deptId) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="手术室" align="center" prop="room" >
         <template slot-scope="scope">
           <span>{{ getRoomName(scope.row.room) }}</span>
         </template>
@@ -81,6 +86,12 @@
     <!-- 对话框(添加 / 修改) -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="部门" prop="deptId">
+          <el-select v-model="form.deptId" placeholder="请选择所属部门">
+            <el-option v-for="d in depts"
+                      :key="d.id" :label="d.name" :value="d.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="手术室" prop="room">
           <el-select v-model="form.room" clearable placeholder="请选择所属手术室">
             <el-option v-for="r in this.operatingRooms"
@@ -111,6 +122,7 @@
 <script>
 import { createOperationVideo, updateOperationVideo, deleteOperationVideo, getOperationVideo, getOperationVideoPage, exportOperationVideoExcel } from "@/api/dors/operationVideo";
 import { createVideoFile, updateVideoFile, deleteVideoFile, getVideoFile, getVideoFilePage, exportVideoFileExcel } from "@/api/dors/videoFile";
+import { listSimpleDepts } from "@/api/system/dept";
 import { listOperatingRoom } from "@/api/dors/room";
 
 export default {
@@ -143,6 +155,7 @@ export default {
         operationInfo: null,
       },
       operatingRooms: [],
+      depts: [],                     // 部门
       // 表单参数
       form: {},
       // 表单校验
@@ -169,6 +182,9 @@ export default {
         this.list = response.data.list;
         this.total = response.data.total;
         this.loading = false;
+      });
+      listSimpleDepts().then(response => {
+        this.depts = response.data;
       });
     },
     /** 取消按钮 */
@@ -292,6 +308,14 @@ export default {
         }
       }
       return roomName;
+    },
+    getDeptName(id) {
+      for (const item of this.depts) {
+        if (item.id === id) {
+          return item.name;
+        }
+      }
+      return '';
     }
   }
 };

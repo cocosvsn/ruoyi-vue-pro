@@ -15,6 +15,9 @@ public class OperationVideoBaseVO {
     @ApiModelProperty(value = "所属手术室")
     private Integer room;
 
+    @ApiModelProperty(value = "部门")
+    private Integer deptId;
+
     @ApiModelProperty(value = "手术名称")
     private String title;
 

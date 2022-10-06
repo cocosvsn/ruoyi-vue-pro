@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.adminserver.modules.system.service.user.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,7 +12,11 @@ import cn.iocoder.yudao.adminserver.modules.system.controller.user.vo.user.*;
 import cn.iocoder.yudao.adminserver.modules.system.convert.user.SysUserConvert;
 import cn.iocoder.yudao.adminserver.modules.system.dal.dataobject.dept.SysDeptDO;
 import cn.iocoder.yudao.adminserver.modules.system.dal.dataobject.dept.SysPostDO;
+import cn.iocoder.yudao.adminserver.modules.system.dal.dataobject.permission.SysRoleDO;
+import cn.iocoder.yudao.adminserver.modules.system.dal.dataobject.permission.SysUserRoleDO;
 import cn.iocoder.yudao.adminserver.modules.system.dal.dataobject.user.SysUserDO;
+import cn.iocoder.yudao.adminserver.modules.system.dal.mysql.permission.SysRoleMapper;
+import cn.iocoder.yudao.adminserver.modules.system.dal.mysql.permission.SysUserRoleMapper;
 import cn.iocoder.yudao.adminserver.modules.system.dal.mysql.user.SysUserMapper;
 import cn.iocoder.yudao.adminserver.modules.system.service.dept.SysDeptService;
 import cn.iocoder.yudao.adminserver.modules.system.service.dept.SysPostService;
@@ -21,6 +26,7 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
+import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static cn.iocoder.yudao.adminserver.modules.system.enums.SysErrorCodeConstants.*;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -48,8 +55,9 @@ public class SysUserServiceImpl implements SysUserService {
     private String userInitPassword;
 
     @Resource
+    private SysRoleMapper roleMapper;
+    @Resource
     private SysUserMapper userMapper;
-
     @Resource
     private SysDeptService deptService;
     @Resource
@@ -60,6 +68,8 @@ public class SysUserServiceImpl implements SysUserService {
     private PasswordEncoder passwordEncoder;
     @Resource
     private InfFileService fileService;
+    @Resource
+    private SysUserRoleMapper userRoleMapper;
 
     @Override
     public Long createUser(SysUserCreateReqVO reqVO) {
@@ -371,4 +381,13 @@ public class SysUserServiceImpl implements SysUserService {
         return respVO;
     }
 
+    /**
+     * 获取当前登陆用户数据范围部门ID列表
+     * @return
+     */
+    public List<Long> getCurrentUserDataScropeDeptIds() {
+        SysUserDO user = getUser(WebFrameworkUtils.getLoginUserId());
+        Set<Long> deptIds = getDeptCondition(user.getDeptId());
+        return deptIds.stream().collect(Collectors.toList());
+    }
 }

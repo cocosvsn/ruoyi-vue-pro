@@ -100,8 +100,8 @@ public class OperationVideoServiceImpl implements OperationVideoService {
     }
 
     @Override
-    public PageResult<OperationVideoDO> getOperationVideoPage(OperationVideoPageReqVO pageReqVO) {
-        PageResult<OperationVideoDO> pageResult = operationVideoMapper.selectPage(pageReqVO);
+    public PageResult<OperationVideoDO> getOperationVideoPage(OperationVideoPageReqVO pageReqVO, List<Long> deptIds) {
+        PageResult<OperationVideoDO> pageResult = operationVideoMapper.selectPage(pageReqVO, deptIds);
 
         pageResult.getList().forEach(ov -> {
             ov.setVideoFiles(videoFileMapper.selectList("operation_video", ov.getId()));
