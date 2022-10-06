@@ -142,6 +142,7 @@ export function downloadMarkdown(data, fileName) {
 
 // 下载 mp4 方法
 export function downloadMp4(data, fileName) {
+  // download0(data, fileName, 'application/octet-stream');
   download0(data, fileName, 'video/mp4');
 }
 

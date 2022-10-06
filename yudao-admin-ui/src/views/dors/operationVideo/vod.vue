@@ -60,7 +60,7 @@
               <div style="padding: 14px;">
                 <span class="video-title">{{ v.title }}</span>
                 <span class="time">{{ parseTime(v.createTime) }}</span>
-                <el-button type="text" icon="el-icon-download" size="mini" style="float: right;" @click="downloadVideo(v);">下载</el-button>
+                <el-button type="text" icon="el-icon-download" size="mini" style="float: right;" :disabled="v.downloading" @click="downloadVideo(v);">下载</el-button>
               </div>
               <!-- <el-popover
                 placement="right"
@@ -91,7 +91,7 @@
       </el-col>
     </el-row>
     <!-- 对话框(添加 / 修改) -->
-    <el-dialog :title="title" :visible.sync="open" width="640px" append-to-body @close="playerClose">
+    <el-dialog :title="title" :visible.sync="open" width="940px" append-to-body @close="playerClose">
       <video-player ref="player" :options="videoOptions"/>
     </el-dialog>
   </div>
@@ -103,6 +103,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { listOperatingRoom } from "@/api/dors/room";
 import { createOperationVideo, updateOperationVideo, deleteOperationVideo, getOperationVideo, getOperationVideoPage, exportOperationVideoExcel } from "@/api/dors/operationVideo";
 import VideoPlayer from "@/components/VideoPlayer";
+import request from '@/utils/request'
 import "video.js/dist/video-js.css"
 
 export default {
@@ -124,7 +125,7 @@ export default {
       videoOptions: {
         autoplay: false,
         controls: true,
-        width: '600px',
+        width: '900px',
         playbackRates: [0.5, 1, 1.5, 2],
         sources: []
       },
@@ -217,11 +218,21 @@ export default {
       console.log("playerClose", this.$refs.player.player);
     },
     // 视频文件下载
-    downloadVideo(v) {
+    async downloadVideo(v) {
+      this.$set(v, "downloading", true);
+      this.msgSuccess("下载已开始。。。");
       for(var i = 0; i < v.videoFiles.length; i ++) {
         let _relativePath = v.videoFiles[i].relativePath;
-        this.downloadMp4(this.prefix + _relativePath, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
+        await request({
+          url: this.prefix + _relativePath,
+          method: 'get'
+        }).then(respose => {
+          this.downloadMp4(respose, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
+        });
+        // await this.downloadOneVideo(this.prefix + _relativePath, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
       }
+      this.$set(v, "downloading", false);
+      this.msgSuccess("下载完成！");
     }
   }
 };

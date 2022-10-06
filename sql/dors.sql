@@ -236,3 +236,30 @@ COMMENT = '手术视频文件';
 -- ----------------------------
 BEGIN;
 COMMIT;
+
+
+-- ----------------------------
+-- Table structure for dors_live
+-- ----------------------------
+DROP TABLE IF EXISTS `dors_live`;
+CREATE TABLE IF NOT EXISTS `dors_live` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '主键（自增）',
+  `name` VARCHAR(255) NULL COMMENT '直播流名称',
+  `icon` VARCHAR(100) NULL COMMENT '封面图',
+  `addr` VARCHAR(64) NULL COMMENT '地址',
+  `url` VARCHAR(255) NULL COMMENT '直播流地址',
+  `creator` VARCHAR(64) NULL COMMENT '创建者',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updater` VARCHAR(64) NULL COMMENT '更新者',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` BIT(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `remarks` VARCHAR(512) NULL COMMENT '备注',
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB
+COMMENT = '直播管理'
+
+-- ----------------------------
+-- Records of dors_live
+-- ----------------------------
+BEGIN;
+COMMIT;
