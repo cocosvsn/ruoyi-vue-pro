@@ -107,7 +107,13 @@ public class OperationVideoController {
     @GetMapping("/room")
     @ApiOperation("手术室获得手术视频分页")
     public CommonResult<PageResult<OperationVideoRespVO>> getOperationVideoByRoom(@Valid OperationVideoPageReqVO pageVO) {
-        return getOperationVideoPage(pageVO);
+        PageResult<OperationVideoDO> pageResult = operationVideoService.getOperationVideoPage(pageVO, null);
+        InfConfigDO infConfigDO = this.infConfigService.getConfigByKey(SERVER_IP);
+        CommonResult result = success(OperationVideoConvert.INSTANCE.convertPage(pageResult));
+        if (null != infConfigDO) {
+            result.setMsg(MessageFormat.format(fileProperties.getUrlPrefix(), infConfigDO.getValue())); // 放入msg中，以便前端拼接出完整访问路径。
+        }
+        return result;
     }
 
     @GetMapping("/export-excel")

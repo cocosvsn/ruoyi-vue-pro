@@ -104,6 +104,15 @@
     .modal-player {
       width: 1280px;
     }
+    .download-progress {
+      height: 20px;
+    }
+    .download-progress-none {
+      display: none;
+    }
+    .download-progress-bar {
+      min-width: 2em;
+    }
   </style>
 </head>
   
@@ -126,6 +135,7 @@
 
     <!-- table -->
     <div class="row media">
+      <!--
       <div class="col-md-3 program">
         <a href="#" class="thumbnail" data-toggle="collapse" data-target="#collapseExample0" aria-expanded="false" aria-controls="collapseExample">
           <img class="img-rounded" src="images/103.png" />
@@ -149,8 +159,16 @@
             </ul>
           </div>
           <div class="col-md-3">下载</div>
+          <div class="col-md-12 download-progress">
+            <div class="progress">
+              <div class="progress-bar progress-bar-success download-progress-bar" >
+                0%
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      -->
     </div>
 
     <!-- 播放窗口 -->
@@ -275,7 +293,12 @@
         });
         videoEle += '      </ul>' +
             '    </div>' +
-            '    <div class="col-md-3 col-md-offset-1 down" onclick="downloadVideo('+videoIndex+')">下载</div>' +
+            '    <div class="col-md-3 col-md-offset-1 down" onclick="downloadVideo('+videoIndex+', this)">下载</div>' +
+            '    <div class="col-md-12 download-progress">' +
+            '      <div class="download-progress-none">' +
+            '        <div class="progress-bar progress-bar-success download-progress-bar" >0%</div>' +
+            '      </div>' +
+            '    </div>' +
             '  </div>' +
             '</div>';
         
@@ -294,11 +317,37 @@
     });
     player.play();
   }
-  function downloadVideo(index) {
+  let refreshDownloadProgressInterval = null;
+  function downloadVideo(index, el) {
     console.log(index, operationVideoData[index].title);
-    AOV.downloadVideo(operationVideoData[index].totalSize, operationVideoData[index].videoFiles.map(s => {
-      return prefix + s.relativePath;
-    }));
+    let result = AOV.downloadVideo(operationVideoData[index].totalSize, 
+      operationVideoData[index].id,
+      operationVideoData[index].videoFiles.map(s => {
+        return prefix + s.relativePath;
+      }));
+
+    if(0 == result) { // 成功开始下载，才显示进度条。
+      // 下载任务已开始，显示进度条，并开启定时任务，获取下载进度。
+      let downloadProgressEl = $(el).siblings('.download-progress').children('div');
+      downloadProgressEl.removeClass('download-progress-none');
+      downloadProgressEl.addClass('progress');
+      // 设置一个定时器，用于刷新下载进度。
+      refreshDownloadProgressInterval = setInterval(refreshDownloadProgress(
+        downloadProgressEl, 
+        operationVideoData[index].id, 
+        operationVideoData[index].totalSize), 1500);
+    }
+  }
+  function refreshDownloadProgress(el, id, totalSize) {
+    let progress = AOV.getDownloadVideoProgress(id, totalSize);
+    console.log(progress);
+    // 更新进度百分比
+    let progressEl = el.children('progress-bar');
+    progressEl.css("width", progress + '%');
+    progressEl.text(progress+"%");
+    if(100 == progress) { // 下载完成，清除定时器
+      clearInterval(refreshDownloadProgressInterval);
+    }
   }
 </script>
 </html>
