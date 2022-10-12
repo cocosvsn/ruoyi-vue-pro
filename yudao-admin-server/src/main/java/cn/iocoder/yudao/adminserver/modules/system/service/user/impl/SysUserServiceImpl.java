@@ -26,6 +26,7 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
+import cn.iocoder.yudao.framework.security.core.enums.DataScopeEnum;
 import cn.iocoder.yudao.framework.web.core.util.WebFrameworkUtils;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
@@ -383,11 +384,29 @@ public class SysUserServiceImpl implements SysUserService {
 
     /**
      * 获取当前登陆用户数据范围部门ID列表
+     * TODO 待重构
      * @return
      */
     public List<Long> getCurrentUserDataScropeDeptIds() {
         SysUserDO user = getUser(WebFrameworkUtils.getLoginUserId());
-        Set<Long> deptIds = getDeptCondition(user.getDeptId());
-        return deptIds.stream().collect(Collectors.toList());
+        List<SysUserRoleDO> userRoleDOList = userRoleMapper.selectListByUserId(user.getId());
+        List<SysRoleDO> roleDOList = roleMapper.selectBatchIds(
+                userRoleDOList.stream().map(ur -> ur.getRoleId()).collect(Collectors.toList()));
+        // 获取用户角色的数据权限范围
+        Integer minDataScrope = roleDOList.stream().mapToInt(r -> r.getDataScope())
+                .min().orElse(DataScopeEnum.ALL.getScore());
+        if (DataScopeEnum.DEPT_AND_CHILD.getScore() == minDataScrope) {
+            // 部门及部门以下数据权限，获取用户所属部门及子部门编号
+            List<Long> deptIds = getDeptCondition(user.getDeptId()).stream().distinct().collect(Collectors.toList());
+            return deptIds;
+        } else if (DataScopeEnum.DEPT_SELF.getScore() == minDataScrope) {
+            // 本部门数据权限
+            return Arrays.asList(user.getDeptId());
+        } else if (DataScopeEnum.DEPT_SELF.getScore() == minDataScrope) {
+            // 指定部门数据权限
+            return roleDOList.stream().flatMap(r -> r.getDataScopeDeptIds().stream()).distinct().collect(Collectors.toList());
+        } else { // 拥有全部数据权限
+            return null;
+        }
     }
 }
