@@ -491,6 +491,7 @@ var linkpiChannelIdUrlMapping = null;
 var urlLinkpiChannelIdMapping = null;
 // 通道数量与分屏数量映射关系。
 var screenCountLayoutCount = [1, 1, 3, 3, 4, 4, 4, 4];
+var linkpiMixChannelId = 0;
 
 $(document).ready(function() {
   try {
@@ -850,6 +851,7 @@ function dealLinkPi() {
     linkpiConfig[i].hls.hls_filename = "-%06d.ts";
     if('mix' === linkpiConfig[i].type) {
       linkpiMix = linkpiConfig[i];
+      linkpiMixChannelId = linkpiConfig[i].id;
       break;
     }
   }
@@ -930,7 +932,7 @@ function onDeviceConfigLoaded(deviceType, config) {
     dealLinkPi();
     commitSreenSet();
     // 调整预览窗口。
-    previewChannel('rtsp://'+currentRoomDecoder.ip+'/sub17');
+    previewChannel('rtsp://'+currentRoomDecoder.ip+'/sub' + linkpiMixChannelId);
   }
   if(DECODER_SHXIT === deviceType) {
     shxitConfigParams = config.AllAccess;
