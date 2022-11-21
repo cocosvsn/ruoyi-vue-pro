@@ -451,7 +451,7 @@ function commitSreenSet() {
       if (n.type == "mix") {
         newinfo = n;
         newinfo.srcV = srcV.slice(0, screenCount);
-        newinfo.srcA = srcA.slice(0, screenCount);
+        newinfo.srcA = srcA.slice(0, screenCount).filter(item => item != '').filter((x, index, self) => self.indexOf(x)===index);
         srcA = newinfo.srcA; // TODO comment 
         newinfo.layout = currentLinkpiLayout;
         linkpiConfig[i] = newinfo;
@@ -570,6 +570,13 @@ $(document).ready(function() {
       console.log(linkpiChannelIdUrlMapping[_selected_id]);
       if(_i < srcV.length) { // 数组元素大于索引值，则修改
         srcV[_i] = linkpiChannelIdUrlMapping[_selected_id] + "";
+        // 如果声音激活，则需要把当前通道的声音也一并修改
+        if(_this_select.parents('.input-group-btn').siblings('.input-group-addon').hasClass('active')) {
+          // 先滤掉未选中的通道id
+          srcA = srcA.filter(item => -1 != srcV.indexOf(item))
+          // 添加当前通道进音频列表
+          srcA.push(linkpiChannelIdUrlMapping[_selected_id] + "");
+        }
       } else { // 数组元素个数小于等于索引值，追加。
         srcV.push(linkpiChannelIdUrlMapping[_selected_id] + "");
       }
@@ -594,15 +601,12 @@ $(document).ready(function() {
     var srcAIndex = boxElements.index(boxElement);
     if(_this_voice_span.hasClass("active")) {
       _this_voice_span.removeClass("active")
-      srcA[srcAIndex] = "";
+      srcA = srcA.filter(item => item != linkpiChannelIdUrlMapping[_current_channel])
     } else {
       _this_voice_span.addClass("active")
-      if(srcAIndex < srcA.length) {
-        srcA[srcAIndex] = linkpiChannelIdUrlMapping[_current_channel] + "";
-      } else {
+      if(-1 == srcA.indexOf(linkpiChannelIdUrlMapping[_current_channel])) { // 不存在，则添加通道音频。
         srcA.push(linkpiChannelIdUrlMapping[_current_channel] + "")
       }
-      
     }
     commitSreenSet();
   });
@@ -813,7 +817,7 @@ function refreshMeetingRoom() {
   });
   currentRoomEncoder.channels.forEach((field, i) => {
     tmpSelectPicker.append(
-      '<option value="'+field.id+'">'+field.id + " " + field.name+'</option>'
+      '<option value="'+field.id+'">'+field.name+'</option>'
     );
     // console.log(JSON.stringify(currentRoomEncoder));
     // console.log(JSON.stringify(field));
@@ -915,8 +919,8 @@ function onDeviceConfigLoaded(deviceType, config) {
           console.log(currentRoomChannels[j].id);
           var linkpiChannelId = linkpiChannelIdUrlMapping[currentRoomChannels[j].id];
           console.log(linkpiChannelId);
-          linkpiConfig[i].srcV[j] = linkpiChannelId;//视频通道参数
-          linkpiConfig[i].srcA[j] = linkpiChannelId;//音频通道参数
+          linkpiConfig[i].srcV[j] = linkpiChannelId + "";//视频通道参数
+          // linkpiConfig[i].srcA[j] = linkpiChannelId;//音频通道参数
         }
         var currentLinkpiLayout = null;
         linkpiLayout.forEach((e, i) => {
