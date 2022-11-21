@@ -783,7 +783,7 @@ function commitSreenSet() {
         // 修改主屏Mix混合输出信息
         newinfo.srcV = srcV.slice(0, screenCount);
         console.log(newinfo.srcV);
-        newinfo.srcA = srcA.slice(0, screenCount);
+        newinfo.srcA = srcA.slice(0, screenCount).filter(item => item != '').filter((x, index, self) => self.indexOf(x)===index);
         srcA = newinfo.srcA;
         newinfo.layout = currentLinkpiLayout;
 
@@ -916,6 +916,13 @@ $(document).ready(function() {
         additionaScreenlSrc = linkpiChannelIdUrlMapping[_selected_id] + "";
       } else { // 提交HDMI的Mix通道输出
         srcV[_i] = linkpiChannelIdUrlMapping[_selected_id] + "";
+        // 如果声音激活，则需要把当前通道的声音也一并修改
+        if(_this_select.parents('.input-group-btn').siblings('.input-group-addon').hasClass('active')) {
+          // 先滤掉未选中的通道id
+          srcA = srcA.filter(item => -1 != srcV.indexOf(item))
+          // 添加当前通道进音频列表
+          srcA.push(linkpiChannelIdUrlMapping[_selected_id] + "");
+        }
       }
       commitSreenSet();
     }
@@ -950,10 +957,12 @@ $(document).ready(function() {
     let srcAIndex = boxElements.index(boxElement);
     if(_this_voice_span.hasClass("active")) {
       _this_voice_span.removeClass("active")
-      srcA[srcAIndex] = "";
+      srcA = srcA.filter(item => item != linkpiChannelIdUrlMapping[_current_channel])
     } else {
       _this_voice_span.addClass("active")
-      srcA[srcAIndex] = linkpiChannelIdUrlMapping[_current_channel] + "";
+      if(-1 == srcA.indexOf(linkpiChannelIdUrlMapping[_current_channel])) { // 不存在，则添加通道音频。
+        srcA.push(linkpiChannelIdUrlMapping[_current_channel] + "")
+      }
     }
     commitSreenSet();
   });
