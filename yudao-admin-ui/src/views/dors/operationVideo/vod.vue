@@ -60,7 +60,7 @@
               <div style="padding: 14px;">
                 <span class="video-title">{{ v.title }}</span>
                 <span class="time">{{ parseTime(v.createTime) }}</span>
-                <el-button type="text" icon="el-icon-download" size="mini" style="float: right;" :disabled="v.downloading" @click="downloadVideo(v);">下载</el-button>
+                <!-- <el-button type="text" icon="el-icon-download" size="mini" style="float: right;" :disabled="v.downloading" @click="downloadVideo(v);">下载</el-button> -->
               </div>
               <!-- <el-popover
                 placement="right"
@@ -73,7 +73,7 @@
                 </el-table>
                 <el-button slot="reference" style="width: 100%;">查看通道视频</el-button>
               </el-popover> -->
-              <el-select v-model="selectedVideo" placeholder="查看通道视频" style="width: 100%;" @change="videoChange" @visible-change="playVideo">
+              <el-select v-model="v.selectedVideo" value-key="id" placeholder="查看通道视频" style="width: 100%;" @change="playVideo">
                 <el-option
                     v-for="item in v.videoFiles"
                     :key="item.id"
@@ -176,10 +176,14 @@ export default {
       });
       // 执行查询
       getOperationVideoPage(params).then(response => {
-        this.list = response.data.list;
+        let videoList = response.data.list;
         this.total = response.data.total;
         this.prefix = response.msg;
         this.loading = false;
+        videoList.forEach(element => {
+          element.selectedVideo = null;
+        });
+        this.list = videoList;
       });
     },
     // 节点单击事件
@@ -190,26 +194,28 @@ export default {
     videoChange(val) {
       console.log("videoChange: ", val);
     },
-    playVideo(state) {
-      console.log("playVideo: " + this.selectedVideo.id + ", state: " + state);
-      if(!state && null != this.selectedVideo) { // 选中了视频，并隐藏时，显示播放器开始播放。
-        this.title = this.selectedVideo.title;
-        this.videoOptions.autoplay = true;
+    playVideo(val) {
+      if(null != val) { // 选中了视频，并隐藏时，显示播放器开始播放。
+        let _currentUrl = this.prefix + val.relativePath;
+
+        // this.videoOptions.autoplay = true;
         // this.$refs.player.player.start();
         // this.videoOptions.sources = [{
         //     src: this.selectedVideo.relativePath,
         //     type: "video/mp4"
         // }];
-        let _currentUrl = this.prefix + this.selectedVideo.relativePath;
-        this.open = true;
-        setTimeout(() => {
-          console.log(this.$refs.player.player);
-          this.$refs.player.player.src({
-            src: _currentUrl,
-            type: "video/mp4"
-          });
-          this.$refs.player.player.play();
-        }, 100);
+
+        // this.open = true;
+        // setTimeout(() => {
+        //   console.log(this.$refs.player.player);
+        //   this.$refs.player.player.src({
+        //     src: _currentUrl,
+        //     type: "video/mp4"
+        //   });
+        //   this.$refs.player.player.play();
+        // }, 100);
+
+        window.open(_currentUrl, val.title);
       }
     },
     playerClose() {
@@ -223,16 +229,19 @@ export default {
       this.msgSuccess("下载已开始。。。");
       for(var i = 0; i < v.videoFiles.length; i ++) {
         let _relativePath = v.videoFiles[i].relativePath;
-        await request({
-          url: this.prefix + _relativePath,
-          method: 'get'
-        }).then(respose => {
-          this.downloadMp4(respose, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
-        });
+        // await request({
+        //   url: this.prefix + _relativePath,
+        //   method: 'get',
+        //   responseType: 'blob',
+        //   timeout: 5 * 60 * 1000,
+        // }).then(respose => {
+        //   this.downloadMp4(respose, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
+        // });
+        location.href = this.prefix + _relativePath;
         // await this.downloadOneVideo(this.prefix + _relativePath, _relativePath.substring(_relativePath.lastIndexOf('/') + 1));
       }
       this.$set(v, "downloading", false);
-      this.msgSuccess("下载完成！");
+      // this.msgSuccess("下载完成！");
     }
   }
 };
