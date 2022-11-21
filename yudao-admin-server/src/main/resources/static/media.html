@@ -185,6 +185,7 @@
             <video id="video-player" class="video-js vjs-default-skin" controls preload="auto" width="1250" height="703" >
               <source src="" type="video/mp4"></source>
             </video>
+            <div style="margin-top: 10px;"><button type="button" onclick="downloadVideo(this)">下载</button></div>
           </div>
         </div>
       </div>
@@ -289,16 +290,16 @@
             // '      <li class="list-group-item">Vestibulum at eros</li>' +
             
         element.videoFiles.forEach(e => {
-          videoEle += '        <li class="list-group-item" data-url="'+prefix+e.relativePath+'" onclick="playVideo(this);">'+e.title+'</li>';
+          videoEle += '        <li class="list-group-item" data-video-id="'+element.id+'" data-video-file-id="'+e.id+'" data-url="'+prefix+e.relativePath+'" onclick="playVideo(this);">'+e.title+'</li>';
         });
         videoEle += '      </ul>' +
             '    </div>' +
-            '    <div class="col-md-3 col-md-offset-1 down" onclick="downloadVideo('+videoIndex+', this)">下载</div>' +
-            '    <div class="col-md-12 download-progress">' +
-            '      <div class="download-progress-none">' +
-            '        <div class="progress-bar progress-bar-success download-progress-bar" >0%</div>' +
-            '      </div>' +
-            '    </div>' +
+            // '    <div class="col-md-3 col-md-offset-1 down" onclick="downloadVideo('+videoIndex+', this)">下载</div>' +
+            // '    <div class="col-md-12 download-progress">' +
+            // '      <div class="download-progress-none">' +
+            // '        <div class="progress-bar progress-bar-success download-progress-bar" >0%</div>' +
+            // '      </div>' +
+            // '    </div>' +
             '  </div>' +
             '</div>';
         
@@ -307,46 +308,71 @@
       });
     });
   }
+  var _current_play_video_url = null;
+  var _current_play_video_id = null;
+  var _current_play_video_file_id = null;
   function playVideo(el) {
-    let videoUrl = $(el).attr("data-url");
+    _current_play_video_url = $(el).attr("data-url");
+    _current_play_video_id = $(el).attr("data-video-id");
+    _current_play_video_file_id = $(el).attr("data-video-file-id");
     $('#playDialog').modal({show: true});
-    console.log(videoUrl);
+    console.log(_current_play_video_url);
     player.src({
-      src: videoUrl,
+      src: _current_play_video_url,
       type: "video/mp4"
     });
     player.play();
   }
-  let refreshDownloadProgressInterval = null;
-  function downloadVideo(index, el) {
-    console.log(index, operationVideoData[index].title);
-    let result = AOV.downloadVideo(operationVideoData[index].totalSize, 
-      operationVideoData[index].id,
-      operationVideoData[index].videoFiles.map(s => {
-        return prefix + s.relativePath;
-      }));
-
-    if(0 == result) { // 成功开始下载，才显示进度条。
-      // 下载任务已开始，显示进度条，并开启定时任务，获取下载进度。
-      let downloadProgressEl = $(el).siblings('.download-progress').children('div');
-      downloadProgressEl.removeClass('download-progress-none');
-      downloadProgressEl.addClass('progress');
-      // 设置一个定时器，用于刷新下载进度。
-      refreshDownloadProgressInterval = setInterval(refreshDownloadProgress(
-        downloadProgressEl, 
-        operationVideoData[index].id, 
-        operationVideoData[index].totalSize), 1500);
+  function downloadVideo(el) {
+    let video_index = null;
+    let video_file_index = null;
+    operationVideoData.forEach((e, i) => {
+      if(e.id == _current_play_video_id) {
+        video_index = i;
+        e.videoFiles.forEach((f,j) => {
+          if (f.id == _current_play_video_file_id) {
+            video_file_index = j;
+          }
+        });
+      }
+    });
+    console.log(video_index, video_file_index);
+    if (null != video_index && null != video_file_index) {
+      AOV.downloadVideo(operationVideoData[video_index].videoFiles[video_file_index].fileSize, 
+        operationVideoData[video_index].videoFiles[video_file_index].id,
+        [_current_play_video_url]);
     }
   }
+  // let refreshDownloadProgressInterval = null;
+  // function downloadVideo(index, el) {
+  //   console.log(index, operationVideoData[index].title);
+  //   let result = AOV.downloadVideo(operationVideoData[index].totalSize, 
+  //     operationVideoData[index].id,
+  //     operationVideoData[index].videoFiles.map(s => {
+  //       return prefix + s.relativePath;
+  //     }));
+
+  //   if(0 == result) { // 成功开始下载，才显示进度条。
+  //     // 下载任务已开始，显示进度条，并开启定时任务，获取下载进度。
+  //     let downloadProgressEl = $(el).siblings('.download-progress').children('div');
+  //     downloadProgressEl.removeClass('download-progress-none');
+  //     downloadProgressEl.addClass('progress');
+  //     // 设置一个定时器，用于刷新下载进度。
+  //     refreshDownloadProgressInterval = setTimeout(refreshDownloadProgress(
+  //       downloadProgressEl, 
+  //       operationVideoData[index].id, 
+  //       operationVideoData[index].totalSize), 1000);
+  //   }
+  // }
   function refreshDownloadProgress(el, id, totalSize) {
     let progress = AOV.getDownloadVideoProgress(id, totalSize);
     console.log(progress);
     // 更新进度百分比
-    let progressEl = el.children('progress-bar');
+    let progressEl = el.children('.progress-bar');
     progressEl.css("width", progress + '%');
     progressEl.text(progress+"%");
-    if(100 == progress) { // 下载完成，清除定时器
-      clearInterval(refreshDownloadProgressInterval);
+    if(100 != progress) { // 下载完成，清除定时器
+      setTimeout(refreshDownloadProgress(el, id, totalSize), 1000);
     }
   }
 </script>
