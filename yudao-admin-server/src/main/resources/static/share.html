@@ -650,10 +650,12 @@
       let srcAIndex = boxElements.index(boxElement);
       if(_this_voice_span.hasClass("active")) {
         _this_voice_span.removeClass("active")
-        srcA[srcAIndex] = "";
+        srcA = srcA.filter(item => item != urlLinkpiChannelIdMapping[_current_channel])
       } else {
         _this_voice_span.addClass("active")
-        srcA[srcAIndex] = urlLinkpiChannelIdMapping[_current_channel];
+        if(-1 == srcA.indexOf(urlLinkpiChannelIdMapping[_current_channel])) { // 不存在，则添加通道音频。
+          srcA.push(urlLinkpiChannelIdMapping[_current_channel] + "")
+        }
       }
       commitSreenSet();
     });
