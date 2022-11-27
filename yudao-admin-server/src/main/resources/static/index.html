@@ -406,9 +406,9 @@
     $('.menu .item:first').addClass("active");
     try {
       // 获取当前房间信息
-      currentRoom = JSON.parse(AOV.getCurrentRoom());
+      let kalsjdfoieiwof_currentRoom = AOV.getCurrentRoom();
+      currentRoom = JSON.parse(kalsjdfoieiwof_currentRoom);
       let cajksodfowqe = AOV.getChannels();
-      console.log(cajksodfowqe)
       currentRoomChannels = JSON.parse(AOV.getChannels());
       console.log("current room 【"+currentRoom.name+"】record: "+currentRoom.record+",channels: " + currentRoomChannels.length);
       // 获取通道信息
@@ -577,7 +577,10 @@
    */
   function captureImage() {
     //如果没有播放则提示没有课截图的对象
-    let snapUrl = "http://" + currentRoom.encoder.lastOnlineIp + "/snap/snap" + currentChannel + ".jpg?" + "rnd=" + Math.random();
+    let captureChannelUrl = currentRoomChannels[currentChannelIndex].url;
+    let currentChannelIp = captureChannelUrl.substring(7, captureChannelUrl.lastIndexOf('/'));
+    let snapUrl = "http://" + currentChannelIp + "/snap/snap" + currentChannel + ".jpg?" + "rnd=" + Math.random();
+    // let snapUrl = captureChannelUrl.replace("sub", "snap/snap") + ".jpg?" + "rnd=" + Math.random();
     AOV.takeScreenshot(snapUrl);
   }
   // 延时自动停止控制
