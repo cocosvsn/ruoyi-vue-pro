@@ -579,7 +579,8 @@
     //如果没有播放则提示没有课截图的对象
     let captureChannelUrl = currentRoomChannels[currentChannelIndex].url;
     let currentChannelIp = captureChannelUrl.substring(7, captureChannelUrl.lastIndexOf('/'));
-    let snapUrl = "http://" + currentChannelIp + "/snap/snap" + currentChannel + ".jpg?" + "rnd=" + Math.random();
+    let selectedChannelId = captureChannelUrl.substring(captureChannelUrl.lastIndexOf('/') + 1).replace("stream", "");
+    let snapUrl = "http://" + currentChannelIp + "/snap/snap" + selectedChannelId + ".jpg?" + "rnd=" + Math.random();
     // let snapUrl = captureChannelUrl.replace("sub", "snap/snap") + ".jpg?" + "rnd=" + Math.random();
     AOV.takeScreenshot(snapUrl);
   }
